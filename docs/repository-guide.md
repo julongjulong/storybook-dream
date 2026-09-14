@@ -57,8 +57,24 @@ npm test
 git add src assets docs tests scripts style.css README.md
 git diff --cached --stat
 git commit -m "게임 변경 내용 요약"
+git push
 ```
 
 새 경로의 파일은 의도한 경로를 git add에 추가한다. 완료판을 남길 때에는 package.json 버전을 올리고 새 버전 태그를 만든다. 기존 태그는 덮어쓰지 않는다.
 
-이 저장소는 로컬 이력이다. PC 고장에 대비한 원격 백업은 별도 Git 서버 주소를 연결한 후 push해야 한다. 가족용 작업물이므로 원격 저장소를 만들 때는 비공개로 시작하는 편이 적합하다. 현재 원격 주소는 설정하지 않았다.
+## GitHub 원격 백업
+
+원격 origin은 https://github.com/julongjulong/storybook-dream.git 이다. main 브랜치는 origin/main을 추적한다. 최초 게임 커밋과 v4.1.0 태그를 업로드했다.
+
+커밋은 PC에 기록되고, git push까지 실행하면 GitHub에도 반영된다. 새 버전 태그는 git push origin 태그이름으로 별도 올린다.
+
+다른 PC에서 작업을 이어가려면 다음 순서로 받는다.
+
+```powershell
+git clone https://github.com/julongjulong/storybook-dream.git
+cd storybook-dream
+npm run build
+npm test
+```
+
+이미 받은 PC에서는 작업 시작 전에 git pull --ff-only로 최신 커밋을 받는다. 게임 실행용 index.html은 npm run build로 생성된다.
