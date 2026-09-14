@@ -1,0 +1,28 @@
+# Regenerated standalone game and image embedding modules
+/index.html
+/src/assets.js
+/src/story-art.js
+/src/sheet-frames.js
+/output/*
+!/output/audio/
+/output/audio/*
+!/output/audio/*.wav
+
+# Dependencies and local tooling
+node_modules/
+.vs/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+
+# Local settings, saves, and release archives
+.env
+.env.*
+!.env.example
+storybook-save.json
+storybook-dream-continue*.html
+*.zip
+*.tar.gz
