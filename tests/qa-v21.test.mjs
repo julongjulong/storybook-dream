@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GameEngine, WIDTH, HEIGHT } from '../src/engine.js';
+import { GameEngine, WIDTH, HEIGHT, PLAYER_SPEEDS } from '../src/engine.js';
 
 const ids = ['race', 'duck', 'pigs', 'redhood', 'beans', 'ant', 'lion', 'fox', 'wind', 'ax', 'piper', 'troy'];
 const make = (index = 3, extra = {}) => new GameEngine({ stage: { id: ids[index - 1], index }, ...extra });
@@ -11,8 +11,8 @@ const near = (a, b, message) => assert.ok(Math.abs(a - b) < 1e-8, message || `${
 
 test('v2.1 QA: three collected stars each give a visible fixed speed increment and survive a hit', () => {
   const g = make(3);
-  assert.equal(g.speed, 7);
-  for (const speed of [8.8, 10.6, 12.4]) {
+  assert.equal(g.speed, PLAYER_SPEEDS[0]);
+  for (const speed of PLAYER_SPEEDS.slice(1)) {
     g.pickups = [{ x: g.player.x, y: g.player.y, type: 'speed' }];
     g.collectNearby();
     near(g.speed, speed);
@@ -21,7 +21,7 @@ test('v2.1 QA: three collected stars each give a visible fixed speed increment a
   g.move(0, 1);
   g.grace = 0;
   g.damage();
-  near(g.speed, 12.4);
+  near(g.speed, PLAYER_SPEEDS[3]);
   assert.equal(g.speedLevel, 3);
 });
 
@@ -67,7 +67,7 @@ test('v2.1 QA: legacy v1 checkpoint preserves territory, stars and single-gift u
   assert.equal(r.availableCharges.shell, 1);
   assert.equal(r.availableCharges.feather, 2);
   assert.equal(r.energy, 2);
-  near(r.speed, 10.6 * 0.7);
+  near(r.speed, PLAYER_SPEEDS[2] * 0.7);
   assert.equal(r.drawHeld, false);
   assert.equal(r.trail.length, 0);
 });
@@ -105,17 +105,17 @@ test('v2.1 QA: speed gifts remain independent from the shell slowdown and the ha
   const g = make(5, { unlockedAbilities: ['feather', 'shell'] });
   g.speedLevel = 3;
   g.useAbility('feather');
-  near(g.speed, 12.4);
+  near(g.speed, PLAYER_SPEEDS[3]);
   g.abilityCooldown = 0;
   g.useAbility('shell');
-  near(g.speed, 8.68);
+  near(g.speed, PLAYER_SPEEDS[3] * 0.7);
   g.setDrawHeld(true);
   g.move(0, 1);
   for (let i = 0; i < 3; i++) {
     g.grace = 0;
     g.damage();
   }
-  near(g.speed, 12.4);
+  near(g.speed, PLAYER_SPEEDS[3]);
   assert.equal(g.shell, false);
 });
 

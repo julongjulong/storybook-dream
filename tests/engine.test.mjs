@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GameEngine, WIDTH, HEIGHT, ABILITIES, BOSS_PROFILES } from '../src/engine.js';
+import { GameEngine, WIDTH, HEIGHT, ABILITIES, BOSS_PROFILES, PLAYER_SPEEDS } from '../src/engine.js';
 const make = (options = {}) => {
   const game = new GameEngine({ stage: { id: 'race' }, ...options });
   game.setDrawHeld(true);
@@ -14,7 +14,7 @@ function cut(g, x) {
 
 test('first scene starts slow, with a safe border and no cleared interior', () => {
   const g = make();
-  assert.equal(g.speed, 7);
+  assert.equal(g.speed, PLAYER_SPEEDS[0]);
   assert.equal(g.progress, 0);
   assert.equal(g.target, 0.42);
   assert.equal(g.enemies.length, 1);
@@ -112,7 +112,7 @@ test('shell slows walking and shields exactly three separate hits', () => {
   const g = make({ ability: 'shell' });
   assert.ok(g.useAbility());
   assert.equal(g.shield, 3);
-  assert.ok(Math.abs(g.speed - 4.9) < 1e-9);
+  assert.ok(Math.abs(g.speed - PLAYER_SPEEDS[0] * 0.7) < 1e-9);
   g.move(0, 1);
   for (let i = 0; i < 3; i++) {
     g.grace = 0;
@@ -129,10 +129,10 @@ test('stars are gradual and capped without the retired slipper boost', () => {
   const g = make({ ability: 'slippers' });
   g.pickups = [{ x: 12, y: 2 }];
   g.move(0, 1);
-  assert.equal(g.speed, 8.8);
+  assert.equal(g.speed, PLAYER_SPEEDS[1]);
   g.speedLevel = 3;
   assert.equal(g.useAbility(), false);
-  assert.equal(g.speed, 12.4);
+  assert.equal(g.speed, PLAYER_SPEEDS[3]);
 });
 test('retired gifts cannot be granted through caller or checkpoint names', () => {
   for (const id of ['slippers', 'brick', 'seed', 'apple']) {
@@ -220,47 +220,6 @@ test('Space gates only drawing, and releasing it permits retreat but no forward 
   assert.equal(g.move(0, -1), true);
   assert.equal(g.trail.length, 0);
   assert.equal(g.move(-1, 0), true);
-});
-test('logical cell movement is rendered through fractional positions at 60 frames per second', () => {
-  const g = make();
-  g.setDirection(1, 0);
-  g.step(1 / 60);
-  assert.equal(g.player.x, 13);
-  assert.ok(g.visualPlayer.x > 12 && g.visualPlayer.x < 13);
-  g.setDirection(0, 0);
-  let previous = g.visualPlayer.x;
-  for (let i = 0; i < 8; i++) {
-    g.step(1 / 60);
-    assert.ok(g.visualPlayer.x >= previous);
-    assert.ok(g.visualPlayer.x - previous <= 7 / 60 + 1e-8);
-    previous = g.visualPlayer.x;
-  }
-  assert.ok(Math.abs(g.visualPlayer.x - 13) < 1e-8);
-});
-test('interpolation follows orthogonal corners without diagonal shortcuts', () => {
-  const g = make();
-  g.move(0, 1);
-  g.move(1, 0);
-  g.updateVisual(0.5 / g.speed);
-  assert.equal(g.visualPlayer.x, 12);
-  assert.equal(g.visualPlayer.y, 1.5);
-  g.updateVisual(1 / g.speed);
-  assert.equal(g.visualPlayer.y, 2);
-  assert.equal(g.visualPlayer.x, 12.5);
-});
-test('idle time cannot accumulate a burst of movement, and damage synchronizes both positions', () => {
-  const g = make();
-  for (let n = 0; n < 100; n++) g.step(0.1);
-  assert.equal(g.accumulator, 0);
-  g.setDirection(0, 1);
-  g.step(0.016);
-  assert.equal(g.player.y, 2);
-  assert.ok(g.visualPlayer.y < 2);
-  g.grace = 0;
-  g.damage();
-  assert.deepEqual(g.player, g.visualPlayer);
-  assert.equal(g.visualQueue.length, 0);
-  assert.equal(g.accumulator, 0);
 });
 test('stage order fixes difficulty regardless of completed-book count and stale legacy level', () => {
   const targets = [0.42, 0.52, 0.58, 0.62, 0.65, 0.68, 0.7, 0.72, 0.74, 0.76, 0.78, 0.8];
@@ -456,16 +415,6 @@ test('old single-gift checkpoints migrate without granting unearned gifts or los
   assert.equal(r.energy, 2);
   assert.equal(r.useAbility('clock'), false);
 });
-test('zero and invalid time steps cannot consume pending movement or change the world', () => {
-  const g = make();
-  g.setDirection(1, 0);
-  const before = g.snapshot();
-  for (const dt of [0, -1, NaN, Infinity]) g.step(dt);
-  assert.deepEqual(g.snapshot(), before);
-  assert.equal(g.player.x, 12);
-  g.step(0.016);
-  assert.equal(g.player.x, 13);
-});
 test('corrupt dash snapshots cannot turn a roaming boss into a permanently fast projectile', () => {
   const g = make({ stage: { id: 'pigs', index: 4 } }),
     bad = g.snapshot();
@@ -490,55 +439,4 @@ test('malformed optional pickup data cannot crash checkpoint restore', () => {
   s.pickups = [null];
   assert.doesNotThrow(() => make({ snapshot: s }));
   assert.equal(make({ snapshot: s }).pickups.length, 3);
-});
-test('a keyboard tap completed between frames commits one legal cell with smooth visual movement', () => {
-  const g = make();
-  g.setDirection(0, 1, { immediate: true });
-  g.setDirection(0, 0);
-  assert.equal(g.player.y, 2);
-  assert.equal(g.trail.length, 1);
-  assert.equal(g.visualPlayer.y, 1);
-  assert.equal(g.pendingInitialStep, false);
-  g.step(0.5 / g.speed);
-  assert.equal(g.player.y, 2);
-  assert.equal(g.visualPlayer.y, 1.5);
-  g.step(0.5 / g.speed);
-  assert.equal(g.visualPlayer.y, 2);
-});
-test('keyboard immediate input respects the draw gate and repeated held input cannot add steps', () => {
-  const g = new GameEngine({ stage: { id: 'race', index: 1 } });
-  g.setDirection(0, 1, { immediate: true });
-  g.setDirection(0, 0);
-  assert.equal(g.player.y, 1);
-  g.setDirection(1, 0, { immediate: true });
-  assert.equal(g.player.x, 13);
-  for (let i = 0; i < 20; i++) g.setDirection(1, 0, { immediate: true });
-  assert.equal(g.player.x, 13);
-  assert.equal(g.visualQueue.length, 1);
-});
-test('a new keyboard direction gets one prompt step without duplicating the next frame', () => {
-  const g = make();
-  g.setDirection(0, 1, { immediate: true });
-  g.setDirection(1, 0, { immediate: true });
-  assert.deepEqual(g.player, { x: 13, y: 2 });
-  g.step(0.016);
-  assert.deepEqual(g.player, { x: 13, y: 2 });
-  assert.equal(g.pendingInitialStep, false);
-  assert.equal(g.trail.length, 2);
-});
-test('stopping and then holding an immediate direction keeps the normal seven-cell-per-second rate', () => {
-  const g = make();
-  g.setDirection(1, 0, { immediate: true });
-  g.setDirection(0, 0);
-  for (let n = 0; n < 30; n++) g.step(0.1);
-  assert.equal(g.player.x, 13);
-  g.setDirection(1, 0, { immediate: true });
-  assert.equal(g.player.x, 14);
-  for (let n = 0; n < 10; n++) {
-    for (let repeat = 0; repeat < 3; repeat++) g.setDirection(1, 0, { immediate: true });
-    g.step(0.1);
-  }
-  assert.equal(g.player.x, 21);
-  assert.ok(Math.abs(g.accumulator) < 1e-9);
-  assert.ok(g.visualQueue.length <= 1);
 });

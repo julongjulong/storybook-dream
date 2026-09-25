@@ -11,18 +11,18 @@ const tick = (g, seconds) => {
 test('v2.1 star progression gives four visibly distinct speeds independent from retired boosts', () => {
   const events = [],
     g = game(3, { ability: 'shell', onEvent: e => events.push(e) });
-  near(g.speed, 7);
+  near(g.speed, PLAYER_SPEEDS[0]);
   for (let i = 1; i <= 3; i++) {
     g.pickups = [{ x: 12, y: 2, type: 'speed' }];
     g.collectNearby();
     near(g.speed, PLAYER_SPEEDS[i]);
     assert.equal(events.at(-1).speedLevel, i);
-    near(events.at(-1).gain, 1.8);
+    near(events.at(-1).gain, PLAYER_SPEEDS[i] - PLAYER_SPEEDS[i - 1]);
   }
   g.boost = 8;
-  near(g.speed, 12.4);
+  near(g.speed, PLAYER_SPEEDS[3]);
   g.useAbility('shell');
-  near(g.speed, 8.68);
+  near(g.speed, PLAYER_SPEEDS[3] * 0.7);
 });
 
 test('all enemies have normalized stage velocities and the intended helper counts', () => {

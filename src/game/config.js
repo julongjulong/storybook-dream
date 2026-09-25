@@ -129,7 +129,7 @@ export const BOSS_PROFILES = [
     recovery: 1.7,
   },
 ];
-export const PLAYER_SPEEDS = [7, 8.8, 10.6, 12.4];
+export const PLAYER_SPEEDS = [8.5, 10, 11.5, 13];
 export const PATTERN_SPECS = {
   spread: { speed: 11.8, life: 3.2, duration: 3.6, waves: 2, waveDelay: 0.75 },
   aimed: { speed: 14.2, life: 3.2, duration: 3.6, waves: 3, waveDelay: 0.45 },

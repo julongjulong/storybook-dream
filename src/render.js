@@ -43,10 +43,14 @@ export function dangerRay(ctx, ray, color, scale) {
     }
 }
 
-function rabbit(ctx, x, y, u, drawing) {
+// pose: facing (1 right, -1 left), hop (0..1 through a step), lean (tiptoe while drawing).
+function rabbit(ctx, x, y, u, drawing, { facing = 1, hop = 0, lean = 0 } = {}) {
   ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(u, u);
+  ctx.translate(x, y - Math.sin(hop * Math.PI) * u * 0.22);
+  ctx.rotate(lean * facing * 0.16);
+  // Squash a little at each landing, stretch mid-hop.
+  const stretch = 1 + Math.sin(hop * Math.PI) * 0.06 - (hop > 0.85 ? (hop - 0.85) * 0.5 : 0);
+  ctx.scale(u * facing * (2 - stretch), u * stretch);
   ctx.strokeStyle = '#78534d';
   ctx.lineWidth = 0.11;
   const ellipse = (x, y, rx, ry, rotation, fill) => {
@@ -296,7 +300,10 @@ function bossIcon(ctx, symbol, x, y, r, now) {
   ctx.restore();
 }
 
-export function paintGame(canvas, engine, stage, art, particles, now) {
+// alpha (0..1): how far the screen is between the previous rule step and the latest one.
+export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1) {
+  const blend = (cur, prev) =>
+    Number.isFinite(prev) && Math.abs(cur - prev) < 2 ? prev + (cur - prev) * alpha : cur;
   const width = Math.max(1, Math.round(canvas.clientWidth || 864)),
     height = Math.max(1, Math.round(canvas.clientHeight || 576));
   const dpr = Math.min(2, typeof devicePixelRatio === 'number' ? devicePixelRatio : 1);
@@ -454,26 +461,27 @@ export function paintGame(canvas, engine, stage, art, particles, now) {
     ctx.font = `bold ${Math.max(13, u * 1.6)}px sans-serif`;
     ctx.fillText(engine.clueFound ? '✓' : '?', cx, cy);
   }
-  const visual = engine.visualPlayer || engine.player,
+  const current = engine.visualPlayer || engine.player,
+    prev = engine.prevVisual,
+    visual = { x: blend(current.x, prev?.x), y: blend(current.y, prev?.y) },
     px = (visual.x + 0.5) * sx,
     py = (visual.y + 0.5) * sy;
-  if (engine.trail.length) {
+  if (engine.trail.length || engine.isExposed?.()) {
     ctx.strokeStyle = '#ffe994';
     ctx.lineWidth = Math.max(2, u * 0.4);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo((engine.anchor.x + 0.5) * sx, (engine.anchor.y + 0.5) * sy);
-    const head = engine.visualQueue?.[0],
-      stop = head ? engine.trail.findIndex(p => p.x === head.x && p.y === head.y) : -1;
-    for (const p of engine.trail.slice(0, stop >= 0 ? stop : -1))
-      ctx.lineTo((p.x + 0.5) * sx, (p.y + 0.5) * sy);
+    // While stepping back along the line, the last cell is already being rewound.
+    const cells = engine.glide?.reverse ? engine.trail.slice(0, -1) : engine.trail;
+    for (const p of cells) ctx.lineTo((p.x + 0.5) * sx, (p.y + 0.5) * sy);
     ctx.lineTo(px, py);
     ctx.stroke();
   }
   for (const e of engine.enemies) {
-    const x = e.x * sx,
-      y = e.y * sy;
+    const x = blend(e.x, engine.prevPos?.get(e)?.x) * sx,
+      y = blend(e.y, engine.prevPos?.get(e)?.y) * sy;
     if (e.boss) {
       dot(x, y, u * 2.7, engine.freeze > 0 ? '#a5dbe655' : '#fff0e533');
       bossIcon(ctx, stage.boss.symbol, x, y, u * 2.25, now);
@@ -506,8 +514,8 @@ export function paintGame(canvas, engine, stage, art, particles, now) {
     }
   }
   for (const b of engine.bullets) {
-    const x = b.x * sx,
-      y = b.y * sy;
+    const x = blend(b.x, engine.prevPos?.get(b)?.x) * sx,
+      y = blend(b.y, engine.prevPos?.get(b)?.y) * sy;
     dot(x, y, u * 0.5, b.kind === 'ring' ? '#f4d398' : b.kind === 'aimed' ? '#d7b2eb' : '#a9dbe8', '#fff');
     dot(x - u * 0.12, y - u * 0.14, u * 0.13, '#fffd');
   }
@@ -523,6 +531,10 @@ export function paintGame(canvas, engine, stage, art, particles, now) {
     ctx.arc(px, py, u * 1.3, 0, Math.PI * 2);
     ctx.stroke();
   }
-  rabbit(ctx, px, py, Math.max(3, u * 0.85), engine.drawHeld);
+  rabbit(ctx, px, py, Math.max(3, u * 0.85), engine.drawHeld, {
+    facing: engine.facing || 1,
+    hop: engine.glide ? engine.glide.t : 0,
+    lean: engine.drawHeld ? 1 : 0,
+  });
   return visual;
 }

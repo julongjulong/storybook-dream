@@ -65,13 +65,15 @@ export class GameEngine {
         if (x < 2 || y < 2 || x >= WIDTH - 2 || y >= HEIGHT - 2) this.cells[y * WIDTH + x] = 1;
     this.player = { x: 12, y: 1 };
     this.visualPlayer = { ...this.player };
-    this.visualQueue = [];
+    this.glide = null;
+    this.tap = null;
+    this.pace = 0;
+    this.facing = 1;
+    this.drawingStep = false;
     this.anchor = { ...this.player };
     this.trail = [];
     this.direction = { x: 0, y: 0 };
     this.drawHeld = false;
-    this.accumulator = 0;
-    this.pendingInitialStep = false;
     this.elapsed = 0;
     this.grace = 3;
     this.freeze = 0;
@@ -163,32 +165,13 @@ export class GameEngine {
   step(dt) {
     dt = clamp(finite(dt, 0), 0, 0.1);
     if (dt <= 0 || this.lost) return;
-    if (this.won) {
-      this.updateVisual(dt);
-      return;
-    }
+    this.rememberPositions();
+    if (this.won) return;
     this.elapsed += dt;
     const factor = this.freeze > 0 ? 0 : this.slow > 0 ? 0.4 : 1;
     for (const key of ['grace', 'freeze', 'slow', 'boost', 'abilityCooldown'])
       this[key] = Math.max(0, this[key] - dt);
-    if (this.canMove(this.direction.x, this.direction.y)) {
-      if (this.pendingInitialStep) {
-        this.pendingInitialStep = false;
-        this.move(this.direction.x, this.direction.y);
-        this.accumulator = 0;
-      } else this.accumulator += dt * this.speed;
-      while (this.accumulator >= 1 - 1e-9 && !this.won) {
-        this.accumulator = Math.max(0, this.accumulator - 1);
-        if (!this.move(this.direction.x, this.direction.y)) {
-          this.accumulator = 0;
-          break;
-        }
-      }
-    } else {
-      this.accumulator = 0;
-      this.pendingInitialStep = false;
-    }
-    this.updateVisual(dt);
+    this.advancePlayer(dt);
     if (this.won) return;
     this.bossState.enraged = this.stageNumber >= 3 && this.progress >= 0.5;
     this.advanceEnemies(dt, factor);
@@ -199,8 +182,19 @@ export class GameEngine {
   blocked(x, y) {
     return x < 2 || y < 2 || x >= WIDTH - 2 || y >= HEIGHT - 2 || this.isSafe(Math.floor(x), Math.floor(y));
   }
+  // The trail is its cells plus the rabbit itself while it is out on unclaimed ground.
   touchesTrail(x, y, r) {
-    return this.trail.some(p => Math.hypot(p.x + 0.5 - x, p.y + 0.5 - y) < r);
+    if (this.trail.some(p => Math.hypot(p.x + 0.5 - x, p.y + 0.5 - y) < r)) return true;
+    const v = this.visualPlayer;
+    return this.isExposed() && Math.hypot(v.x + 0.5 - x, v.y + 0.5 - y) < r;
+  }
+  // Positions at the start of a rule step, so drawing can blend smoothly between steps.
+  // Kept outside the objects so saves and comparisons never see them.
+  rememberPositions() {
+    this.prevVisual = { ...this.visualPlayer };
+    this.prevPos ??= new WeakMap();
+    for (const o of this.enemies) this.prevPos.set(o, { x: o.x, y: o.y });
+    for (const o of this.bullets) this.prevPos.set(o, { x: o.x, y: o.y });
   }
   rayLength(x, y, angle) {
     const dx = Math.cos(angle),
@@ -276,7 +270,7 @@ export class GameEngine {
     }
   }
   damage() {
-    if (this.won || this.lost || this.grace > 0 || !this.trail.length) return false;
+    if (this.won || this.lost || this.grace > 0 || !this.isExposed()) return false;
     if (this.shield > 0) {
       this.shield--;
       this.grace = 2.8;

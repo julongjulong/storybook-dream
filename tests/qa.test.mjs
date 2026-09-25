@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GameEngine, WIDTH, HEIGHT, ABILITIES } from '../src/engine.js';
+import { GameEngine, WIDTH, HEIGHT, ABILITIES, PLAYER_SPEEDS } from '../src/engine.js';
 import { STORY } from '../src/story-data.js';
 
 const create = (options = {}) => {
@@ -108,7 +108,7 @@ test('안전지대에서는 피격이나 방패 소모가 없다', () => {
 test('등껍질은 세 번 방어하고 그 뒤 정상 속도와 재시작 규칙으로 돌아간다', () => {
   const g = create({ ability: 'shell' });
   assert.equal(g.useAbility(), true);
-  assert.ok(Math.abs(g.speed - 4.9) < 1e-9);
+  assert.ok(Math.abs(g.speed - PLAYER_SPEEDS[0] * 0.7) < 1e-9);
   walk(g, 0, 1, 3);
   for (let i = 2; i >= 0; i--) {
     g.grace = 0;
@@ -117,22 +117,23 @@ test('등껍질은 세 번 방어하고 그 뒤 정상 속도와 재시작 규�
     assert.ok(g.trail.length > 0);
   }
   assert.equal(g.shell, false);
-  assert.equal(g.speed, 7);
+  assert.equal(g.speed, PLAYER_SPEEDS[0]);
   g.grace = 0;
   g.damage();
   assert.equal(g.trail.length, 0);
 });
 
-test('기본 걸음은 초당 7칸이며 별은 최대 세 개다', () => {
+test('기본 걸음은 첫 단계 속도이며 별은 최대 세 개다', () => {
   const g = create();
-  assert.equal(g.speed, 7);
+  assert.equal(g.speed, PLAYER_SPEEDS[0]);
   g.setDirection(1, 0);
   for (let i = 0; i < 10; i++) g.step(0.1);
-  assert.ok(g.player.x >= 18 && g.player.x <= 19);
+  // One second of walking, minus the short start-up ramp.
+  assert.ok(g.player.x >= 12 + Math.floor(g.speed * 0.9) && g.player.x <= 12 + Math.ceil(g.speed));
   g.player = { x: 15, y: 9 };
   g.collectNearby();
   assert.equal(g.speedLevel, 1);
-  assert.equal(g.speed, 8.8);
+  assert.equal(g.speed, PLAYER_SPEEDS[1]);
   for (let i = 0; i < 8; i++) {
     g.pickups = [{ x: 15, y: 9, type: 'speed' }];
     g.collectNearby();
@@ -140,11 +141,11 @@ test('기본 걸음은 초당 7칸이며 별은 최대 세 개다', () => {
   assert.equal(g.speedLevel, 3);
 });
 
-test('별 세 개는 초당 12.4칸이며 폐기된 구두로 더 빨라지지 않는다', () => {
+test('별 세 개는 가장 빠른 단계이며 폐기된 구두로 더 빨라지지 않는다', () => {
   const g = create({ ability: 'slippers' });
   g.speedLevel = 3;
   assert.equal(g.useAbility(), false);
-  assert.equal(g.speed, 12.4);
+  assert.equal(g.speed, PLAYER_SPEEDS[3]);
 });
 
 test('깃털은 가까운 작은 적만 되돌리고 보스와 먼 적은 남긴다', () => {
@@ -215,14 +216,15 @@ test('그리기를 누르지 않으면 안전지대 밖에 나갈 수 없고 선
   assert.equal(g.move(1, 0), true);
 });
 
-test('화면 좌표는 실제 격자 위치 사이를 보간하고 멈춘 뒤 정확히 따라잡는다', () => {
+test('화면 좌표는 칸 사이를 미끄러지고 멈추면 다음 칸 중심에 정확히 선다', () => {
   const g = create();
   g.setDirection(1, 0);
-  g.step(0.025);
-  assert.equal(g.player.x, 13);
+  g.step(0.05);
+  assert.equal(g.player.x, 12);
   assert.ok(g.visualPlayer.x > 12 && g.visualPlayer.x < 13);
   g.setDirection(0, 0);
-  advance(g, 0.2);
+  advance(g, 0.3);
+  assert.equal(g.player.x, 13);
   assert.deepEqual(g.visualPlayer, g.player);
 });
 

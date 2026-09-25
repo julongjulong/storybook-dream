@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GameEngine, PATTERN_SPECS, MAX_BULLETS, ABILITIES } from '../src/engine.js';
+import { GameEngine, PATTERN_SPECS, MAX_BULLETS, ABILITIES, PLAYER_SPEEDS } from '../src/engine.js';
 const ids = ['race', 'duck', 'pigs', 'redhood', 'beans', 'ant', 'lion', 'fox', 'wind', 'ax', 'piper', 'troy'];
 const game = (index = 3, options = {}) =>
   new GameEngine({ stage: { id: ids[index - 1], index }, ...options });
@@ -199,7 +199,7 @@ test('v2.1 checkpoints preserve earned territory and stars but discard obsolete 
   const r = game(8, { unlockedAbilities: ['shell', 'clock', 'slippers'], snapshot: s });
   assert.equal(r.cells[8 * 72 + 8], 1);
   assert.equal(r.speedLevel, 2);
-  assert.equal(r.speed, 10.6);
+  assert.equal(r.speed, PLAYER_SPEEDS[2]);
   assert.equal(r.boost, 0);
   assert.equal(r.slow, 0);
   assert.equal(r.bossState.phase, 'roam');
@@ -228,7 +228,7 @@ test('only four reusable gifts remain and speed growth is exclusively earned fro
   const g = game(8, { unlockedAbilities: Object.keys(ABILITIES) });
   assert.deepEqual(g.availableCharges, { shell: 2, feather: 2, lantern: 2, clock: 1 });
   g.boost = 9;
-  assert.equal(g.speed, 7);
+  assert.equal(g.speed, PLAYER_SPEEDS[0]);
 });
 test('legacy single-gift saves preserve spent energy even when that gift was retired', () => {
   for (const id of ['shell', 'slippers', 'feather', 'brick', 'lantern', 'seed', 'clock', 'apple'])

@@ -255,14 +255,18 @@ test('Space held만 선을 긋고 해제·방향키 동시입력·쉬기·blur �
   h.api.startStage(STORY.worlds[0]);
   const g = h.api.state().engine;
   h.press('ArrowDown');
-  g.step(0.1);
+  g.step(0.3);
   assert.equal(g.trail.length, 0);
   h.press('Space');
   g.step(0.1);
+  g.step(0.1);
   assert.equal(g.trail.length, 1);
   h.release('Space');
+  // Releasing Space finishes the step already under way, then stops.
+  for (let i = 0; i < 30; i++) g.step(0.05);
   const before = g.trail.length;
-  g.step(0.1);
+  assert.ok(before <= 2);
+  g.step(0.3);
   assert.equal(g.trail.length, before);
   h.press('ArrowRight');
   h.release('ArrowRight');
@@ -314,23 +318,29 @@ test('모바일 그리기 토글과 짧은 터치가 연결되고 취소 입력�
   h.api.startStage(STORY.worlds[0]);
   const g = h.api.state().engine,
     down = h.elements.filter(e => e.active && e.dataset.dir === '0,1').at(-1);
-  const press = () => down.listeners.pointerdown({ preventDefault() {}, pointerId: 1 });
-  press();
-  down.listeners.pointerup();
+  const settle = () => {
+    for (let i = 0; i < 20; i++) g.step(0.05);
+  };
+  const tap = () => {
+    down.listeners.pointerdown({ preventDefault() {}, pointerId: 1 });
+    down.listeners.pointerup();
+    settle();
+  };
+  tap();
   assert.equal(g.player.y, 1);
   h.nodes.get('draw-mode').click();
-  press();
-  down.listeners.pointerup();
+  tap();
   assert.equal(g.player.y, 2);
   down.listeners.click({ detail: 1 });
+  settle();
   assert.equal(g.player.y, 2);
-  press();
+  down.listeners.pointerdown({ preventDefault() {}, pointerId: 1 });
   down.listeners.pointercancel();
+  settle();
   assert.equal(g.player.y, 2);
   h.nodes.get('draw-mode').click();
   assert.equal(g.drawHeld, false);
-  press();
-  down.listeners.pointerup();
+  tap();
   assert.equal(g.player.y, 2);
 });
 test('자동 저장을 불러오고 보호자 설정에서 백업 파일을 저장하며 자동저장 불가를 표시한다', () => {

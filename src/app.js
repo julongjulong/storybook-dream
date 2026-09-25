@@ -361,35 +361,25 @@ function startStage(stage, resume = false) {
     .forEach(b => (b.onclick = () => activateAbility(b.dataset.power)));
   document.querySelectorAll('[data-dir]').forEach(button => {
     const direction = button.dataset.dir.split(',').map(Number);
-    let press = null;
     const canMove = () =>
       engine && !paused && !engine.won && !engine.lost && !document.querySelector('.overlay');
+    // A press always walks at least one whole cell, even a very short tap.
+    const tapStep = () => {
+      engine.setDirection(...direction, { immediate: true });
+      engine.setDirection(0, 0);
+    };
     button.addEventListener('pointerdown', e => {
       e.preventDefault();
       if (!canMove()) return;
       button.setPointerCapture(e.pointerId);
-      press = { x: engine.player.x, y: engine.player.y, started: performance.now() };
-      engine.setDirection(...direction);
+      engine.setDirection(...direction, { immediate: true });
     });
-    button.addEventListener('pointerup', () => {
-      if (
-        press &&
-        canMove() &&
-        performance.now() - press.started < 220 &&
-        engine.player.x === press.x &&
-        engine.player.y === press.y
-      )
-        engine.move(...direction);
-      press = null;
-      engine?.setDirection(0, 0);
-    });
-    for (const type of ['pointercancel', 'lostpointercapture'])
-      button.addEventListener(type, () => {
-        press = null;
-        engine?.setDirection(0, 0);
-      });
+    for (const type of ['pointerup', 'lostpointercapture'])
+      button.addEventListener(type, () => engine?.setDirection(0, 0));
+    // The system took the touch (e.g. a scroll): drop the press, including its one-cell tap.
+    button.addEventListener('pointercancel', () => engine?.setDirection(0, 0, { cancel: true }));
     button.addEventListener('click', e => {
-      if (e.detail === 0 && canMove()) engine.move(...direction);
+      if (e.detail === 0 && canMove()) tapStep();
     });
   });
   toastUntil = 0;
@@ -541,7 +531,7 @@ function render(now) {
   const canvas = document.getElementById('game');
   if (!canvas || !engine) return;
   const $ = id => document.getElementById(id);
-  const visual = paintGame(canvas, engine, currentStage, cachedImage, particles, now);
+  const visual = paintGame(canvas, engine, currentStage, cachedImage, particles, now, stepBank / STEP);
   put($('progress-label'), 'textContent', `그림 ${Math.round(engine.progress * 100)}%`);
   put($('progress-fill'), 'width', `${Math.min(100, (engine.progress / engine.target) * 100)}%`);
   const lives = $('lives');
