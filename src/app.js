@@ -5,6 +5,7 @@ import { ART, STORY_ART } from './art.js';
 import { artFrame } from './art-layout.js';
 import { AudioDirector } from './audio.js';
 import './debug.js';
+import './gamepad.js';
 
 const IMAGES_KEY = 'storybook-dream-images-v1';
 const app = document.getElementById('app'),
@@ -182,6 +183,13 @@ function shell(content) {
   };
   document.getElementById('parents').onclick = showOptions;
 }
+// Space (or the touch toggle) turns line drawing on and off, with a small sound each way.
+function setDraw(held) {
+  if (!engine) return;
+  const before = engine.drawHeld;
+  engine.setDrawHeld(held);
+  if (engine.drawHeld !== before) audio.effect(engine.drawHeld ? 'draw-on' : 'draw-off');
+}
 function clearInput() {
   heldKeys.clear();
   touchDraw = false;
@@ -353,7 +361,7 @@ function startStage(stage, resume = false) {
   document.getElementById('draw-mode').onclick = () => {
     if (!paused) {
       touchDraw = !touchDraw;
-      engine.setDrawHeld(touchDraw || heldKeys.has('Space'));
+      setDraw(touchDraw || heldKeys.has('Space'));
     }
   };
   document
@@ -864,7 +872,7 @@ function keydown(e) {
       e.preventDefault();
       if (!e.repeat) {
         heldKeys.add('Space');
-        engine.setDrawHeld(true);
+        setDraw(true);
       }
       return;
     }
@@ -921,7 +929,7 @@ function keyup(e) {
   const code = e.code || e.key;
   heldKeys.delete(code);
   if (code === 'Space') {
-    engine?.setDrawHeld(touchDraw);
+    setDraw(touchDraw);
     if (screen === 'game') e.preventDefault();
   }
   if (directions[code]) {

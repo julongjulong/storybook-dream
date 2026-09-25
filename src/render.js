@@ -467,8 +467,10 @@ export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1)
     px = (visual.x + 0.5) * sx,
     py = (visual.y + 0.5) * sy;
   if (engine.trail.length || engine.isExposed?.()) {
-    ctx.strokeStyle = '#ffe994';
-    ctx.lineWidth = Math.max(2, u * 0.4);
+    // Bright while Space is held; a paler dashed line means "stopped, you can only walk back".
+    ctx.strokeStyle = engine.drawHeld ? '#ffe994' : '#e9dcb7';
+    ctx.lineWidth = Math.max(2, u * (engine.drawHeld ? 0.4 : 0.3));
+    ctx.setLineDash(engine.drawHeld ? [] : [u * 0.5, u * 0.35]);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.beginPath();
@@ -478,6 +480,7 @@ export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1)
     for (const p of cells) ctx.lineTo((p.x + 0.5) * sx, (p.y + 0.5) * sy);
     ctx.lineTo(px, py);
     ctx.stroke();
+    ctx.setLineDash([]);
   }
   for (const e of engine.enemies) {
     const x = blend(e.x, engine.prevPos?.get(e)?.x) * sx,

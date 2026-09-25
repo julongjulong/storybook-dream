@@ -573,15 +573,19 @@ export class AudioDirector {
       dash: ['E4', 'G4', 'C5'],
       beam: ['C4', 'D4', 'E4', 'G4'],
       page: ['E4', 'C4'],
+      'draw-on': ['G4', 'D5'],
+      'draw-off': ['D5', 'G4'],
     };
     if (!motifs[name]) return;
     const now = this.context.currentTime;
     // Repeated collisions or repeated captures cannot produce a loud sound stack.
     if (now - (this.lastEffect.get(name) ?? -Infinity) < (name === 'warning' ? 0.7 : 0.25)) return;
     this.lastEffect.set(name, now);
-    const interval = name === 'warning' ? 0.19 : name === 'dash' ? 0.07 : name === 'page' ? 0.075 : 0.105;
-    const duration = name === 'win' ? 0.32 : name === 'page' ? 0.12 : 0.2;
-    const strength = ['warning', 'dash', 'beam', 'page'].includes(name) ? 0.72 : 1;
+    const short = name.startsWith('draw-');
+    const interval =
+      name === 'warning' ? 0.19 : name === 'dash' ? 0.07 : name === 'page' || short ? 0.06 : 0.105;
+    const duration = name === 'win' ? 0.32 : name === 'page' ? 0.12 : short ? 0.09 : 0.2;
+    const strength = short ? 0.45 : ['warning', 'dash', 'beam', 'page'].includes(name) ? 0.72 : 1;
     motifs[name].forEach((note, i) => this._note(note, now + i * interval, duration, 'effect', strength));
   }
 
