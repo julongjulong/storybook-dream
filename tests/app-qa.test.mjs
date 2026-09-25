@@ -10,13 +10,12 @@ import { artFrame } from '../src/art-layout.js';
 const source = fs
   .readFileSync(new URL('../src/app.js', import.meta.url), 'utf8')
   .replace(/^import .*;\r?\n/gm, '');
-function harness({ seed = {}, saved = null, blockedStorage = false } = {}) {
+function harness({ saved = null, blockedStorage = false } = {}) {
   const nodes = new Map(),
     elements = [],
     timers = [],
     events = {},
     storage = new Map(saved ? [['storybook-dream-save-v1', JSON.stringify(saved)]] : []);
-  let exports = 0;
   class Element {
     constructor(tag = 'div', attrs = '') {
       this.tagName = tag.toUpperCase();
@@ -89,9 +88,7 @@ function harness({ seed = {}, saved = null, blockedStorage = false } = {}) {
       return this.children.find(e => e.active && e.tagName === selector.toUpperCase()) || null;
     }
   }
-  const root = new Element('div', ' id="app"'),
-    seedNode = new Element('script', ' id="storybook-save"');
-  seedNode.textContent = JSON.stringify(seed);
+  const root = new Element('div', ' id="app"');
   const query = selector =>
     selector.startsWith('#')
       ? nodes.get(selector.slice(1)) || null
@@ -123,10 +120,6 @@ function harness({ seed = {}, saved = null, blockedStorage = false } = {}) {
     addEventListener(type, fn) {
       events[type] = fn;
     },
-    STORYBOOK_EXPORT: async () => {
-      exports++;
-      return true;
-    },
   };
   const context = vm.createContext({
     GameEngine,
@@ -141,7 +134,6 @@ function harness({ seed = {}, saved = null, blockedStorage = false } = {}) {
     STORY_ART: {},
     Image: class {},
     AudioDirector: Audio,
-    installPortableExport() {},
     document,
     window,
     localStorage: {
@@ -185,7 +177,6 @@ function harness({ seed = {}, saved = null, blockedStorage = false } = {}) {
     elements,
     events,
     document,
-    exports: () => exports,
     press: (code, extra) => window.QA.keydown(event(code, extra)),
     release: code => window.QA.keyup(event(code)),
     flush: () => {
@@ -342,15 +333,15 @@ test('모바일 그리기 토글과 짧은 터치가 연결되고 취소 입력�
   down.listeners.pointerup();
   assert.equal(g.player.y, 2);
 });
-test('최신 내장 저장 선택·자동저장 불가 표시·지도 S 내보내기가 동작한다', () => {
-  const seed = { save: { version: 1, updatedAt: 200, cleared: ['race'], introSeen: true } },
-    saved = { version: 1, updatedAt: 100, cleared: [] };
-  const h = harness({ seed, saved });
+test('자동 저장을 불러오고 보호자 설정에서 백업 파일을 저장하며 자동저장 불가를 표시한다', () => {
+  const saved = { version: 1, updatedAt: 100, cleared: ['race'], introSeen: true };
+  const h = harness({ saved });
   assert.deepEqual(Array.from(h.api.state().save.cleared), ['race']);
   h.api.map();
-  h.press('KeyS');
-  assert.equal(h.exports(), 1);
-  const blocked = harness({ seed, blockedStorage: true });
+  h.api.showOptions();
+  h.nodes.get('save-full').click();
+  assert.match(h.nodes.get('option-notice').textContent, /백업 파일을 저장했어요/);
+  const blocked = harness({ saved, blockedStorage: true });
   blocked.api.map();
   assert.equal(blocked.api.state().storageOK, false);
   assert.match(blocked.api.html(), /자동 저장/);
@@ -443,8 +434,8 @@ test('조작 설명은 첫 장만 표시하고 후반 화면은 숨기며 제거
 });
 
 test('실제 피격 하트가 즉시 저장되고 0개에서 재도전하면 해당 판만 초기화한다', () => {
-  const seed = { save: { version: 1, cleared: ['race', 'duck', 'pigs'], introSeen: true } };
-  const h = harness({ seed });
+  const saved = { version: 1, cleared: ['race', 'duck', 'pigs'], introSeen: true };
+  const h = harness({ saved });
   h.api.startStage(STORY.worlds[3]);
   const g = h.api.state().engine;
   g.cells[10 * WIDTH + 10] = 1;
@@ -515,7 +506,7 @@ test('하트와 실패 상태가 새로고침·지도·이어하기에서 보존
 });
 
 test('방패가 막은 공격은 하트와 선을 보존하고 이후 실제 피격만 하트를 쓴다', () => {
-  const h = harness({ seed: { save: { version: 1, cleared: ['race', 'duck', 'pigs'], introSeen: true } } });
+  const h = harness({ saved: { version: 1, cleared: ['race', 'duck', 'pigs'], introSeen: true } });
   h.api.startStage(STORY.worlds[3]);
   const g = h.api.state().engine;
   h.press('Digit1');

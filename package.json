@@ -1,1 +1,40 @@
-{"name":"storybook-dream","version":"4.1.0","private":true,"type":"module","scripts":{"build":"node scripts/embed-art.mjs && node scripts/build.mjs","start":"node server.mjs","test":"node --test tests/*.test.mjs"},"devDependencies":{"prettier":"^3.9.9"}}
+{
+  "name": "storybook-dream",
+  "version": "5.0.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "app": "vite build && electron .",
+    "dist": "vite build && electron-builder --win portable",
+    "test": "node --test tests/*.test.mjs",
+    "format": "prettier --write src tests electron scripts style.css"
+  },
+  "devDependencies": {
+    "electron": "^38.8.6",
+    "electron-builder": "^26.15.3",
+    "prettier": "^3.9.9",
+    "vite": "^7.3.6"
+  },
+  "main": "electron/main.cjs",
+  "description": "토끼 탐정과 열두 동화 사건",
+  "author": "julongjulong",
+  "build": {
+    "appId": "com.julongjulong.storybookdream",
+    "productName": "Storybook Dream",
+    "files": [
+      "dist/**",
+      "electron/**"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "storybook-dream-${version}.exe"
+    }
+  }
+}

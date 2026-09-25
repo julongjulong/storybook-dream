@@ -1,13 +1,11 @@
 import { GameEngine, WIDTH, HEIGHT, ABILITIES } from './engine.js';
 import { paintGame, strokeRay } from './render.js';
 import { STORY } from './story-data.js';
-import { ART } from './assets.js';
-import { STORY_ART } from './story-art.js';
+import { ART, STORY_ART } from './art.js';
 import { artFrame } from './art-layout.js';
 import { AudioDirector } from './audio.js';
-import { installPortableExport } from './portable.js';
 
-installPortableExport();
+const IMAGES_KEY = 'storybook-dream-images-v1';
 const app = document.getElementById('app'),
   audio = new AudioDirector(),
   KEY = 'storybook-dream-save-v1';
@@ -123,27 +121,30 @@ function cleanSave(raw) {
     current,
   };
 }
+function cleanImages(raw) {
+  const images = {};
+  for (const id of ids) {
+    const data = raw?.[id];
+    if (typeof data === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(data)) images[id] = data;
+  }
+  return images;
+}
 let save = fresh();
 try {
-  const seed = JSON.parse(document.getElementById('storybook-save')?.textContent || '{}');
-  if ((seed.save || seed).version === 1) {
-    save = cleanSave(seed.save || seed);
-    for (const id of ids) {
-      const data = seed.customImages?.[id];
-      if (typeof data === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(data))
-        customImages[id] = data;
-    }
-  }
-} catch {}
-try {
   const raw = localStorage.getItem(KEY);
-  if (raw) {
-    const local = cleanSave(JSON.parse(raw));
-    if (local.updatedAt >= save.updatedAt) save = local;
-  }
+  if (raw) save = cleanSave(JSON.parse(raw));
+  customImages = cleanImages(JSON.parse(localStorage.getItem(IMAGES_KEY) || '{}'));
 } catch {
   storageOK = false;
-  notice = '자동 저장을 사용할 수 없어요. 이어서 할 게임 파일을 저장해 주세요.';
+  notice = '자동 저장을 사용할 수 없어요. 보호자 설정에서 백업 파일을 저장해 주세요.';
+}
+function persistImages() {
+  try {
+    localStorage.setItem(IMAGES_KEY, JSON.stringify(customImages));
+    return true;
+  } catch {
+    return false;
+  }
 }
 audio.setMuted(save.muted);
 audio.setVolume(save.volume);
@@ -152,10 +153,10 @@ function persist() {
   try {
     localStorage.setItem(KEY, JSON.stringify(save));
     storageOK = true;
-    notice = '이 브라우저에 진행을 저장했어요.';
+    notice = '진행을 저장했어요.';
   } catch {
     storageOK = false;
-    notice = '자동 저장을 사용할 수 없어요. 이어서 할 게임 파일을 저장해 주세요.';
+    notice = '자동 저장을 사용할 수 없어요. 보호자 설정에서 백업 파일을 저장해 주세요.';
   }
 }
 function art(id) {
@@ -226,19 +227,17 @@ function storyPages(
     onDone,
     skipText = '건너뛰기',
     finishText = '모험 시작',
-    lastAction = false,
   } = {},
 ) {
   let page = 0;
   const draw = () => {
     const line = typeof pages[page] === 'string' ? { speaker: '나', text: pages[page] } : pages[page];
     shell(
-      `<section class="storybook"><div class="story-heading"><div><div class="eyebrow">${esc(label)}</div><h1>${esc(line.caption || '책장을 넘기면')}</h1></div><span class="page-count">${page + 1} / ${pages.length}</span></div><div class="comic-panel" data-emotion="${esc(line.emotion || 'wonder')}">${picture(line.artId || id)}<div class="panel-vignette"></div><div class="speech"><span class="speaker">${esc(line.speaker)}</span><p>${esc(line.text)}</p></div></div><div class="story-footer"><div class="page-dots">${pages.map((_, i) => `<span class="${i === page ? 'active' : ''}"></span>`).join('')}</div><div class="actions"><button id="prev" ${page === 0 ? 'disabled' : ''}>← 이전</button><button class="primary" id="next">${page === pages.length - 1 ? finishText : '다음 장면'} <kbd>Enter / Space</kbd></button><button class="small" id="skip">${esc(skipText)} <kbd>Esc</kbd></button>${lastAction && page === pages.length - 1 ? '<button class="small" id="story-save">게임 파일 저장</button>' : ''}</div></div></section>`,
+      `<section class="storybook"><div class="story-heading"><div><div class="eyebrow">${esc(label)}</div><h1>${esc(line.caption || '책장을 넘기면')}</h1></div><span class="page-count">${page + 1} / ${pages.length}</span></div><div class="comic-panel" data-emotion="${esc(line.emotion || 'wonder')}">${picture(line.artId || id)}<div class="panel-vignette"></div><div class="speech"><span class="speaker">${esc(line.speaker)}</span><p>${esc(line.text)}</p></div></div><div class="story-footer"><div class="page-dots">${pages.map((_, i) => `<span class="${i === page ? 'active' : ''}"></span>`).join('')}</div><div class="actions"><button id="prev" ${page === 0 ? 'disabled' : ''}>← 이전</button><button class="primary" id="next">${page === pages.length - 1 ? finishText : '다음 장면'} <kbd>Enter / Space</kbd></button><button class="small" id="skip">${esc(skipText)} <kbd>Esc</kbd></button></div></div></section>`,
     );
     document.getElementById('next').onclick = storyNext;
     document.getElementById('prev').onclick = storyBack;
     document.getElementById('skip').onclick = storySkip;
-    document.getElementById('story-save')?.addEventListener('click', exportGame);
   };
   storyNext = () => {
     void audio.unlock();
@@ -282,7 +281,7 @@ function map() {
   const tutorialDone = save.cleared.includes('race');
   if (!tutorialDone) mapIndex = 0;
   shell(
-    `<section class="map-intro"><div><div class="eyebrow">나의 동화책 · ${save.cleared.length} / ${worlds.length}</div><h1>${esc(STORY.mapTitle)}</h1><p>${tutorialDone ? '어떤 사건을 조사할까요? 토끼 탐정의 다음 사건을 골라요.' : '첫 장은 토끼와 거북이. 걷기와 선 긋기를 함께 배워요.'}</p></div>${save.current ? '<button id="resume">하던 이야기 <kbd>C</kbd></button>' : ''}</section><section class="map-grid">${worlds.map((w, i) => `<button class="world-card ${i === mapIndex ? 'keyboard-selected' : ''}" data-world="${w.id}" aria-current="${i === mapIndex ? 'true' : 'false'}" ${!tutorialDone && i > 0 ? 'disabled' : ''}>${picture(customImages[w.id] ? w.id : w.id + '-before')}${save.cleared.includes(w.id) ? '<span class="done">복원 완료 ✓</span>' : ''}<div class="card-copy"><span class="badge">${i === 0 ? '첫 모험 · 튜토리얼' : `${i + 1}번째 모험${i >= 1 ? ' · 보스 패턴' : ''}`}</span><h3>${esc(w.title)}</h3><p>${esc(w.subtitle)}</p></div></button>`).join('')}</section><section class="satchel"><h3>나의 선물 가방 <span class="muted">받은 선물은 모두 가져가요</span></h3><div class="inventory-grid">${itemCards()}</div><p class="muted">장면마다 도움 별 세 개. 세 사건마다 선물 하나, 모두 네 개예요. 받은 선물은 숫자 1~4로 써요.</p></section><div class="bottom-options"><button id="export-game">이어서 할 게임 파일 저장 <kbd>S</kbd></button><button id="opening">오프닝 다시 보기</button>${save.cleared.length === worlds.length ? '<button id="ending">아침의 동화책</button>' : ''}</div><p class="notice">${esc(storageOK ? '진행은 자동 저장돼요. 다른 PC로 옮길 때는 게임 파일을 저장하세요.' : notice)}</p>`,
+    `<section class="map-intro"><div><div class="eyebrow">나의 동화책 · ${save.cleared.length} / ${worlds.length}</div><h1>${esc(STORY.mapTitle)}</h1><p>${tutorialDone ? '어떤 사건을 조사할까요? 토끼 탐정의 다음 사건을 골라요.' : '첫 장은 토끼와 거북이. 걷기와 선 긋기를 함께 배워요.'}</p></div>${save.current ? '<button id="resume">하던 이야기 <kbd>C</kbd></button>' : ''}</section><section class="map-grid">${worlds.map((w, i) => `<button class="world-card ${i === mapIndex ? 'keyboard-selected' : ''}" data-world="${w.id}" aria-current="${i === mapIndex ? 'true' : 'false'}" ${!tutorialDone && i > 0 ? 'disabled' : ''}>${picture(customImages[w.id] ? w.id : w.id + '-before')}${save.cleared.includes(w.id) ? '<span class="done">복원 완료 ✓</span>' : ''}<div class="card-copy"><span class="badge">${i === 0 ? '첫 모험 · 튜토리얼' : `${i + 1}번째 모험${i >= 1 ? ' · 보스 패턴' : ''}`}</span><h3>${esc(w.title)}</h3><p>${esc(w.subtitle)}</p></div></button>`).join('')}</section><section class="satchel"><h3>나의 선물 가방 <span class="muted">받은 선물은 모두 가져가요</span></h3><div class="inventory-grid">${itemCards()}</div><p class="muted">장면마다 도움 별 세 개. 세 사건마다 선물 하나, 모두 네 개예요. 받은 선물은 숫자 1~4로 써요.</p></section><div class="bottom-options"><button id="opening">오프닝 다시 보기</button>${save.cleared.length === worlds.length ? '<button id="ending">아침의 동화책</button>' : ''}</div><p class="notice">${esc(storageOK ? '진행은 자동 저장돼요. 다른 PC로 옮길 때는 보호자 설정에서 백업 파일을 저장하세요.' : notice)}</p>`,
   );
   document.querySelectorAll('[data-world]').forEach(
     b =>
@@ -297,7 +296,6 @@ function map() {
       true,
     ),
   );
-  document.getElementById('export-game').onclick = exportGame;
   document.getElementById('opening').onclick = opening;
   document.getElementById('ending')?.addEventListener('click', ending);
 }
@@ -627,14 +625,13 @@ function pauseGame() {
   persist();
   audio.pause();
   modal(
-    `<h2>조금 쉬어 갈까요?</h2><p>${storageOK ? '밝힌 그림을 저장했어요.' : esc(notice)}</p><div class="actions"><button class="primary" id="resume-play">계속 하기 <kbd>Enter / Esc</kbd></button><button id="pause-map">동화책으로 <kbd>M</kbd></button><button id="pause-save">게임 파일 저장</button></div>`,
+    `<h2>조금 쉬어 갈까요?</h2><p>${storageOK ? '밝힌 그림을 저장했어요.' : esc(notice)}</p><div class="actions"><button class="primary" id="resume-play">계속 하기 <kbd>Enter / Esc</kbd></button><button id="pause-map">동화책으로 <kbd>M</kbd></button></div>`,
     () => {
       document.getElementById('resume-play').onclick = resumeGame;
       document.getElementById('pause-map').onclick = () => {
         closeModal();
         map();
       };
-      document.getElementById('pause-save').onclick = exportGame;
     },
   );
 }
@@ -665,7 +662,6 @@ function victory(stage, gifts = []) {
     label: `복원 완료 · ${stage.title} · ${save.cleared.length}/${worlds.length}`,
     finishText: save.cleared.length === worlds.length ? '아침의 동화책' : '다음 동화 고르기',
     skipText: '동화책으로',
-    lastAction: true,
     onDone: () => (save.cleared.length === worlds.length ? ending() : map()),
   });
 }
@@ -695,18 +691,13 @@ function modal(html, bind) {
 function closeModal() {
   document.querySelector('.overlay')?.remove();
 }
-async function exportGame() {
+// One backup file carries progress and family pictures to another PC.
+function exportGame() {
   if (engine && !engine.won) save.current = engine.snapshot();
   persist();
-  try {
-    await window.STORYBOOK_EXPORT(save, customImages);
-    notice = '게임 파일 다운로드를 요청했어요. 다운로드 폴더를 확인해 주세요.';
-  } catch (error) {
-    notice = error.message || '파일 저장을 완료하지 못했어요.';
-  }
-  const node = document.querySelector('#option-notice') || document.querySelector('.notice');
-  if (node) node.textContent = notice;
-  else showToast(notice, 5);
+  download('storybook-save.json', JSON.stringify({ save, customImages }), 'application/json');
+  const node = document.getElementById('option-notice');
+  if (node) node.textContent = '백업 파일을 저장했어요. 다운로드 폴더를 확인해 주세요.';
 }
 function download(name, content, type) {
   const url = URL.createObjectURL(new Blob([content], { type }));
@@ -718,7 +709,7 @@ function download(name, content, type) {
 }
 function showOptions() {
   modal(
-    `<h2>보호자 설정</h2><label class="volume-control">음량 <input id="volume" type="range" min="0" max="100" value="${Math.round(save.volume * 100)}"></label><div class="actions"><button id="save-full">이어서 할 게임 파일 저장</button><button id="backup">저장 자료 받기</button><label class="file-label">저장 자료 불러오기<input id="import-save" type="file" accept=".json,application/json"></label></div><h3 style="margin-top:25px">우리 가족 그림으로 바꾸기</h3><p>복원할 배경 그림을 바꿔요. 그림은 기기 안에서 처리돼요.</p><select id="image-stage" aria-label="배경을 바꿀 동화">${worlds.map(w => `<option value="${w.id}">${esc(w.title)}</option>`).join('')}</select><label class="file-label">그림 고르기<input id="image-file" type="file" accept="image/png,image/jpeg,image/webp"></label><p class="notice" id="option-notice"></p><div class="actions"><button class="primary" id="close-options">완료 <kbd>Esc</kbd></button><button id="reset">처음부터 새로</button></div>`,
+    `<h2>보호자 설정</h2><label class="volume-control">음량 <input id="volume" type="range" min="0" max="100" value="${Math.round(save.volume * 100)}"></label><div class="actions"><button id="save-full">백업 파일 저장</button><label class="file-label">백업 불러오기<input id="import-save" type="file" accept=".json,application/json"></label></div><h3 style="margin-top:25px">우리 가족 그림으로 바꾸기</h3><p>복원할 배경 그림을 바꿔요. 그림은 기기 안에서 처리돼요.</p><select id="image-stage" aria-label="배경을 바꿀 동화">${worlds.map(w => `<option value="${w.id}">${esc(w.title)}</option>`).join('')}</select><label class="file-label">그림 고르기<input id="image-file" type="file" accept="image/png,image/jpeg,image/webp"></label><p class="notice" id="option-notice"></p><div class="actions"><button class="primary" id="close-options">완료 <kbd>Esc</kbd></button><button id="reset">처음부터 새로</button></div>`,
     () => {
       document.getElementById('close-options').onclick = () => {
         closeModal();
@@ -732,18 +723,20 @@ function showOptions() {
         persist();
       };
       document.getElementById('save-full').onclick = exportGame;
-      document.getElementById('backup').onclick = () => {
-        persist();
-        download('storybook-save.json', JSON.stringify(save, null, 2), 'application/json');
-      };
       document.getElementById('import-save').onchange = async e => {
         const file = e.target.files[0];
         if (!file) return;
         try {
-          if (file.size > 150000) throw Error('저장 자료가 너무 커요.');
-          const next = cleanSave(JSON.parse(await file.text()));
+          if (file.size > 12 * 1024 * 1024) throw Error('저장 자료가 너무 커요.');
+          const pack = JSON.parse(await file.text());
+          // Older backups hold only the save; newer ones also carry family pictures.
+          const next = cleanSave(pack.save || pack);
           stopGame();
           save = next;
+          if (pack.customImages) {
+            customImages = cleanImages(pack.customImages);
+            persistImages();
+          }
           persist();
           audio.setMuted(save.muted);
           audio.setVolume(save.volume);
@@ -779,7 +772,9 @@ function showOptions() {
           );
           bitmap.close();
           customImages[document.getElementById('image-stage').value] = c.toDataURL('image/jpeg', 0.88);
-          note.textContent = '그림을 바꿨어요. 게임 파일을 저장하면 함께 보관돼요.';
+          note.textContent = persistImages()
+            ? '그림을 바꿨어요. 다음에 켜도 그대로예요.'
+            : '그림을 바꿨지만 저장 공간이 부족해요. 백업 파일을 저장해 주세요.';
         } catch {
           note.textContent = '그림을 읽지 못했어요. 다른 그림을 골라 주세요.';
         }
@@ -899,9 +894,6 @@ function keydown(e) {
     } else if (code === 'KeyC') {
       e.preventDefault();
       document.getElementById('resume')?.click();
-    } else if (code === 'KeyS') {
-      e.preventDefault();
-      void exportGame();
     }
   }
 }

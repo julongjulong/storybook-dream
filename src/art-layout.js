@@ -1,5 +1,5 @@
 import { STORY } from './story-data.js';
-import { SHEET_FRAMES } from './sheet-frames.js';
+import SHEET_FRAMES from '../assets/detective/frames.json' with { type: 'json' };
 
 // Each original sheet has two columns and three rows. Display a panel at runtime;
 // the source illustration stays intact in the portable game and source archive.

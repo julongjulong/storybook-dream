@@ -1,8 +1,6 @@
-# Regenerated standalone game and image embedding modules
-/index.html
-/src/assets.js
-/src/story-art.js
-/src/sheet-frames.js
+# Build output
+/dist/
+/release/
 /output/*
 !/output/audio/
 /output/audio/*
