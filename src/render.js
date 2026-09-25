@@ -561,6 +561,19 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
     ctx.font = `${Math.max(10, u * 1.35)}px sans-serif`;
     ctx.fillText('✦', x, y);
   }
+  // The hidden sticker: a faint twinkle in the dark every few seconds, its picture once found.
+  if (engine.sticker) {
+    const k = engine.sticker,
+      kx = (k.x + 0.5) * sx,
+      ky = (k.y + 0.5) * sy;
+    if (engine.stickerFound) {
+      ctx.font = `${Math.max(14, u * 1.8)}px sans-serif`;
+      ctx.fillText(k.icon, kx, ky);
+    } else {
+      const glint = Math.max(0, Math.sin(now / 700 + k.x) - 0.85) / 0.15;
+      if (glint > 0) dot(kx, ky, u * 0.35 * glint, `rgba(255,244,200,${(0.5 * glint).toFixed(2)})`);
+    }
+  }
   if (engine.clue) {
     const c = engine.clue,
       cx = (c.x + 0.5) * sx,

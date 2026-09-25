@@ -130,12 +130,12 @@ test('기본 걸음은 첫 단계 속도이며 별은 최대 세 개다', () => 
   for (let i = 0; i < 10; i++) g.step(0.1);
   // One second of walking, minus the short start-up ramp.
   assert.ok(g.player.x >= 12 + Math.floor(g.speed * 0.9) && g.player.x <= 12 + Math.ceil(g.speed));
-  g.player = { x: 15, y: 9 };
+  g.player = { x: g.pickups[0].x, y: g.pickups[0].y };
   g.collectNearby();
   assert.equal(g.speedLevel, 1);
   assert.equal(g.speed, PLAYER_SPEEDS[1]);
   for (let i = 0; i < 8; i++) {
-    g.pickups = [{ x: 15, y: 9, type: 'speed' }];
+    g.pickups = [{ ...g.player, type: 'speed' }];
     g.collectNearby();
   }
   assert.equal(g.speedLevel, 3);

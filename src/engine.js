@@ -23,6 +23,7 @@ import { enemiesMethods } from './game/enemies.js';
 import { bossMethods } from './game/boss.js';
 import { projectilesMethods } from './game/projectiles.js';
 import { saveMethods } from './game/save.js';
+import { rewardsMethods } from './game/rewards.js';
 
 export {
   WIDTH,
@@ -62,9 +63,9 @@ export class GameEngine {
     };
     this.rng = makeRng(this.stageNumber * 7919 + 17);
     this.lastMove = null;
-    this.hitsInRow = 0;
+    this.hitsInRow = 0; // unprotected hits since the last capture; eases the attacks a little
     this.fuse = null; // { at: cells along the line from the anchor }, only while the rabbit stands still
-    this.standing = 0; // unprotected hits since the last capture; eases the attacks a little
+    this.standing = 0; // seconds the rabbit has stood still out on a line
     this.clue = validPoint(stage.clue)
       ? {
           name: String(stage.clue.name || '이야기 단서'),
@@ -147,11 +148,10 @@ export class GameEngine {
         behavior: minionBehavior(this.stageNumber, i + 1),
         intent: { phase: 'roam', remaining: 3 + i * 0.8, angle: 0 },
       });
-    this.pickups = [
-      { x: 15, y: 9, type: 'speed' },
-      { x: 36, y: 17, type: 'speed' },
-      { x: 55, y: 28, type: 'speed' },
-    ];
+    this.pickups = this.placeStars();
+    this.sticker = this.placeSticker();
+    this.stickerFound = false;
+    this.heartsLost = 0; // this attempt, for the no-hit star
     this.initialOpen = (WIDTH - 4) * (HEIGHT - 4);
     this.restore(snapshot);
   }
@@ -302,10 +302,11 @@ export class GameEngine {
   checkWin() {
     if (this.lost) return;
     this.checkClue();
+    this.checkSticker();
     if (!this.won && this.progress >= this.target && this.clueFound) {
       this.won = true;
       this.setDirection(0, 0);
-      this.onEvent({ type: 'win' });
+      this.onEvent({ type: 'win', stars: this.starsEarned(), sticker: this.stickerFound });
     }
   }
   damage() {
@@ -319,6 +320,7 @@ export class GameEngine {
     }
     this.lives = Math.max(0, this.lives - 1);
     this.hitsInRow++;
+    this.heartsLost++;
     this.lost = this.lives === 0;
     // The lost line and where the rabbit stood, for the rewind effect.
     const line = [{ ...this.anchor }, ...this.trail.map(p => ({ ...p })), { ...this.visualPlayer }];
@@ -398,4 +400,5 @@ Object.assign(
   bossMethods,
   projectilesMethods,
   saveMethods,
+  rewardsMethods,
 );

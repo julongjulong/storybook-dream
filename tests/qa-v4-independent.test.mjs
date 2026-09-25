@@ -198,12 +198,12 @@ test('v4 independent: rounded warning ends preserve the circular collision radiu
   dangerRay(ctx, { ...ray, width: 2.05, rounded: false }, 'pink', scale);
   assert.equal(ellipses.length, 0);
 });
-test('v4 independent: every case has a causal discovery story and a three-case gift group', () => {
+test('v4 independent: every case has a causal discovery story and gifts arrive by solved-case count', () => {
   assert.equal(STORY.worlds.length, 12);
   assert.equal(STORY.items.length, 4);
   assert.deepEqual(
-    STORY.items.flatMap(i => i.requiredStages),
-    STAGE_IDS,
+    STORY.items.map(i => i.requiredCount),
+    [2, 4, 7, 10],
   );
   for (const [i, w] of STORY.worlds.entries()) {
     assert.equal(w.intro.length, 3);
@@ -221,7 +221,6 @@ test('v4 independent: every case has a causal discovery story and a three-case g
     assert.equal(w.pairIndex, Math.floor(i / 3));
     assert.match(w.intro.map(p => p.speaker + ' ' + p.text).join(' '), /토끼/);
   }
-  for (const item of STORY.items) assert.equal(item.requiredStages.length, 3);
   const visible = JSON.stringify([
     STORY.opening,
     STORY.ending,

@@ -1784,3 +1784,30 @@ kbd {
     transform: scale(1);
   }
 }
+
+/* v5: sticker book row in the satchel. */
+.sticker-book {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.sticker-book span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #efe6d6;
+  color: #b9ab93;
+  font-size: 18px;
+}
+.sticker-book span.found {
+  background: #fff6de;
+  box-shadow: 0 0 0 2px #f0c96a;
+}
+.sticker-book small {
+  margin-left: 6px;
+  color: #8a7a62;
+}

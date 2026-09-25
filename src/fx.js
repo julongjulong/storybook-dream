@@ -92,6 +92,11 @@ export class Effects {
       sfx('warning');
       const a = engine?.anchor;
       if (a) this.burst(a.x + 0.5, a.y + 0.5, 8, '#ffb070', 4);
+    } else if (event.type === 'sticker') {
+      const k = event.sticker;
+      this.popup(`${k.icon} 스티커!`, k.x + 0.5, k.y - 1, 1.6, '#fff1b8', 1.6);
+      this.burst(k.x + 0.5, k.y + 0.5, 16, '#fff1b8', 6);
+      sfx('pickup', { pitch: 5 });
     } else if (event.type === 'pickup') {
       const p = engine?.player;
       if (p) {

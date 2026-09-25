@@ -8,6 +8,7 @@ import { STORY } from '../src/story-data.js';
 import { paintGame, strokeRay } from '../src/render.js';
 import { Effects } from '../src/fx.js';
 import { isDash } from '../src/game/config.js';
+import { STICKERS } from '../src/game/rewards.js';
 import { artFrame } from '../src/art-layout.js';
 const source = fs
   .readFileSync(new URL('../src/app.js', import.meta.url), 'utf8')
@@ -132,6 +133,7 @@ function harness({ saved = null, blockedStorage = false } = {}) {
     paintGame,
     Effects,
     isDash,
+    STICKERS,
     strokeRay,
     artFrame,
     ART: {},
@@ -229,13 +231,13 @@ test('첫 완료 뒤 나머지 열한 장이 열리고 지도 방향키와 Enter
   assert.equal(h.api.state().engine.stage.id, 'beans');
   assert.deepEqual(h.api.state().engine.unlockedAbilities, []);
 });
-test('12장 단서 발견→해결 2컷과 세 사건마다 선물 1컷→엔딩 후 네 선물을 가져간다', () => {
+test('12장 단서 발견→해결 2컷과 2·4·7·10번째 해결의 선물 1컷→엔딩 후 네 선물을 가져간다', () => {
   const h = harness();
-  for (const stage of STORY.worlds) {
+  for (const [n, stage] of STORY.worlds.entries()) {
     complete(h, stage);
-    const count = stage.index % 3 === 0 ? 3 : 2;
+    const count = [2, 4, 7, 10].includes(n + 1) ? 3 : 2;
     assert.equal(h.api.state().screen, 'victory');
-    assert.ok(h.api.html().includes(`1 / ${count}`));
+    assert.ok(h.api.html().includes(`1 / ${count}`), `case ${n + 1}`);
     for (let page = 1; page <= count; page++) h.press('Enter');
   }
   assert.equal(h.api.state().screen, 'ending');
@@ -395,7 +397,7 @@ test('별 획득 뒤 실제 HUD 단계와 속도 표시가 바뀌고 공격 예�
   h.api.render(1000);
   assert.equal(h.nodes.get('speed-label').textContent, '걸음 ☆☆☆');
   const before = g.speed;
-  g.player = { x: 15, y: 9 };
+  g.player = { x: g.pickups[0].x, y: g.pickups[0].y };
   g.collectNearby();
   h.api.render(1000);
   assert.ok(g.speed > before);
@@ -412,25 +414,45 @@ test('별 획득 뒤 실제 HUD 단계와 속도 표시가 바뀌고 공격 예�
   assert.equal(h.nodes.get('game').dataset.speed, g.speed.toFixed(1));
 });
 
-test('세 사건을 역순 완료해도 세 번째 완료에서만 선물을 주고 재완료는 중복 지급하지 않는다', () => {
+test('어떤 순서로 풀어도 두 번째 해결에서 첫 선물을 주고 재완료는 중복 지급하지 않는다', () => {
   const h = harness();
   complete(h, STORY.worlds[5]);
   assert.ok(h.api.html().includes('1 / 2'));
   h.press('Escape');
-  complete(h, STORY.worlds[4]);
-  assert.ok(h.api.html().includes('1 / 2'));
-  h.press('Escape');
-  complete(h, STORY.worlds[3]);
+  complete(h, STORY.worlds[9]);
   assert.ok(h.api.html().includes('1 / 3'));
   h.press('Enter');
   h.press('Enter');
-  assert.match(h.api.html(), /새 선물 · 2번 깃털 바람/);
+  assert.match(h.api.html(), /새 선물 · 1번 거북이 보호막/);
   h.press('Escape');
   h.api.startStage(STORY.worlds[2]);
-  assert.deepEqual(h.api.state().engine.unlockedAbilities, ['feather']);
+  assert.deepEqual(h.api.state().engine.unlockedAbilities, ['shell']);
   assert.equal(h.elements.filter(e => e.active && e.dataset.power).length, 4);
-  complete(h, STORY.worlds[2]);
+  complete(h, STORY.worlds[5]);
   assert.ok(h.api.html().includes('1 / 2'));
+});
+test('해결하면 판 별과 숨은 스티커를 저장하고 더 좋은 기록만 남긴다', () => {
+  const h = harness();
+  h.api.startStage(STORY.worlds[3]);
+  const g = h.api.state().engine;
+  g.heartsLost = 1;
+  g.cells.fill(1);
+  g.stickerFound = true;
+  g.enemies = [];
+  g.checkWin();
+  h.flush();
+  const save = h.api.state().save;
+  assert.deepEqual(Array.from(save.stars.redhood), [true, false, true]);
+  assert.deepEqual(Array.from(save.stickers), ['redhood']);
+  h.press('Escape');
+  h.api.startStage(STORY.worlds[3]);
+  const again = h.api.state().engine;
+  again.cells.fill(1);
+  again.enemies = [];
+  again.checkWin();
+  h.flush();
+  assert.deepEqual(Array.from(h.api.state().save.stars.redhood), [true, true, true]);
+  assert.deepEqual(Array.from(h.api.state().save.stickers), ['redhood']);
 });
 
 test('조작 설명은 첫 장만 표시하고 후반 화면은 숨기며 제거된 숫자키는 아이템을 사용하지 않는다', () => {

@@ -16,6 +16,8 @@ export const saveMethods = {
   snapshot() {
     return {
       engineVersion: 6,
+      stickerFound: this.stickerFound,
+      heartsLost: this.heartsLost,
       balanceVersion: '4.1',
       lives: this.lives,
       lost: this.lost,
@@ -105,6 +107,8 @@ export const saveMethods = {
     this.syncVisual();
     this.drawHeld = false;
     this.clueFound = this.isSafe(this.clue.x, this.clue.y);
+    this.stickerFound = !!this.sticker && this.isSafe(this.sticker.x, this.sticker.y);
+    this.heartsLost = integer(s.heartsLost, 3 - integer(s.lives, 3, 0, 3), 0, 3);
     this.lives = s.engineVersion === 6 ? integer(s.lives, 3, 0, 3) : 3;
     this.lost = s.engineVersion === 6 && (this.lives === 0 || s.lost === true);
     if (this.lost) this.lives = 0;

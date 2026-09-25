@@ -49,7 +49,7 @@ export const STORY = {
       name: '거북이 보호막',
       short: '세 번 든든하게 보호',
       description: '조금 느려지는 대신 부딪힘을 세 번 막아 줘요.',
-      requiredStages: ['race', 'duck', 'pigs'],
+      requiredCount: 2,
     },
     {
       id: 'feather',
@@ -57,7 +57,7 @@ export const STORY = {
       name: '깃털 바람',
       short: '가까운 방울을 후우',
       description: '가까운 작은 장난꾸러기와 방울을 바람으로 돌려보내요.',
-      requiredStages: ['redhood', 'beans', 'ant'],
+      requiredCount: 4,
     },
     {
       id: 'lantern',
@@ -65,7 +65,7 @@ export const STORY = {
       name: '숲길 등불',
       short: '공격 준비를 잠깐 멈춤',
       description: '준비 중인 공격을 멈추고 장난꾸러기들이 잠깐 불빛을 구경하게 해요.',
-      requiredStages: ['lion', 'fox', 'wind'],
+      requiredCount: 7,
     },
     {
       id: 'clock',
@@ -73,7 +73,7 @@ export const STORY = {
       name: '꿈꾸는 시계',
       short: '생각할 시간을 선물',
       description: '장난꾸러기와 방울을 멈추고 길을 이어 갈 시간을 만들어요.',
-      requiredStages: ['ax', 'piper', 'troy'],
+      requiredCount: 10,
     },
   ],
   worlds: [

@@ -29,14 +29,14 @@ test('그림 동화는 오프닝 3컷, 각 장 이상증상·조사·진입 3컷
   }
 });
 
-test('네 선물은 세 사건씩 모두 완료하고 등껍질 수사는 발견과 윙크로 이어진다', () => {
+test('네 선물은 2·4·7·10번째 해결에 오고 등껍질 수사는 발견과 윙크로 이어진다', () => {
   assert.deepEqual(
     STORY.items.map(i => i.id),
     ['shell', 'feather', 'lantern', 'clock'],
   );
   assert.deepEqual(
-    STORY.items.flatMap(i => i.requiredStages),
-    STORY.worlds.map(w => w.id),
+    STORY.items.map(i => i.requiredCount),
+    [2, 4, 7, 10],
   );
   for (const w of STORY.worlds) assert.equal(w.reward, undefined);
   const race = STORY.worlds[0];

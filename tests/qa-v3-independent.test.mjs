@@ -184,48 +184,6 @@ test('independent QA: corrupted delayed volleys never exceed cap or introduce un
     assert.ok(r.bullets.every(b => b.kind === 'aimed'));
   }
 });
-test('independent QA: four gifts map to exactly four disjoint triples of story completions', () => {
-  assert.deepEqual(
-    STORY.items.map(i => i.id),
-    Object.keys(ABILITIES),
-  );
-  assert.deepEqual(
-    STORY.items.map(i => i.key),
-    [1, 2, 3, 4],
-  );
-  assert.deepEqual(
-    STORY.items.flatMap(i => i.requiredStages),
-    STORY.worlds.map(w => w.id),
-  );
-  for (const [i, item] of STORY.items.entries()) {
-    assert.equal(item.requiredStages.length, 3);
-    for (const id of item.requiredStages) assert.equal(STORY.worlds.find(w => w.id === id).pairIndex, i);
-  }
-});
-test('independent QA: actual app sanitiser derives four triple unlocks for every completion combination', () => {
-  for (let mask = 0; mask < 4096; mask++) {
-    const cleared = STORY.worlds.filter((w, i) => mask & (1 << i)).map(w => w.id),
-      snapshot = make().snapshot();
-    snapshot.unlockedAbilities = [
-      'shell',
-      'slippers',
-      'feather',
-      'brick',
-      'lantern',
-      'seed',
-      'clock',
-      'apple',
-    ];
-    snapshot.energy = 1;
-    const clean = saveContext.clean({ version: 1, cleared, equipped: 'slippers', current: snapshot });
-    const expected = ['shell', 'feather', 'lantern', 'clock'].filter(
-      (id, i) => (mask & (7 << (i * 3))) === 7 << (i * 3),
-    );
-    assert.deepEqual(Array.from(clean.current.unlockedAbilities), expected);
-    assert.equal(clean.equipped, null);
-    assert.equal(clean.current.energy, 1);
-  }
-});
 test('independent QA: actual app sanitiser preserves v1 removed-gift spending before deleting its identity', () => {
   for (const [ability, cap] of [
     ['slippers', 2],
@@ -252,5 +210,20 @@ test('independent QA: actual app sanitiser preserves v1 removed-gift spending be
       snapshot: clean.current,
     });
     assert.equal(r.energy, 3 - cap);
+  }
+});
+
+test('independent QA: gifts unlock at 2, 4, 7 and 10 solved cases whatever the order', () => {
+  assert.deepEqual(
+    STORY.items.map(i => i.requiredCount),
+    [2, 4, 7, 10],
+  );
+  const ids = STORY.worlds.map(w => w.id);
+  for (let n = 0; n <= 12; n++) {
+    const cleared = ids.slice(12 - n).reverse();
+    const earned = saveContext.clean({ version: 1, cleared }).cleared.length;
+    assert.equal(earned, n);
+    const expected = STORY.items.filter(i => n >= i.requiredCount).map(i => i.id);
+    assert.deepEqual(Array.from(saveContext.earnedFrom(cleared)), expected);
   }
 });

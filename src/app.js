@@ -6,6 +6,7 @@ import { ART, STORY_ART } from './art.js';
 import { artFrame } from './art-layout.js';
 import { AudioDirector } from './audio.js';
 import { Effects } from './fx.js';
+import { STICKERS } from './game/rewards.js';
 import './debug.js';
 import './gamepad.js';
 
@@ -33,6 +34,8 @@ const fresh = () => ({
   introSeen: false,
   endingSeen: false,
   current: null,
+  stars: {}, // case id → [solved, no heart lost, well past the target]
+  stickers: [], // case ids whose hidden sticker was found
 });
 let storageOK = true,
   notice = '',
@@ -53,20 +56,25 @@ let mapIndex = 0,
   touchDraw = false,
   speedFlashUntil = 0;
 const heldKeys = new Set();
+// Gifts arrive by the number of solved cases, in any order.
 function earnedFrom(cleared) {
-  return items.filter(item => item.requiredStages.every(id => cleared.includes(id))).map(item => item.id);
+  return items.filter(item => cleared.length >= item.requiredCount).map(item => item.id);
 }
 function earnedAbilities() {
   return earnedFrom(save.cleared);
 }
 function itemProgress(item) {
-  return item.requiredStages.filter(id => save.cleared.includes(id)).length;
+  return Math.min(item.requiredCount, save.cleared.length);
 }
+const starText = id => {
+  const got = save.stars[id] || [];
+  return [0, 1, 2].map(i => (got[i] ? '★' : '☆')).join('');
+};
 function itemCards() {
   return items
     .map(
       item =>
-        `<div class="inventory-card ${itemProgress(item) === item.requiredStages.length ? 'earned' : 'locked'}"><kbd>${item.key}</kbd><span>${ABILITIES[item.id].icon}</span><strong>${esc(item.name)}</strong><small>${itemProgress(item) === item.requiredStages.length ? esc(item.short) : `${item.requiredStages.map(id => worlds.find(w => w.id === id).index).join('·')}번째 동화 · ${itemProgress(item)}/${item.requiredStages.length} 완료`}</small></div>`,
+        `<div class="inventory-card ${itemProgress(item) === item.requiredCount ? 'earned' : 'locked'}"><kbd>${item.key}</kbd><span>${ABILITIES[item.id].icon}</span><strong>${esc(item.name)}</strong><small>${itemProgress(item) === item.requiredCount ? esc(item.short) : `사건 ${item.requiredCount}개 해결하면 · ${itemProgress(item)}/${item.requiredCount}`}</small></div>`,
     )
     .join('');
 }
@@ -123,6 +131,12 @@ function cleanSave(raw) {
     introSeen: !!raw.introSeen,
     endingSeen: !!raw.endingSeen,
     current,
+    stars: Object.fromEntries(
+      ids
+        .filter(id => Array.isArray(raw.stars?.[id]))
+        .map(id => [id, [0, 1, 2].map(i => !!raw.stars[id][i])]),
+    ),
+    stickers: Array.isArray(raw.stickers) ? [...new Set(raw.stickers.filter(id => ids.includes(id)))] : [],
   };
 }
 function cleanImages(raw) {
@@ -286,7 +300,7 @@ function map() {
   const tutorialDone = save.cleared.includes('race');
   if (!tutorialDone) mapIndex = 0;
   shell(
-    `<section class="map-intro"><div><div class="eyebrow">나의 동화책 · ${save.cleared.length} / ${worlds.length}</div><h1>${esc(STORY.mapTitle)}</h1><p>${tutorialDone ? '어떤 사건을 조사할까요? 토끼 탐정의 다음 사건을 골라요.' : '첫 장은 토끼와 거북이. 걷기와 선 긋기를 함께 배워요.'}</p></div>${save.current ? '<button id="resume">하던 이야기 <kbd>C</kbd></button>' : ''}</section><section class="map-grid">${worlds.map((w, i) => `<button class="world-card ${i === mapIndex ? 'keyboard-selected' : ''}" data-world="${w.id}" aria-current="${i === mapIndex ? 'true' : 'false'}" ${!tutorialDone && i > 0 ? 'disabled' : ''}>${picture(customImages[w.id] ? w.id : w.id + '-before')}${save.cleared.includes(w.id) ? '<span class="done">복원 완료 ✓</span>' : ''}<div class="card-copy"><span class="badge">${i === 0 ? '첫 모험 · 튜토리얼' : `${i + 1}번째 모험${i >= 1 ? ' · 보스 패턴' : ''}`}</span><h3>${esc(w.title)}</h3><p>${esc(w.subtitle)}</p></div></button>`).join('')}</section><section class="satchel"><h3>나의 선물 가방 <span class="muted">받은 선물은 모두 가져가요</span></h3><div class="inventory-grid">${itemCards()}</div><p class="muted">장면마다 도움 별 세 개. 세 사건마다 선물 하나, 모두 네 개예요. 받은 선물은 숫자 1~4로 써요.</p></section><div class="bottom-options"><button id="opening">오프닝 다시 보기</button>${save.cleared.length === worlds.length ? '<button id="ending">아침의 동화책</button>' : ''}</div><p class="notice">${esc(storageOK ? '진행은 자동 저장돼요. 다른 PC로 옮길 때는 보호자 설정에서 백업 파일을 저장하세요.' : notice)}</p>`,
+    `<section class="map-intro"><div><div class="eyebrow">나의 동화책 · ${save.cleared.length} / ${worlds.length}</div><h1>${esc(STORY.mapTitle)}</h1><p>${tutorialDone ? '어떤 사건을 조사할까요? 토끼 탐정의 다음 사건을 골라요.' : '첫 장은 토끼와 거북이. 걷기와 선 긋기를 함께 배워요.'}</p></div>${save.current ? '<button id="resume">하던 이야기 <kbd>C</kbd></button>' : ''}</section><section class="map-grid">${worlds.map((w, i) => `<button class="world-card ${i === mapIndex ? 'keyboard-selected' : ''}" data-world="${w.id}" aria-current="${i === mapIndex ? 'true' : 'false'}" ${!tutorialDone && i > 0 ? 'disabled' : ''}>${picture(customImages[w.id] ? w.id : w.id + '-before')}${save.cleared.includes(w.id) ? `<span class="done">${starText(w.id)}${save.stickers.includes(w.id) ? ' ' + STICKERS[w.id] : ''}</span>` : ''}<div class="card-copy"><span class="badge">${i === 0 ? '첫 모험 · 튜토리얼' : `${i + 1}번째 모험${i >= 1 ? ' · 보스 패턴' : ''}`}</span><h3>${esc(w.title)}</h3><p>${esc(w.subtitle)}</p></div></button>`).join('')}</section><section class="satchel"><h3>나의 선물 가방 <span class="muted">받은 선물은 모두 가져가요</span></h3><div class="inventory-grid">${itemCards()}</div><div class="sticker-book" aria-label="스티커 수첩">${worlds.map(w => `<span class="${save.stickers.includes(w.id) ? 'found' : ''}" title="${esc(w.title)}">${save.stickers.includes(w.id) ? STICKERS[w.id] : '?'}</span>`).join('')}<small>스티커 ${save.stickers.length}/${worlds.length}</small></div><p class="muted">장면마다 도움 별 세 개. 사건을 2·4·7·10개 해결하면 선물을 받아요. 숫자 1~4로 써요. 판마다 별 세 개(해결 · 하트 지키기 · 목표보다 훨씬 더 밝히기)와 숨은 스티커가 있어요.</p></section><div class="bottom-options"><button id="opening">오프닝 다시 보기</button>${save.cleared.length === worlds.length ? '<button id="ending">아침의 동화책</button>' : ''}</div><p class="notice">${esc(storageOK ? '진행은 자동 저장돼요. 다른 PC로 옮길 때는 보호자 설정에서 백업 파일을 저장하세요.' : notice)}</p>`,
   );
   document.querySelectorAll('[data-world]').forEach(
     b =>
@@ -441,6 +455,10 @@ function gameEvent(event) {
     const stage = currentStage,
       before = earnedAbilities();
     save.cleared = [...new Set([...save.cleared, stage.id])];
+    // Keep the best of each star across attempts.
+    const had = save.stars[stage.id] || [];
+    save.stars[stage.id] = [0, 1, 2].map(i => !!had[i] || !!event.stars?.[i]);
+    if (engine.stickerFound && !save.stickers.includes(stage.id)) save.stickers.push(stage.id);
     const gifts = items.filter(item => earnedAbilities().includes(item.id) && !before.includes(item.id));
     save.current = null;
     persist();
@@ -468,7 +486,7 @@ function gameEvent(event) {
   if (event.type === 'pickup') {
     speedFlashUntil = performance.now() + 1600;
   }
-  if (event.message && !['capture', 'clue', 'pickup'].includes(event.type)) {
+  if (event.message && !['capture', 'clue', 'pickup', 'sticker'].includes(event.type)) {
     if (['warning', 'recovery', 'minion-warning'].includes(event.type)) {
       const hint = document.getElementById('hint');
       if (hint) hint.textContent = event.message;
@@ -654,7 +672,7 @@ function victory(stage, gifts = []) {
     ...stage.win,
     ...gifts.map(item => ({
       speaker: '책갈피 반짝이',
-      text: `세 사건을 해결했어! ${item.name}을 선물할게. ${item.description}`,
+      text: `사건을 ${item.requiredCount}개나 해결했어! ${item.name}을 선물할게. ${item.description}`,
       caption: `새 선물 · ${item.key}번 ${item.name}`,
       artId: stage.id,
       emotion: 'gift',
@@ -662,7 +680,7 @@ function victory(stage, gifts = []) {
   ];
   storyPages(pages, {
     id: stage.id,
-    label: `복원 완료 · ${stage.title} · ${save.cleared.length}/${worlds.length}`,
+    label: `복원 완료 · ${stage.title} · ${starText(stage.id)} · ${save.cleared.length}/${worlds.length}`,
     finishText: save.cleared.length === worlds.length ? '아침의 동화책' : '다음 동화 고르기',
     skipText: '동화책으로',
     onDone: () => (save.cleared.length === worlds.length ? ending() : map()),
