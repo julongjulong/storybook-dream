@@ -4,6 +4,7 @@ import { STORY } from './story-data.js';
 import { ART, STORY_ART } from './art.js';
 import { artFrame } from './art-layout.js';
 import { AudioDirector } from './audio.js';
+import './debug.js';
 
 const IMAGES_KEY = 'storybook-dream-images-v1';
 const app = document.getElementById('app'),
@@ -956,4 +957,13 @@ document.addEventListener('visibilitychange', () => {
     if (screen === 'game' && engine && !paused && !engine.won) pauseGame();
   }
 });
+// Read-only handle for the developer overlay (src/debug.js, dev builds only).
+window.storybookDebug = {
+  get engine() {
+    return engine;
+  },
+  get stage() {
+    return currentStage;
+  },
+};
 home();
