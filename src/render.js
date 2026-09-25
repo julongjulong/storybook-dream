@@ -109,7 +109,23 @@ function bossIcon(ctx, symbol, x, y, r, now) {
     ctx.fill();
     ctx.stroke();
   };
-  if (symbol === 'leafball') {
+  if (symbol === 'feather') {
+    // A black-and-white magpie feather, gently rocking.
+    ctx.rotate(Math.sin(now / 600) * 0.3 - 0.6);
+    ctx.fillStyle = '#2f3440';
+    ctx.beginPath();
+    ctx.ellipse(0, -4, 9, 24, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#f5f3ee';
+    ctx.beginPath();
+    ctx.ellipse(3, 6, 5, 12, 0.15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0, 26);
+    ctx.lineTo(0, -26);
+    ctx.stroke();
+  } else if (symbol === 'leafball') {
     for (let i = 0; i < 5; i++) {
       const a = (i * Math.PI * 2) / 5;
       ctx.fillStyle = i % 2 ? '#cfab66' : '#9fb36b';
@@ -735,11 +751,11 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
       dot(x - u * 0.2, y - u * 0.22, u * 0.18, '#fffd');
       continue;
     }
-    if (b.kind === 'leaf') {
+    if (b.kind === 'leaf' || b.kind === 'feather') {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(Math.atan2(b.vy, b.vx));
-      ctx.fillStyle = '#9fd18b';
+      ctx.fillStyle = b.kind === 'feather' ? '#2f3440' : '#9fd18b';
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = Math.max(1, u * 0.1);
       ctx.beginPath();

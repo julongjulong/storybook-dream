@@ -1,4 +1,4 @@
-import { FUSE, FUSE_FROM, velocity } from './config.js';
+import { FUSE, FUSE_FROM, FINALE_ID, velocity } from './config.js';
 
 // Wandering minions, the line-chasing helper, the fuse, and the boss body movement.
 // Mixed into GameEngine.prototype; `this` is the engine.
@@ -46,7 +46,7 @@ export const enemiesMethods = {
   // Fuse: stand still out on a line too long and a spark runs along it from the anchor.
   // Walking again puts it out; reaching the rabbit costs a heart.
   advanceFuse(dt, realDt) {
-    if (this.stageNumber < FUSE_FROM || !this.trail.length || this.glide) {
+    if (this.stageNumber < FUSE_FROM || this.stage.id === FINALE_ID || !this.trail.length || this.glide) {
       this.standing = 0;
       this.fuse = null;
       return;

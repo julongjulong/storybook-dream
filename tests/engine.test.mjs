@@ -312,7 +312,7 @@ test('every shooting pattern shows its fixed direction for the stage warning dur
   }
 });
 test('each later story has a distinct cycle and all shots respect the bullet ceiling', () => {
-  const cycles = BOSS_PROFILES.slice(2).map(p => p.patterns.join(','));
+  const cycles = BOSS_PROFILES.slice(2, 12).map(p => p.patterns.join(','));
   assert.equal(new Set(cycles).size, 10);
   const g = make({ stage: { id: 'snowwhite', index: 8 } });
   g.bossState.enraged = true;

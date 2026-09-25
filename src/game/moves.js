@@ -177,7 +177,7 @@ export const SIGNATURE = {
           vy: Math.sin(l.angle) * spec.speed * engine.assistScale(0.1),
           curve: l.curve,
           life: spec.life,
-          kind: 'leaf',
+          kind: engine.plan.skin || 'leaf',
         });
     },
   },

@@ -23,7 +23,7 @@ const drawOut = g => {
 };
 
 test('every case has a plan, and every planned pattern is a real attack', () => {
-  assert.equal(Object.keys(BOSS_PLANS).length, 12);
+  assert.equal(Object.keys(BOSS_PLANS).length, 13); // 12 cases + the final chapter
   for (const [i, w] of STORY.worlds.entries()) {
     const g = make(i + 1);
     assert.equal(g.plan, BOSS_PLANS[w.id]);

@@ -2,7 +2,7 @@ import { GameEngine, WIDTH, HEIGHT, ABILITIES } from './engine.js';
 import { isDash } from './game/config.js';
 import { paintGame } from './render.js';
 import { STORY } from './story-data.js';
-import { ART, STORY_ART } from './art.js';
+import { ART, STORY_ART, BOARDS } from './art.js';
 import { artFrame } from './art-layout.js';
 import { AudioDirector } from './audio.js';
 import { Effects } from './fx.js';
@@ -36,6 +36,7 @@ const fresh = () => ({
   current: null,
   stars: {}, // case id → [solved, no heart lost, well past the target]
   stickers: [], // case ids whose hidden sticker was found
+  finaleCleared: false, // the last chapter, 또롱's nest
 });
 let storageOK = true,
   notice = '',
@@ -56,6 +57,12 @@ let mapIndex = 0,
   touchDraw = false,
   speedFlashUntil = 0;
 const heldKeys = new Set();
+const finale = STORY.finale;
+// A case on the map, or the final chapter.
+const stageById = id => worlds.find(w => w.id === id) || (id === finale.id ? finale : null);
+const allSolved = () => save.cleared.length === worlds.length;
+// Use a page's own picture when it has been drawn, otherwise a stand-in that exists.
+const pageArt = (page, fallback) => ({ ...page, artId: STORY_ART[page.artId] ? page.artId : fallback });
 // Gifts arrive by the number of solved cases, in any order.
 function earnedFrom(cleared) {
   return items.filter(item => cleared.length >= item.requiredCount).map(item => item.id);
@@ -93,7 +100,7 @@ function cleanSave(raw) {
     earned = earnedFrom(cleared);
   const current =
     raw.current &&
-    ids.includes(raw.current.stageId) &&
+    (ids.includes(raw.current.stageId) || raw.current.stageId === finale.id) &&
     Array.isArray(raw.current.cells) &&
     raw.current.cells.length === WIDTH * HEIGHT
       ? {
@@ -137,6 +144,7 @@ function cleanSave(raw) {
         .map(id => [id, [0, 1, 2].map(i => !!raw.stars[id][i])]),
     ),
     stickers: Array.isArray(raw.stickers) ? [...new Set(raw.stickers.filter(id => ids.includes(id)))] : [],
+    finaleCleared: !!raw.finaleCleared,
   };
 }
 function cleanImages(raw) {
@@ -238,10 +246,7 @@ function home() {
   };
   document.getElementById('continue')?.addEventListener('click', () => {
     void audio.unlock();
-    startStage(
-      worlds.find(w => w.id === save.current.stageId),
-      true,
-    );
+    startStage(stageById(save.current.stageId), true);
   });
 }
 function storyPages(
@@ -300,7 +305,7 @@ function map() {
   const tutorialDone = save.cleared.includes('race');
   if (!tutorialDone) mapIndex = 0;
   shell(
-    `<section class="map-intro"><div><div class="eyebrow">나의 동화책 · ${save.cleared.length} / ${worlds.length}</div><h1>${esc(STORY.mapTitle)}</h1><p>${tutorialDone ? '어떤 사건을 조사할까요? 토끼 탐정의 다음 사건을 골라요.' : '첫 장은 토끼와 거북이. 걷기와 선 긋기를 함께 배워요.'}</p></div>${save.current ? '<button id="resume">하던 이야기 <kbd>C</kbd></button>' : ''}</section><section class="map-grid">${worlds.map((w, i) => `<button class="world-card ${i === mapIndex ? 'keyboard-selected' : ''}" data-world="${w.id}" aria-current="${i === mapIndex ? 'true' : 'false'}" ${!tutorialDone && i > 0 ? 'disabled' : ''}>${picture(customImages[w.id] ? w.id : w.id + '-before')}${save.cleared.includes(w.id) ? `<span class="done">${starText(w.id)}${save.stickers.includes(w.id) ? ' ' + STICKERS[w.id] : ''}</span>` : ''}<div class="card-copy"><span class="badge">${i === 0 ? '첫 모험 · 튜토리얼' : `${i + 1}번째 모험${i >= 1 ? ' · 보스 패턴' : ''}`}</span><h3>${esc(w.title)}</h3><p>${esc(w.subtitle)}</p></div></button>`).join('')}</section><section class="satchel"><h3>나의 선물 가방 <span class="muted">받은 선물은 모두 가져가요</span></h3><div class="inventory-grid">${itemCards()}</div><div class="sticker-book" aria-label="스티커 수첩">${worlds.map(w => `<span class="${save.stickers.includes(w.id) ? 'found' : ''}" title="${esc(w.title)}">${save.stickers.includes(w.id) ? STICKERS[w.id] : '?'}</span>`).join('')}<small>스티커 ${save.stickers.length}/${worlds.length}</small></div><p class="muted">장면마다 도움 별 세 개. 사건을 2·4·7·10개 해결하면 선물을 받아요. 숫자 1~4로 써요. 판마다 별 세 개(해결 · 하트 지키기 · 목표보다 훨씬 더 밝히기)와 숨은 스티커가 있어요.</p></section><div class="bottom-options"><button id="opening">오프닝 다시 보기</button>${save.cleared.length === worlds.length ? '<button id="ending">아침의 동화책</button>' : ''}</div><p class="notice">${esc(storageOK ? '진행은 자동 저장돼요. 다른 PC로 옮길 때는 보호자 설정에서 백업 파일을 저장하세요.' : notice)}</p>`,
+    `<section class="map-intro"><div><div class="eyebrow">나의 동화책 · ${save.cleared.length} / ${worlds.length}</div><h1>${esc(STORY.mapTitle)}</h1><p>${tutorialDone ? '어떤 사건을 조사할까요? 토끼 탐정의 다음 사건을 골라요.' : '첫 장은 토끼와 거북이. 걷기와 선 긋기를 함께 배워요.'}</p></div>${save.current ? '<button id="resume">하던 이야기 <kbd>C</kbd></button>' : ''}</section><section class="map-grid">${worlds.map((w, i) => `<button class="world-card ${i === mapIndex ? 'keyboard-selected' : ''}" data-world="${w.id}" aria-current="${i === mapIndex ? 'true' : 'false'}" ${!tutorialDone && i > 0 ? 'disabled' : ''}>${picture(customImages[w.id] ? w.id : w.id + '-before')}${save.cleared.includes(w.id) ? `<span class="done">${starText(w.id)}${save.stickers.includes(w.id) ? ' ' + STICKERS[w.id] : ''}</span>` : ''}<div class="card-copy"><span class="badge">${i === 0 ? '첫 모험 · 튜토리얼' : `${i + 1}번째 모험${i >= 1 ? ' · 보스 패턴' : ''}`}</span><h3>${esc(w.title)}</h3><p>${esc(w.subtitle)}</p></div></button>`).join('')}</section><section class="satchel"><h3>나의 선물 가방 <span class="muted">받은 선물은 모두 가져가요</span></h3><div class="inventory-grid">${itemCards()}</div><div class="sticker-book" aria-label="스티커 수첩">${worlds.map(w => `<span class="${save.stickers.includes(w.id) ? 'found' : ''}" title="${esc(w.title)}">${save.stickers.includes(w.id) ? STICKERS[w.id] : '?'}</span>`).join('')}<small>스티커 ${save.stickers.length}/${worlds.length}</small></div><p class="muted">장면마다 도움 별 세 개. 사건을 2·4·7·10개 해결하면 선물을 받아요. 숫자 1~4로 써요. 판마다 별 세 개(해결 · 하트 지키기 · 목표보다 훨씬 더 밝히기)와 숨은 스티커가 있어요.</p></section><div class="bottom-options"><button id="opening">오프닝 다시 보기</button>${allSolved() ? `<button id="finale" class="${save.finaleCleared ? '' : 'primary'}">${save.finaleCleared ? '마지막 장 다시 보기' : '마지막 장으로 🪶'}</button>` : ''}${save.finaleCleared ? '<button id="ending">아침의 동화책</button>' : ''}</div><p class="notice">${esc(storageOK ? '진행은 자동 저장돼요. 다른 PC로 옮길 때는 보호자 설정에서 백업 파일을 저장하세요.' : notice)}</p>`,
   );
   document.querySelectorAll('[data-world]').forEach(
     b =>
@@ -309,14 +314,12 @@ function map() {
         stageIntro(worlds[mapIndex]);
       }),
   );
-  document.getElementById('resume')?.addEventListener('click', () =>
-    startStage(
-      worlds.find(w => w.id === save.current.stageId),
-      true,
-    ),
-  );
+  document
+    .getElementById('resume')
+    ?.addEventListener('click', () => startStage(stageById(save.current.stageId), true));
   document.getElementById('opening').onclick = opening;
   document.getElementById('ending')?.addEventListener('click', ending);
+  document.getElementById('finale')?.addEventListener('click', finaleIntro);
 }
 function selectMap(delta) {
   const limit = save.cleared.includes('race') ? worlds.length - 1 : 0;
@@ -326,6 +329,21 @@ function selectMap(delta) {
     b.setAttribute('aria-current', i === mapIndex ? 'true' : 'false');
     if (i === mapIndex) b.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });
+}
+function finaleIntro() {
+  clearInput();
+  screen = 'intro';
+  audio.play('dream');
+  storyPages(
+    finale.intro.map((p, i) => pageArt(p, i < 2 ? 'opening-dream' : 'ending-morning')),
+    {
+      id: 'opening-dream',
+      label: '마지막 장 · 또롱의 둥지',
+      onDone: () => startStage(finale),
+      skipText: '바로 시작',
+      finishText: '둥지를 밝히러 출발',
+    },
+  );
 }
 function stageIntro(stage) {
   clearInput();
@@ -346,7 +364,7 @@ function startStage(stage, resume = false) {
   currentStage = stage;
   paused = false;
   void audio.unlock();
-  audio.play(stage.index >= 3 ? 'boss' : 'play');
+  audio.play(stage.id === finale.id ? 'dream' : stage.index >= 3 ? 'boss' : 'play');
   audio.setIntensity?.(0);
   engine = new GameEngine({
     stage,
@@ -360,9 +378,12 @@ function startStage(stage, resume = false) {
   const img = new Image();
   img.onload = () => {
     if (currentStage?.id === stage.id)
-      cachedImage = { image: img, frame: customImages[stage.id] ? null : artFrame(stage.id) };
+      cachedImage = {
+        image: img,
+        frame: customImages[stage.id] || BOARDS[stage.id] ? null : artFrame(stage.id),
+      };
   };
-  img.src = art(stage.id);
+  img.src = customImages[stage.id] || BOARDS[stage.id] || art(stage.id);
   app.innerHTML = `<main class="game-shell immersive ${stage.index === 1 ? 'is-tutorial' : ''}">
  <header class="game-top"><div><div class="game-title">${esc(stage.title)}</div><div class="game-subtitle">${esc(stage.boss.name)}</div></div><div class="actions"><button id="fullscreen" title="전체 화면 F">전체 화면</button><button id="pause" title="잠깐 쉬기 Esc">쉬기</button><button id="to-map" title="동화책 M">동화책</button></div></header>
  <div class="game-stats"><div class="progress-wrap"><span id="progress-label">그림 0%</span><div class="progress"><div class="progress-fill" id="progress-fill"></div></div><span>목표 ${Math.round(engine.target * 100)}%</span></div><span id="lives" class="lives" role="status" aria-label="남은 하트 3개">♥♥♥</span><span id="speed-label">걸음 ☆☆☆</span></div>
@@ -454,6 +475,15 @@ function gameEvent(event) {
     audio.effect('win');
     const stage = currentStage,
       before = earnedAbilities();
+    if (stage.id === finale.id) {
+      save.finaleCleared = true;
+      save.current = null;
+      persist();
+      setTimeout(() => {
+        if (currentStage?.id === stage.id && engine?.won) victory(stage);
+      }, 1100);
+      return;
+    }
     save.cleared = [...new Set([...save.cleared, stage.id])];
     // Keep the best of each star across attempts.
     const had = save.stars[stage.id] || [];
@@ -668,8 +698,11 @@ function victory(stage, gifts = []) {
   stopGame();
   screen = 'victory';
   audio.play('celebrate');
+  const isFinale = stage.id === finale.id;
   const pages = [
-    ...stage.win,
+    ...(isFinale ? stage.win.map(p => pageArt(p, 'ending-morning')) : stage.win),
+    // 또롱's trace: one more step toward the last page.
+    ...(stage.trace ? [pageArt(stage.trace, stage.id + '-wink')] : []),
     ...gifts.map(item => ({
       speaker: '책갈피 반짝이',
       text: `사건을 ${item.requiredCount}개나 해결했어! ${item.name}을 선물할게. ${item.description}`,
@@ -680,10 +713,20 @@ function victory(stage, gifts = []) {
   ];
   storyPages(pages, {
     id: stage.id,
-    label: `복원 완료 · ${stage.title} · ${starText(stage.id)} · ${save.cleared.length}/${worlds.length}`,
-    finishText: save.cleared.length === worlds.length ? '아침의 동화책' : '다음 동화 고르기',
+    label: isFinale
+      ? '마지막 장 · 끝까지 읽은 밤'
+      : `복원 완료 · ${stage.title} · ${starText(stage.id)} · ${save.cleared.length}/${worlds.length}`,
+    finishText:
+      isFinale || save.finaleCleared
+        ? allSolved()
+          ? '아침의 동화책'
+          : '다음 동화 고르기'
+        : allSolved()
+          ? '마지막 장으로'
+          : '다음 동화 고르기',
     skipText: '동화책으로',
-    onDone: () => (save.cleared.length === worlds.length ? ending() : map()),
+    onDone: () =>
+      isFinale ? ending() : !allSolved() ? map() : save.finaleCleared ? ending() : finaleIntro(),
   });
 }
 function ending() {

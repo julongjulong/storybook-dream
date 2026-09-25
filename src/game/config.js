@@ -128,6 +128,16 @@ export const BOSS_PROFILES = [
     warning: 0.9,
     recovery: 1.19,
   },
+  {
+    name: '흩날리는 깃털',
+    patterns: [],
+    rest: 3.2,
+    bossSpeed: 4.5,
+    minionSpeed: 0,
+    minionCount: 0,
+    warning: 1.4,
+    recovery: 2,
+  },
 ];
 export const PLAYER_SPEEDS = [8.5, 10, 11.5, 13];
 export const PATTERN_SPECS = {
@@ -184,7 +194,8 @@ export const STAGE_IDS = [
   'piper',
   'troy',
 ];
-export const TARGETS = [0.42, 0.52, 0.58, 0.62, 0.65, 0.68, 0.7, 0.72, 0.74, 0.76, 0.78, 0.8];
+// The 13th entry is the final chapter (또롱의 둥지).
+export const TARGETS = [0.42, 0.52, 0.58, 0.62, 0.65, 0.68, 0.7, 0.72, 0.74, 0.76, 0.78, 0.8, 0.6];
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v)),
   finite = (v, f) => (Number.isFinite(v) ? v : f);
 export const integer = (v, f, a, b) => clamp(Math.floor(finite(v, f)), a, b),
@@ -204,6 +215,7 @@ export const isDash = pattern => pattern === 'dash' || pattern === 'crumbdash';
 // v5 boss plans per case. moves: what the boss may choose at any time.
 // late: extra moves from 50% restored (phase 2). A list is a combo, chained with a short follow-up tell.
 // hunt (0..1): how strongly the boss steers toward the rabbit while it is out drawing.
+// names / skin (optional): rename a move for this boss, or draw its leaves as something else.
 export const BOSS_PLANS = {
   race: { hunt: 0.35, moves: [], late: [] },
   duck: { hunt: 0.3, moves: ['aimed'], late: [] },
@@ -216,6 +228,8 @@ export const BOSS_PLANS = {
   wind: { hunt: 0.6, moves: ['gust', 'dash', 'ring'], late: [['gust', 'gust']] },
   ax: { hunt: 0.55, moves: ['sweep', 'aimed', 'ring'], late: [['sweep', 'aimed']] },
   piper: { hunt: 0.65, moves: ['notes', 'ring', 'dash'], late: [['notes', 'notes']] },
+  // Final chapter: only drifting feathers, no charge and no fuse.
+  nest: { hunt: 0.2, moves: ['gust'], late: [], names: { gust: '팔랑 깃털 바람' }, skin: 'feather' },
   troy: {
     hunt: 0.7,
     moves: ['dash', 'ring', 'summon', 'split'],
@@ -229,6 +243,7 @@ export const BOSS_PLANS = {
 // and from case 6 a fuse that runs along a line the rabbit has stopped on.
 export const CHASER_FROM = 4;
 export const FUSE_FROM = 6;
+export const FINALE_ID = 'nest';
 export const FUSE = { wait: 1.2, speed: 4 }; // seconds standing still before it lights; cells per second
 export const minionBehavior = (stageNumber, id) =>
   stageNumber >= CHASER_FROM && id === 1 ? 'chaser' : 'rush_wander';

@@ -122,7 +122,7 @@ export const bossMethods = {
     Object.assign(this.bossState, {
       phase: 'warning',
       pattern,
-      name: PATTERN_NAMES[pattern],
+      name: this.plan.names?.[pattern] || PATTERN_NAMES[pattern],
       remaining: duration,
     });
     this.warning = duration;

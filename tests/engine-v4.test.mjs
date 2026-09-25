@@ -14,7 +14,7 @@ const elapsed = (g, t) => {
 
 test('all twelve stage IDs resolve their own rising difficulty without an eight-stage clamp', () => {
   assert.equal(STAGE_IDS.length, 12);
-  assert.equal(BOSS_PROFILES.length, 12);
+  assert.equal(BOSS_PROFILES.length, 13); // 12 cases + the final chapter
   for (let i = 0; i < 12; i++) {
     const g = new GameEngine({ stage: { id: STAGE_IDS[i] } });
     assert.equal(g.stageNumber, i + 1);

@@ -55,7 +55,7 @@ export class GameEngine {
     this.stageNumber = integer(stage.index, IDS.indexOf(stage.id) + 1 || 1, 1, BOSS_PROFILES.length);
     this.level = this.stageNumber - 1;
     this.target = TARGETS[this.level];
-    this.plan = BOSS_PLANS[IDS[this.level]];
+    this.plan = BOSS_PLANS[IDS[this.level]] || BOSS_PLANS[stage.id] || BOSS_PLANS.race;
     this.profile = {
       ...BOSS_PROFILES[this.level],
       name: stage.boss?.name || BOSS_PROFILES[this.level].name,

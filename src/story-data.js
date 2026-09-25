@@ -1,4 +1,4 @@
-// v4: rabbit detective cases. Game rules and save data live in their own modules.
+// v5: rabbit detective cases, linked by the magpie 또롱 (see docs/story-bible.md). Game rules and save data live in their own modules.
 export const STORY = {
   title: '토끼 탐정과 열두 동화 사건',
   subtitle: '한 칸씩 밝히고, 함께 찾아요',
@@ -6,7 +6,7 @@ export const STORY = {
   opening: [
     {
       speaker: '나',
-      text: '“토끼가 왜 안 달리지?” 자기 전 동화책을 펼쳤는데 토끼가 돋보기를 들고 있어요.',
+      text: '“토끼가 왜 안 달리지?” 자기 전 동화책을 펼쳤는데 토끼가 돋보기를 들고 있어요. 맨 뒷장은 늘 먼저 잠들어서 한 번도 못 봤어요.',
       artId: 'opening-bedroom',
       caption: '오늘 밤의 이상한 동화책',
       emotion: 'curious',
@@ -29,14 +29,14 @@ export const STORY = {
   ending: [
     {
       speaker: '나',
-      text: '아침이에요. 책을 펼치니 친구들이 웃고 있어요. 열두 가지 문제를 토끼와 함께 풀었어요.',
+      text: '아침이에요. 책을 펼치니 친구들이 웃고 있어요. 마지막 장에는 토끼와 까치 또롱이 나란히 앉아 있어요.',
       artId: 'ending-morning',
       caption: '한 칸씩 찾아낸 열두 가지 웃음',
       emotion: 'proud',
     },
     {
       speaker: '엄마 · 아빠',
-      text: '“이 작은 돋보기는 어디서 났지?” 책 속 토끼가 나만 알아보게 살짝 윙크했어요.',
+      text: '“베개 위에 이 깃털은 어디서 났지?” 작은 돋보기 옆에서 책 속 또롱이 나만 보게 날개를 살짝 흔들었어요.',
       artId: 'ending-morning',
       caption: '오늘도 내 곁의 수사 짝꿍',
       emotion: 'tender',
@@ -76,9 +76,78 @@ export const STORY = {
       requiredCount: 10,
     },
   ],
+  finale: {
+    id: 'nest',
+    index: 13,
+    title: '마지막 장의 둥지',
+    subtitle: '아무도 읽지 않은 이야기',
+    clue: {
+      name: '또롱의 이야기 그림',
+      x: 36,
+      y: 24,
+    },
+    boss: {
+      name: '흩날리는 깃털',
+      symbol: 'feather',
+      description: '둥지 위를 떠다니는 깃털 바람. 가끔 나뭇잎처럼 깃털을 흩날린다.',
+    },
+    intro: [
+      {
+        speaker: '토끼 탐정',
+        text: '책장을 넘기고 또 넘겨요. 마지막 장은 거의 하얗고, 연필 선만 희미해요.',
+        artId: 'ttorong-final-0',
+        caption: '처음 와 보는 마지막 장',
+        emotion: 'wonder',
+      },
+      {
+        speaker: '토끼 탐정',
+        text: '깃털이 줄지어 커다란 나뭇가지 둥지로 이어져요. “여기가 또롱의 집이구나.”',
+        artId: 'ttorong-final-1',
+        caption: '깃털 길의 끝',
+        emotion: 'curious',
+      },
+      {
+        speaker: '토끼 탐정',
+        text: '둥지엔 반짝이는 단추와 구슬이 가득해요. “또롱의 이야기를 밝혀 보자. 깃털이 날려도 겁내지 마!”',
+        artId: 'ttorong-final-2',
+        caption: '마지막 수사 · 또롱의 이야기',
+        emotion: 'encourage',
+      },
+    ],
+    win: [
+      {
+        speaker: '또롱',
+        text: '“…미안해. 아무도 여기까지 안 와서, 물건을 가져가면 누가 찾아올 줄 알았어.”',
+        artId: 'ttorong-final-3',
+        caption: '또롱의 진짜 이야기',
+        emotion: 'tender',
+      },
+      {
+        speaker: '토끼 탐정',
+        text: '“이제 우리가 왔잖아.” 토끼가 청록색 목수건을 둘러 주자, 또롱이 반짝이 모음을 모두 돌려줘요.',
+        artId: 'ttorong-final-4',
+        caption: '새 수사 짝꿍',
+        emotion: 'joy',
+      },
+      {
+        speaker: '또롱',
+        text: '“나도 탐정 할래!” 열두 동화 친구들이 손을 흔들어요. 오늘 밤, 처음으로 마지막 장까지 읽었어요.',
+        artId: 'ttorong-final-5',
+        caption: '끝까지 읽은 밤',
+        emotion: 'proud',
+      },
+    ],
+  },
   worlds: [
     {
       id: 'race',
+      trace: {
+        speaker: '토끼 탐정',
+        text: '“이건 뭐지?” 낙엽 속에서 까맣고 하얀 깃털 하나가 나왔어요. 토끼가 수첩에 꽂아 둬요.',
+        caption: '수첩에 붙인 첫 깃털',
+        artId: 'ttorong-clue-feather',
+        emotion: 'curious',
+      },
       title: '토끼와 거북이',
       subtitle: '경주하기 싫은 거북이',
       clue: {
@@ -144,6 +213,13 @@ export const STORY = {
     },
     {
       id: 'duck',
+      trace: {
+        speaker: '토끼 탐정',
+        text: '수련 잎 위에 똑같은 깃털이 떠 있어요. “또 이 깃털이야. 우연일까?”',
+        caption: '두 번째 깃털',
+        artId: 'ttorong-clue-feather',
+        emotion: 'curious',
+      },
       title: '아기 오리의 연못',
       subtitle: '물가에서 꼼짝 안 해요',
       clue: {
@@ -209,6 +285,13 @@ export const STORY = {
     },
     {
       id: 'pigs',
+      trace: {
+        speaker: '토끼 탐정',
+        text: '벽돌 틈에서 세 번째 깃털! 토끼가 수첩에 나란히 붙여요. “누군가 물건을 옮기고 다녀.”',
+        caption: '깃털 세 개',
+        artId: 'ttorong-clue-feather',
+        emotion: 'curious',
+      },
       title: '아기 돼지 삼 형제',
       subtitle: '문이 왜 천장에 있지?',
       clue: {
@@ -274,6 +357,13 @@ export const STORY = {
     },
     {
       id: 'redhood',
+      trace: {
+        speaker: '할머니',
+        text: '“그러고 보니 반짝이는 걸 좋아하는 까치가 화분에 앉아 있었단다.”',
+        caption: '첫 목격담',
+        artId: 'ttorong-clue-sighting',
+        emotion: 'curious',
+      },
       title: '빨간 모자의 심부름',
       subtitle: '할머니도 못 여는 문',
       clue: {
@@ -339,6 +429,13 @@ export const STORY = {
     },
     {
       id: 'beans',
+      trace: {
+        speaker: '친절한 거인',
+        text: '“검고 하얀 작은 새가 종을 콕콕 쪼더니 구름 뒤로 날아갔어.”',
+        caption: '두 번째 목격담',
+        artId: 'ttorong-clue-sighting',
+        emotion: 'curious',
+      },
       title: '잭과 콩나무',
       subtitle: '구름 위에 아무도 없나요?',
       clue: {
@@ -405,6 +502,13 @@ export const STORY = {
     },
     {
       id: 'ant',
+      trace: {
+        speaker: '베짱이',
+        text: '“그 새, 목에 반짝 단추 목걸이를 하고 있었어!” 토끼 수첩에 용의자 카드가 생겼어요.',
+        caption: '용의자 · 단추 목걸이 까치',
+        artId: 'ttorong-clue-sighting',
+        emotion: 'curious',
+      },
       title: '개미와 베짱이',
       subtitle: '문 없는 겨울 창고?',
       clue: {
@@ -471,6 +575,13 @@ export const STORY = {
     },
     {
       id: 'lion',
+      trace: {
+        speaker: '생쥐',
+        text: '“여기 새 발자국!” 작은 발자국이 책장 뒤쪽으로 이어져요.',
+        caption: '발자국을 따라가요',
+        artId: 'ttorong-clue-map',
+        emotion: 'curious',
+      },
       title: '사자와 생쥐',
       subtitle: '낮잠이 너무 꽉 끼어요',
       clue: {
@@ -537,6 +648,13 @@ export const STORY = {
     },
     {
       id: 'fox',
+      trace: {
+        speaker: '토끼 탐정',
+        text: '포도밭 발자국도 같은 쪽이에요. “물건들이 책 뒷장으로 가고 있어!”',
+        caption: '모두 뒷장으로',
+        artId: 'ttorong-clue-map',
+        emotion: 'curious',
+      },
       title: '여우와 포도',
       subtitle: '안 먹는 걸까, 못 먹는 걸까?',
       clue: {
@@ -603,6 +721,13 @@ export const STORY = {
     },
     {
       id: 'wind',
+      trace: {
+        speaker: '바람',
+        text: '“그 아이 이름은 또롱이야. 책 마지막 장에 살지. 거기까지 읽어 준 사람이 없대.”',
+        caption: '이름 · 또롱',
+        artId: 'ttorong-clue-map',
+        emotion: 'curious',
+      },
       title: '해와 바람',
       subtitle: '모자도 함께 가고 싶어',
       clue: {
@@ -669,6 +794,13 @@ export const STORY = {
     },
     {
       id: 'ax',
+      trace: {
+        speaker: '토끼 탐정',
+        text: '연못에 까치 그림자가 비쳤다가 휙 사라져요. “또롱! 우린 화내러 온 게 아니야!”',
+        caption: '멀리서 본 또롱',
+        artId: 'ttorong-clue-watch',
+        emotion: 'curious',
+      },
       title: '금도끼 은도끼',
       subtitle: '반짝이는 건 너무 무거워',
       clue: {
@@ -735,6 +867,13 @@ export const STORY = {
     },
     {
       id: 'piper',
+      trace: {
+        speaker: '토끼 탐정',
+        text: '행진 뒤에서 또롱이 살짝 고개를 내밀었다 숨어요. 혼자 있는 모습이 쓸쓸해 보여요.',
+        caption: '쓸쓸한 또롱',
+        artId: 'ttorong-clue-watch',
+        emotion: 'curious',
+      },
       title: '피리 부는 사나이',
       subtitle: '삐이 대신 푸우우',
       clue: {
@@ -801,6 +940,13 @@ export const STORY = {
     },
     {
       id: 'troy',
+      trace: {
+        speaker: '토끼 탐정',
+        text: '“이제 마지막 장으로 가 보자. 또롱을 만나러.” 토끼가 너의 손을 꼭 잡아요.',
+        caption: '마지막 장으로',
+        artId: 'ttorong-clue-watch',
+        emotion: 'curious',
+      },
       title: '트로이의 오리',
       subtitle: '깜짝 인사가 안 열려요',
       clue: {
