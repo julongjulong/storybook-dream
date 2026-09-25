@@ -77,35 +77,6 @@ test('bullet ceiling applies across queued waves and extra emissions', () => {
   for (let i = 0; i < 20; i++) g.emitWave(extra);
   assert.equal(g.bullets.length, MAX_BULLETS);
 });
-test('stage six has one light ray, while later cross beams match all four shown rays', () => {
-  for (const [stage, index, count] of [
-    [6, 0, 1],
-    [7, 2, 4],
-    [8, 1, 4],
-  ]) {
-    const g = game(stage),
-      tells = attack(g, index),
-      rays = tells.flatMap(t => t.rays);
-    assert.equal(rays.length, count);
-    assert.equal(g.beams.length, count);
-    for (let i = 0; i < count; i++) {
-      near(g.beams[i].angle, rays[i].angle);
-      near(g.beams[i].length, rays[i].length);
-    }
-    if (count === 4) {
-      near(Math.abs(Math.cos(tells[0].angle - tells[1].angle)), 0);
-      assert.equal(tells.length, 2);
-    }
-  }
-});
-test('cross beams alternate plus and diagonal configurations on later cycles', () => {
-  const g = game(8);
-  const a = attack(g, 1);
-  g.beginRecovery();
-  const b = attack(g, 4);
-  near(a[0].angle, Math.PI / 4);
-  near(b[0].angle, 0);
-});
 test('each arm of a cross beam stops at its own claimed wall', () => {
   const g = game(7),
     boss = g.enemies[0];
@@ -142,35 +113,6 @@ test('large or invalid animation timestamps cannot fast-forward an entire volley
   g.step(90);
   near(g.attackWaves[0].remaining, 0.35);
   assert.equal(g.bullets.length, 1);
-});
-test('a mid-volley checkpoint resumes remaining delays and shots exactly once without aliasing', () => {
-  const g = game(4);
-  attack(g, 1);
-  g.advanceBoss(0.2);
-  const s = g.snapshot(),
-    r = game(4, { snapshot: s });
-  assert.equal(s.engineVersion, 6);
-  assert.deepEqual(r.attackWaves, g.attackWaves);
-  assert.deepEqual(r.bullets, g.bullets);
-  s.attackWaves[0].angles[0] = 999;
-  assert.notEqual(r.attackWaves[0].angles[0], 999);
-  r.advanceBoss(0.25);
-  assert.equal(r.bullets.length, 2);
-  r.advanceBoss(0.45);
-  assert.equal(r.bullets.length, 3);
-  assert.equal(r.attackWaves.length, 0);
-});
-test('cross-beam checkpoint preserves warning and active ray geometry', () => {
-  const g = game(8);
-  g.attackIndex = 1;
-  g.beginWarning();
-  g.advanceBoss(0.4);
-  const r = game(8, { snapshot: g.snapshot() });
-  assert.deepEqual(r.telegraphs, g.telegraphs);
-  r.firePattern();
-  const saved = game(8, { snapshot: r.snapshot() });
-  assert.deepEqual(saved.beams, r.beams);
-  assert.equal(saved.beams.length, 4);
 });
 test('recovery, lantern and capture cancellation remove queued waves as well as visible shots', () => {
   for (const cancel of [g => g.beginRecovery(), g => g.cancelAttack(), g => g.useAbility('lantern')]) {

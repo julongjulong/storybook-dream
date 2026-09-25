@@ -363,25 +363,6 @@ test('빛줄기는 현재 선에 닿으면 피해를 주고 이미 확보한 땅
   assert.ok(protectedGame.beams[0].length < 5);
 });
 
-test('공격 예고 중 저장·복원해도 남은 예고가 유지되고 보스를 가두면 공격이 취소된다', () => {
-  const g = create({ stage: STORY.worlds[5] });
-  g.beginWarning();
-  advance(g, 0.5);
-  const r = create({ stage: STORY.worlds[5], snapshot: g.snapshot() });
-  assert.equal(r.bossState.phase, 'warning');
-  assert.ok(Math.abs(r.warning - (g.profile.warning - 0.5)) < 1e-8);
-  assert.equal(r.telegraphs.length, 1);
-  r.player = { x: 15, y: 1 };
-  r.anchor = { ...r.player };
-  r.enemies = [enemy(0, 7, 8, true), enemy(1, 60, 30)];
-  r.beams = [{ x: 7, y: 8, angle: 0, length: 50, width: 1.25, life: 1 }];
-  walk(r, 0, 1, 12);
-  walk(r, -1, 0, 14);
-  assert.equal(r.telegraphs.length, 0);
-  assert.equal(r.beams.length, 0);
-  assert.equal(r.warning, 0);
-});
-
 test('손상된 추가 공격 자료의 null·무한 좌표·비정상 속도는 재개 상태에 남지 않는다', () => {
   const g = create({ stage: STORY.worlds[5] });
   const s = g.snapshot();

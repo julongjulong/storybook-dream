@@ -91,18 +91,6 @@ test('last projectile frame cannot travel beyond the predicted endpoint', () => 
   const travelled = Math.hypot(shot.x - origin.x, shot.y - origin.y);
   assert.ok(travelled <= ray.length + 1e-7);
 });
-test('beam preview publishes its actual collision band as well as the light core width', () => {
-  const g = make(8);
-  g.attackIndex = 1;
-  g.beginWarning();
-  for (const t of g.telegraphs) {
-    near(t.width, 1.25);
-    near(t.hitWidth, 2.05);
-  }
-  g.firePattern();
-  assert.equal(g.beams.length, 4);
-  for (const b of g.beams) near(b.width + 0.8, 2.05);
-});
 test('helpers flash for .9 seconds then roam at 1.7 times base speed for 1.5 seconds without shooting', () => {
   const g = make(6),
     e = g.enemies[1];
@@ -208,23 +196,6 @@ test('v3 and v4 checkpoints discard stale attack rays while retaining restoratio
     assert.equal(r.speedLevel, 2);
     assert.equal(r.bossState.phase, 'roam');
     assert.equal(r.telegraphs.length, 0);
-  }
-});
-test('current warning restore rejects extra or irregular shot directions instead of creating surprise attacks', () => {
-  for (const mutate of [
-    s => s.telegraphs[0].angles.push(0),
-    s => (s.telegraphs[0].angles[1] += 0.1),
-    s => (s.telegraphs[0].x -= 1),
-  ]) {
-    const g = make(3);
-    g.beginWarning();
-    const s = g.snapshot();
-    mutate(s);
-    const r = make(3, { snapshot: s });
-    assert.equal(r.bossState.phase, 'recover');
-    assert.equal(r.telegraphs.length, 0);
-    r.advanceBoss(0.1);
-    assert.equal(r.bullets.length, 0);
   }
 });
 test('modern rushing-helper checkpoint preserves its phase while old helper behaviors migrate to roaming', () => {

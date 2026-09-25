@@ -1,5 +1,3 @@
-import { velocity } from './config.js';
-
 // Wandering minions and the boss body movement.
 // Mixed into GameEngine.prototype; `this` is the engine.
 export const enemiesMethods = {
@@ -33,17 +31,12 @@ export const enemiesMethods = {
       if (this.lost) return;
       let movement = factor * (factor > 0 ? this.advanceIntent(enemy, dt * factor) : 0);
       if (enemy.boss) {
-        if (
-          this.bossState.phase === 'warning' ||
-          (this.bossState.phase === 'attack' && !enemy.dashing) ||
-          this.bossState.phase === 'recover'
-        )
-          movement = 0;
-        else if (enemy.dashing && dt * factor > 0)
+        // A charge runs only for its attack time; otherwise the boss walks at its phase pace.
+        if (enemy.dashing && dt * factor > 0)
           movement *= Math.min(1, Math.max(0, this.bossState.remaining) / (dt * factor));
-        else if (this.stageNumber === 2) {
-          const angle = Math.atan2(enemy.vy, enemy.vx) + Math.sin(this.elapsed * 1.4) * dt * factor * 0.55;
-          Object.assign(enemy, velocity(Math.cos(angle), Math.sin(angle), this.profile.bossSpeed));
+        else {
+          this.steerBoss(enemy, dt * factor);
+          movement *= this.bossPace();
         }
       }
       const substeps = Math.max(
@@ -60,14 +53,16 @@ export const enemiesMethods = {
             this.blocked(enemy.x, enemy.y + dy) ||
             this.blocked(enemy.x + dx, enemy.y + dy))
         ) {
-          this.endDash();
-          this.beginRecovery();
+          this.finishAttack();
           break;
         }
+        const fromX = enemy.x,
+          fromY = enemy.y;
         if (this.blocked(enemy.x + dx, enemy.y)) enemy.vx *= -1;
         else enemy.x += dx;
         if (this.blocked(enemy.x, enemy.y + dy)) enemy.vy *= -1;
         else enemy.y += dy;
+        if (enemy.boss) this.dropCrumbs(enemy, Math.hypot(enemy.x - fromX, enemy.y - fromY));
         if (this.touchesTrail(enemy.x, enemy.y, enemy.boss ? 1.2 : 0.72)) this.damage();
       }
     }

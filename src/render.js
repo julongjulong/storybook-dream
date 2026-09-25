@@ -1,4 +1,5 @@
 import { WIDTH, HEIGHT, PATTERN_SPECS } from './engine.js';
+import { isDash } from './game/config.js';
 
 export function strokeRay(ctx, ray, color, dashed = false, scale = { x: 12, y: 12 }) {
   const length = Number.isFinite(ray.length) ? ray.length : 90,
@@ -445,7 +446,7 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
       t.rays ||
       (t.angles || [t.angle]).map(angle => ({
         angle,
-        length: Math.min(t.type === 'dash' ? 12 : range, engine.rayLength(t.x, t.y, angle)),
+        length: Math.min(isDash(t.type) ? 12 : range, engine.rayLength(t.x, t.y, angle)),
       }));
     for (const ray of rays) {
       const live = { ...t, ...ray, length: Math.min(ray.length, engine.rayLength(t.x, t.y, ray.angle)) };
@@ -454,7 +455,7 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
         {
           ...live,
           rounded: t.type !== 'beam',
-          width: t.hitWidth || (t.type === 'beam' ? 2.05 : t.type === 'dash' ? 2.4 : 1.3),
+          width: t.hitWidth || (t.type === 'beam' ? 2.05 : isDash(t.type) ? 2.4 : 1.3),
         },
         '#ffcf6d25',
         scale,
@@ -568,8 +569,23 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
     const x = blend(e.x, engine.prevPos?.get(e)?.x) * sx,
       y = blend(e.y, engine.prevPos?.get(e)?.y) * sy;
     if (e.boss) {
+      const state = engine.bossState || {};
+      // Tell with the body: squash down and puff up as the move gets closer, with a warm glow.
+      const windup =
+          state.phase === 'warning' && state.remaining > 0
+            ? 1 - state.remaining / (engine.telegraphs[0]?.duration || 1)
+            : 0,
+        squash = windup ? Math.sin(windup * Math.PI * (2 + windup * 6)) * 0.08 * windup : 0,
+        phase2 = !!state.enraged;
+      if (windup)
+        dot(x, y, u * (2.7 + windup * 1.2), `rgba(255,214,120,${(0.15 + 0.35 * windup).toFixed(2)})`);
+      if (phase2) dot(x, y, u * 3.1, 'rgba(255,150,140,0.18)');
       dot(x, y, u * 2.7, engine.freeze > 0 ? '#a5dbe655' : '#fff0e533');
-      bossIcon(ctx, stage.boss.symbol, x, y, u * 2.25, now);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(1 + squash + windup * 0.12, 1 - squash - windup * 0.1);
+      bossIcon(ctx, stage.boss.symbol, 0, 0, u * 2.25 * (phase2 ? 1.08 : 1), now);
+      ctx.restore();
     } else {
       const warming = e.intent?.phase === 'warmup',
         rushing = e.intent?.phase === 'rush',
@@ -601,6 +617,14 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
   for (const b of engine.bullets) {
     const x = blend(b.x, engine.prevPos?.get(b)?.x) * sx,
       y = blend(b.y, engine.prevPos?.get(b)?.y) * sy;
+    if (b.kind === 'crumb') {
+      // Bread crumbs lie still and fade out in their last second.
+      ctx.globalAlpha = Math.min(1, b.life);
+      dot(x, y, u * 0.45, '#d9a45b', '#7a4f2a');
+      dot(x - u * 0.12, y - u * 0.12, u * 0.12, '#f6d9a8');
+      ctx.globalAlpha = 1;
+      continue;
+    }
     dot(x, y, u * 0.5, b.kind === 'ring' ? '#f4d398' : b.kind === 'aimed' ? '#d7b2eb' : '#a9dbe8', '#fff');
     dot(x - u * 0.12, y - u * 0.14, u * 0.13, '#fffd');
   }

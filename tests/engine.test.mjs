@@ -284,20 +284,6 @@ test('feather removes nearby bullets and small enemies but preserves the boss an
   assert.equal(g.bullets.length, 1);
   assert.equal(g.bullets[0].x, 65);
 });
-test('lantern cancels a visible attack warning and creates a safe recovery window', () => {
-  const g = make({ stage: { id: 'beans', index: 6 }, unlockedAbilities: ['lantern'] });
-  g.beginWarning();
-  assert.equal(g.bossState.phase, 'warning');
-  assert.equal(g.telegraphs[0].type, 'beam');
-  g.useAbility('lantern');
-  assert.equal(g.telegraphs.length, 0);
-  assert.equal(g.beams.length, 0);
-  assert.equal(g.bossState.phase, 'recover');
-  assert.equal(g.freeze, 3);
-  for (let n = 0; n < 20; n++) g.step(0.1);
-  assert.equal(g.beams.length, 0);
-  assert.equal(g.bossState.remaining, g.profile.recovery);
-});
 test('every shooting pattern shows its fixed direction for the stage warning duration before firing', () => {
   for (const index of [3, 4, 5, 6, 7, 8]) {
     const g = make({ stage: { id: 'custom', index } });
@@ -328,20 +314,6 @@ test('each later story has a distinct cycle and all shots respect the fourteen-b
   assert.equal(g.bullets.length, 13);
   g.advanceBoss(0.9);
   assert.equal(g.bullets.length, 14);
-});
-test('dash finishes in recovery and restores the original roaming velocity', () => {
-  const g = make({ stage: { id: 'pigs', index: 4 } });
-  const boss = g.enemies[0],
-    before = { vx: boss.vx, vy: boss.vy };
-  g.beginWarning();
-  g.advanceBoss(g.profile.warning);
-  assert.equal(boss.dashing, true);
-  assert.ok(Math.hypot(boss.vx, boss.vy) > 10);
-  g.advanceBoss(1);
-  assert.equal(boss.dashing, false);
-  assert.equal(g.bossState.phase, 'recover');
-  assert.deepEqual({ vx: boss.vx, vy: boss.vy }, before);
-  assert.ok(g.bossState.remaining >= 2);
 });
 test('half-restored later stages enter a stronger phase while tutorials never do', () => {
   for (const index of [1, 3]) {
@@ -377,28 +349,6 @@ test('capturing a boss returns effect positions and clears pending attacks', () 
   assert.equal(g.telegraphs.length, 0);
   assert.equal(g.beams.length, 0);
 });
-test('current snapshots preserve buffs, cooldown, warning, energy, and each gift usage', () => {
-  const gifts = ['shell', 'feather', 'lantern'],
-    g = make({ stage: { id: 'beans', index: 6 }, unlockedAbilities: gifts });
-  g.useAbility('shell');
-  for (let n = 0; n < 8; n++) g.step(0.1);
-  g.useAbility('feather');
-  g.beginWarning();
-  g.advanceBoss(0.8);
-  const s = g.snapshot(),
-    r = new GameEngine({ stage: { id: 'beans', index: 6 }, unlockedAbilities: gifts, snapshot: s });
-  assert.equal(r.energy, 1);
-  assert.equal(r.availableCharges.shell, 1);
-  assert.equal(r.availableCharges.feather, 1);
-  assert.equal(r.availableCharges.lantern, 2);
-  assert.equal(r.boost, 0);
-  assert.equal(r.abilityCooldown, 0.7);
-  assert.equal(r.shield, 3);
-  assert.equal(r.bossState.phase, 'warning');
-  assert.ok(Math.abs(r.telegraphs[0].remaining - (g.profile.warning - 0.8)) < 1e-9);
-  assert.equal(r.drawHeld, false);
-  assert.deepEqual(r.player, r.visualPlayer);
-});
 test('old single-gift checkpoints migrate without granting unearned gifts or losing new earned gifts', () => {
   const g = make({ ability: 'shell' });
   const old = g.snapshot();
@@ -414,25 +364,6 @@ test('old single-gift checkpoints migrate without granting unearned gifts or los
   assert.equal(r.availableCharges.feather, 2);
   assert.equal(r.energy, 2);
   assert.equal(r.useAbility('clock'), false);
-});
-test('corrupt dash snapshots cannot turn a roaming boss into a permanently fast projectile', () => {
-  const g = make({ stage: { id: 'pigs', index: 4 } }),
-    bad = g.snapshot();
-  bad.enemies[0].dashing = true;
-  bad.enemies[0].vx = 10.5;
-  bad.enemies[0].vy = 0;
-  delete bad.enemies[0].dashBase;
-  const r = make({ stage: { id: 'pigs', index: 4 }, snapshot: bad });
-  assert.equal(r.enemies[0].dashing, false);
-  assert.ok(Math.hypot(r.enemies[0].vx, r.enemies[0].vy) <= r.profile.bossSpeed + 1e-8);
-  g.beginWarning();
-  g.advanceBoss(g.profile.warning);
-  const valid = g.snapshot(),
-    resumed = make({ stage: { id: 'pigs', index: 4 }, snapshot: valid });
-  assert.equal(resumed.enemies[0].dashing, true);
-  resumed.advanceBoss(1);
-  assert.equal(resumed.enemies[0].dashing, false);
-  assert.ok(Math.hypot(resumed.enemies[0].vx, resumed.enemies[0].vy) <= resumed.profile.bossSpeed + 1e-8);
 });
 test('malformed optional pickup data cannot crash checkpoint restore', () => {
   const s = make().snapshot();

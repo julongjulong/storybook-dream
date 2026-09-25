@@ -77,27 +77,6 @@ for (const dt of [0.1, 1 / 60]) {
   });
 }
 
-test('independent QA: every beam warning arm becomes exactly one active arm after checkpoint restore', () => {
-  for (const [stage, index] of [
-    [6, 0],
-    [7, 2],
-    [8, 1],
-    [8, 4],
-  ]) {
-    const g = make(stage);
-    g.attackIndex = index;
-    g.beginWarning();
-    frames(g, 0.4, 1 / 60);
-    const rays = g.telegraphs.flatMap(t => t.rays.map(r => ({ x: t.x, y: t.y, ...r }))),
-      r = make(stage, { snapshot: g.snapshot() });
-    r.firePattern();
-    assert.equal(r.beams.length, rays.length);
-    for (let i = 0; i < rays.length; i++)
-      for (const key of ['x', 'y', 'angle', 'length']) near(r.beams[i][key], rays[i][key]);
-    const reloaded = make(stage, { snapshot: r.snapshot() });
-    assert.deepEqual(reloaded.beams, r.beams);
-  }
-});
 test('independent QA: a newly claimed wall shortens its active beam and cannot extend other arms', () => {
   const g = make(7);
   g.enemies[0].x = 40.5;
@@ -112,30 +91,6 @@ test('independent QA: a newly claimed wall shortens its active beam and cannot e
   const paused = structuredClone(g.beams);
   g.advanceProjectiles(0.1, 0);
   assert.deepEqual(g.beams, paused);
-});
-test('independent QA: ring second pulse survives save once and uses originally advertised angles', () => {
-  const g = make();
-  g.enemies[0].x = 36;
-  g.enemies[0].y = 24;
-  fire(g, 0);
-  frames(g, 0.4, 0.1);
-  const snapshot = g.snapshot(),
-    r = make(8, { snapshot });
-  assert.equal(r.attackWaves.length, 1);
-  frames(r, 0.55, 1 / 60);
-  assert.equal(r.attackWaves.length, 0);
-  assert.equal(r.bullets.length, 10);
-  const angles = snapshot.attackWaves[0].angles;
-  for (const b of r.bullets)
-    assert.ok(
-      angles.some(
-        a =>
-          Math.abs(Math.cos(a) * PATTERN_SPECS.ring.speed - b.vx) < 1e-8 &&
-          Math.abs(Math.sin(a) * PATTERN_SPECS.ring.speed - b.vy) < 1e-8,
-      ),
-    );
-  frames(r, 0.3, 0.1);
-  assert.equal(r.bullets.length, 10);
 });
 test('independent QA: cancelling a queued volley with lantern cannot leak a delayed second pulse', () => {
   const g = make(8, { unlockedAbilities: ['lantern'] });

@@ -13,6 +13,9 @@ import {
   finite,
   STAGE_IDS,
   capFor,
+  BOSS_PLANS,
+  PHASE_TWO,
+  makeRng,
 } from './game/config.js';
 import { playerMethods } from './game/player.js';
 import { enemiesMethods } from './game/enemies.js';
@@ -50,7 +53,15 @@ export class GameEngine {
     this.stageNumber = integer(stage.index, IDS.indexOf(stage.id) + 1 || 1, 1, BOSS_PROFILES.length);
     this.level = this.stageNumber - 1;
     this.target = TARGETS[this.level];
-    this.profile = { ...BOSS_PROFILES[this.level], name: stage.boss?.name || BOSS_PROFILES[this.level].name };
+    this.plan = BOSS_PLANS[IDS[this.level]];
+    this.profile = {
+      ...BOSS_PROFILES[this.level],
+      name: stage.boss?.name || BOSS_PROFILES[this.level].name,
+      patterns: [...new Set([...this.plan.moves, ...this.plan.late].flat())],
+    };
+    this.rng = makeRng(this.stageNumber * 7919 + 17);
+    this.lastMove = null;
+    this.hitsInRow = 0; // unprotected hits since the last capture; eases the attacks a little
     this.clue = validPoint(stage.clue)
       ? {
           name: String(stage.clue.name || '이야기 단서'),
@@ -112,6 +123,7 @@ export class GameEngine {
       name: this.profile.name,
       remaining: this.attackClock,
       enraged: false,
+      queue: [],
     };
     this.enemies.push({
       id: 0,
@@ -174,11 +186,18 @@ export class GameEngine {
       this[key] = Math.max(0, this[key] - dt);
     this.advancePlayer(dt);
     if (this.won) return;
-    this.bossState.enraged = this.stageNumber >= 3 && this.progress >= 0.5;
+    const enraged = this.stageNumber >= 3 && this.progress >= PHASE_TWO;
+    if (enraged && !this.bossState.enraged && this.bossState.phase !== 'cleared' && this.plan.late.length)
+      this.onEvent({ type: 'phase2', message: '보스가 신이 났어요! 새 기술을 조심해요.' });
+    if (this.bossState.phase !== 'cleared') this.bossState.enraged = enraged;
     this.advanceEnemies(dt, factor);
     if (this.lost) return;
     this.advanceBoss(dt * factor);
     this.advanceProjectiles(dt, factor);
+  }
+  // 1 normally; lower after hits in a row (per: how much each hit eases, up to two hits).
+  assistScale(per) {
+    return 1 - per * Math.min(2, this.hitsInRow || 0);
   }
   blocked(x, y) {
     return x < 2 || y < 2 || x >= WIDTH - 2 || y >= HEIGHT - 2 || this.isSafe(Math.floor(x), Math.floor(y));
@@ -242,7 +261,13 @@ export class GameEngine {
     const caught = this.enemies.filter(e => this.isSafe(Math.floor(e.x), Math.floor(e.y)));
     this.enemies = this.enemies.filter(e => !this.isSafe(Math.floor(e.x), Math.floor(e.y)));
     this.bullets = this.bullets.filter(e => !this.isSafe(Math.floor(e.x), Math.floor(e.y)));
-    if (caught.some(e => e.boss)) this.clearBoss();
+    const bossCaught = caught.some(e => e.boss);
+    if (bossCaught) {
+      this.clearBoss();
+      // Reward: trapping the boss lowers what is left to restore.
+      this.target = Math.max(0.3, this.target - 0.1);
+    }
+    this.hitsInRow = 0;
     this.collectNearby();
     this.grace = 1.4;
     this.cellsVersion++;
@@ -255,7 +280,8 @@ export class GameEngine {
       gain: this.progress - before,
       caught: caught.length,
       caughtPositions: caught.map(e => ({ x: e.x, y: e.y, boss: !!e.boss })),
-      bossCaught: caught.some(e => e.boss),
+      bossCaught,
+      target: this.target,
       message: caught.length ? '꼬임 친구를 감쌌어요! 이야기가 돌아와요.' : '잘했어요! 그림이 더 환해졌어요.',
     });
     this.checkWin();
@@ -287,6 +313,7 @@ export class GameEngine {
       return true;
     }
     this.lives = Math.max(0, this.lives - 1);
+    this.hitsInRow++;
     this.lost = this.lives === 0;
     // The lost line and where the rabbit stood, for the rewind effect.
     const line = [{ ...this.anchor }, ...this.trail.map(p => ({ ...p })), { ...this.visualPlayer }];

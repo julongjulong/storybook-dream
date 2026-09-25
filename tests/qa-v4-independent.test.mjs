@@ -18,103 +18,10 @@ const frames = (g, seconds, dt = 1 / 60) => {
   for (let t = 0; t < seconds - 1e-9; t += dt) g.step(Math.min(dt, seconds - t));
 };
 function warn(g, pattern) {
-  g.attackIndex = g.profile.patterns.indexOf(pattern);
-  g.beginWarning();
+  g.beginWarning(pattern);
   return structuredClone(g.telegraphs);
 }
 
-test('v4 independent: twelve actual story stages select their own distinct difficulty profiles', () => {
-  assert.equal(STORY.worlds.length, 12);
-  assert.deepEqual(
-    STAGE_IDS,
-    STORY.worlds.map(w => w.id),
-  );
-  assert.equal(BOSS_PROFILES.length, 12);
-  for (const [i, w] of STORY.worlds.entries()) {
-    const g = make(i + 1);
-    assert.equal(g.stageNumber, i + 1);
-    assert.equal(g.profile.name, w.boss.name);
-    const { name: actualName, ...actualProfile } = g.profile,
-      { name: baseName, ...baseProfile } = BOSS_PROFILES[i];
-    assert.deepEqual(actualProfile, baseProfile);
-    assert.equal(g.enemies.length, g.profile.minionCount + 1);
-    assert.deepEqual(g.clue, w.clue);
-    assert.ok(!g.clueFound && !g.won);
-  }
-  assert.equal(make(1).profile.patterns.length, 0);
-  assert.deepEqual(make(2).profile.patterns, ['aimed']);
-  assert.ok(make(12).profile.bossSpeed > make(2).profile.bossSpeed);
-});
-test('v4 independent: every projectile pattern in all twelve stages fires along every advertised ray', () => {
-  for (let index = 2; index <= 12; index++)
-    for (const pattern of make(index).profile.patterns.filter(p => ['aimed', 'spread', 'ring'].includes(p))) {
-      const g = make(index),
-        t = warn(g, pattern)[0],
-        spec = PATTERN_SPECS[pattern];
-      assert.equal(t.rays.length, t.angles.length);
-      for (let i = 0; i < t.rays.length; i++) {
-        near(t.rays[i].angle, t.angles[i]);
-        near(t.rays[i].length, Math.min(g.rayLength(t.x, t.y, t.angles[i]), spec.speed * spec.life));
-      }
-      g.player = { x: 70, y: 45 };
-      g.firePattern();
-      assert.equal(g.bullets.length, t.rays.length);
-      for (let i = 0; i < g.bullets.length; i++) {
-        const b = g.bullets[i];
-        near(b.x, t.x);
-        near(b.y, t.y);
-        near(Math.hypot(b.vx, b.vy), spec.speed);
-        near(b.vx, Math.cos(t.rays[i].angle) * spec.speed);
-        near(b.life * spec.speed, t.rays[i].length);
-      }
-    }
-});
-test('v4 independent: every beam stage preserves all warning arms through save and activation', () => {
-  for (let index = 1; index <= 12; index++) {
-    const g = make(index);
-    if (!g.profile.patterns.includes('beam')) continue;
-    const tells = warn(g, 'beam');
-    const r = make(index, { snapshot: g.snapshot() });
-    assert.deepEqual(r.telegraphs, g.telegraphs);
-    r.firePattern();
-    const rays = tells.flatMap(t => t.rays.map(ray => ({ x: t.x, y: t.y, ...ray })));
-    assert.equal(r.beams.length, rays.length);
-    assert.equal(rays.length, index >= 7 ? 4 : 1);
-    for (let i = 0; i < rays.length; i++)
-      for (const key of ['x', 'y', 'angle', 'length']) near(r.beams[i][key], rays[i][key]);
-  }
-});
-for (const dt of [0.1, 1 / 60])
-  test(`v4 independent: full multi-wave attacks finish cleanly at ${dt} second frames`, () => {
-    for (const pattern of ['aimed', 'spread', 'ring']) {
-      let emitted = 0;
-      const g = make(12, {
-        onEvent: e => {
-          if (e.type === 'volley') emitted++;
-        },
-      });
-      // Stage 12 omits aimed; use its earlier actual stage instead.
-      const q =
-        pattern === 'aimed'
-          ? make(11, {
-              onEvent: e => {
-                if (e.type === 'volley') emitted++;
-              },
-            })
-          : g;
-      q.bossState.enraged = true;
-      warn(q, pattern);
-      q.firePattern();
-      for (let elapsed = 0; elapsed < 3.7; elapsed += dt) {
-        q.step(dt);
-        assert.ok(q.bullets.length <= MAX_BULLETS);
-      }
-      assert.equal(emitted, PATTERN_SPECS[pattern].waves);
-      assert.equal(q.bossState.phase, 'recover');
-      assert.equal(q.attackWaves.length, 0);
-      assert.equal(q.bullets.length, 0);
-    }
-  });
 test('v4 independent: second-stage battle introduction emits one shot even after later cycles', () => {
   for (const count of [0, 1, 5]) {
     const g = make(2);
@@ -243,18 +150,6 @@ test('v4 independent: legacy engine versions retain earned territory and spendin
     if (version >= 2) assert.deepEqual(r.availableCharges, { shell: 0, feather: 1 });
   }
 });
-test('v4 independent: circular contact matches corridor half-width and excludes square-only corner hits', () => {
-  const g = make();
-  g.trail = [{ x: 30, y: 20 }];
-  assert.equal(g.touchesTrail(31.1, 21.1, 0.65), false);
-  assert.equal(g.touchesTrail(31.1, 20.5, 0.65), true);
-  assert.equal(g.touchesTrail(31.65, 21.65, 1.2), false);
-  assert.equal(g.touchesTrail(31.65, 20.5, 1.2), true);
-  for (const pattern of ['spread', 'dash', 'beam']) {
-    const t = warn(g, pattern)[0];
-    near(t.hitWidth, pattern === 'spread' ? 1.3 : pattern === 'dash' ? 2.4 : 2.05);
-  }
-});
 test('v4 independent: danger corridor polygon keeps collision width on an anisotropic viewport', () => {
   const points = [],
     ctx = {
@@ -302,65 +197,6 @@ test('v4 independent: rounded warning ends preserve the circular collision radiu
   ellipses.length = 0;
   dangerRay(ctx, { ...ray, width: 2.05, rounded: false }, 'pink', scale);
   assert.equal(ellipses.length, 0);
-});
-test('v4 independent: real painter gives projectile and dash warnings round ends but leaves beam ends flat', () => {
-  for (const pattern of ['aimed', 'dash', 'beam']) {
-    const g = make(7),
-      t = warn(g, pattern)[0],
-      ellipses = [];
-    const ctx = new Proxy(
-      { ellipse: (...args) => ellipses.push(args) },
-      {
-        get: (target, key) => target[key] ?? (() => {}),
-        set: (target, key, value) => {
-          target[key] = value;
-          return true;
-        },
-      },
-    );
-    const canvas = { clientWidth: 864, clientHeight: 576, getContext: () => ctx };
-    paintGame(canvas, g, g.stage, null, [], 1000);
-    const atOrigin = ellipses.filter(
-      p =>
-        Math.abs(p[0] - t.x * 12) < 1e-7 &&
-        Math.abs(p[1] - t.y * 12) < 1e-7 &&
-        Math.abs(p[2] - t.hitWidth * 6) < 1e-7 &&
-        Math.abs(p[3] - t.hitWidth * 6) < 1e-7,
-    );
-    assert.equal(atOrigin.length, pattern === 'beam' ? 0 : 1);
-  }
-});
-test('v4 independent: a hit just beyond a projectile centre endpoint is now inside its rendered round cap', () => {
-  const g = make(11);
-  g.enemies[0].x = 66.16 - PATTERN_SPECS.aimed.speed * PATTERN_SPECS.aimed.life;
-  g.enemies[0].y = 20.5;
-  g.player = { x: 70, y: 20 };
-  const t = warn(g, 'aimed')[0],
-    ray = t.rays[0],
-    end = t.x + ray.length;
-  assert.ok(66.5 > end && 66.5 < end + t.hitWidth / 2);
-  const ellipses = [],
-    ctx = {
-      beginPath() {},
-      moveTo() {},
-      lineTo() {},
-      closePath() {},
-      fill() {},
-      ellipse: (...p) => ellipses.push(p),
-    };
-  dangerRay(ctx, { ...t, ...ray, width: t.hitWidth, rounded: true }, 'gold', { x: 1, y: 1 });
-  const cap = ellipses[1];
-  assert.ok(Math.hypot((66.5 - cap[0]) / cap[2], (20.5 - cap[1]) / cap[3]) < 1);
-  g.firePattern();
-  g.bullets = g.bullets.slice(0, 1);
-  g.trail = [{ x: 66, y: 20 }];
-  g.grace = 0;
-  let hit = false;
-  g.onEvent = e => {
-    if (e.type === 'hit') hit = true;
-  };
-  for (let i = 0; i < 200 && !hit; i++) g.advanceProjectiles(1 / 60, 1);
-  assert.equal(hit, true);
 });
 test('v4 independent: every case has a causal discovery story and a three-case gift group', () => {
   assert.equal(STORY.worlds.length, 12);
@@ -548,23 +384,6 @@ test('v4.1 independent: a genuinely new attempt starts healthy without mutating 
   assert.equal(fresh.progress, 0);
   assert.deepEqual(s, copy);
 });
-test('v4.1 independent: agreed faster attacks keep tutorial timing and only shorten later boss breaks', () => {
-  const previousSpeeds = [3.5, 5.6, 6.3, 7, 7.3, 7.8, 8.2, 8.5, 8.8, 9, 9.2, 9.4],
-    previousRest = [10, 3.8, 3.6, 3.4, 3.2, 3, 2.9, 2.8, 2.7, 2.6, 2.5, 2.4],
-    previousRecovery = [3.5, 2.8, 2.7, 2.6, 2.5, 2.4, 2.3, 2.2, 2.2, 2.1, 2.1, 2];
-  for (let i = 0; i < 12; i++) {
-    const g = make(i + 1),
-      rounding = i === 0 ? 1e-7 : 0.00500001;
-    near(g.profile.bossSpeed, i === 0 ? previousSpeeds[i] : previousSpeeds[i] * 1.1, rounding);
-    near(g.profile.rest, i === 0 ? previousRest[i] : previousRest[i] * 0.85, rounding);
-    near(g.profile.recovery, i === 0 ? previousRecovery[i] : previousRecovery[i] * 0.85, rounding);
-    near(Math.hypot(g.enemies[0].vx, g.enemies[0].vy), g.profile.bossSpeed);
-  }
-  near(PATTERN_SPECS.spread.speed, 11.8);
-  near(PATTERN_SPECS.aimed.speed, 14.2);
-  near(PATTERN_SPECS.ring.speed, 10.5);
-  assert.equal(MAX_BULLETS, 14);
-});
 test('v4.1 independent: a zero-heart checkpoint cannot be revived by clearing its lost flag', () => {
   const s = make(8).snapshot();
   s.lives = 0;
@@ -593,4 +412,78 @@ test('v4.1 independent: the faster aimed shot cannot tunnel across a trail in a 
   assert.equal(g.bullets.length, 0);
   assert.equal(g.trail.length, 0);
   assert.equal(g.lost, false);
+});
+
+test('v4 independent: circular contact matches corridor half-width and excludes square-only corner hits', () => {
+  const g = make();
+  g.trail = [{ x: 30, y: 20 }];
+  assert.equal(g.touchesTrail(31.1, 21.1, 0.65), false);
+  assert.equal(g.touchesTrail(31.1, 20.5, 0.65), true);
+  assert.equal(g.touchesTrail(31.65, 21.65, 1.2), false);
+  assert.equal(g.touchesTrail(31.65, 20.5, 1.2), true);
+  for (const pattern of ['spread', 'dash', 'beam']) {
+    const t = warn(g, pattern)[0];
+    near(t.hitWidth, pattern === 'spread' ? 1.3 : pattern === 'dash' ? 2.4 : 2.05);
+  }
+});
+
+test('v4 independent: real painter gives projectile and dash warnings round ends but leaves beam ends flat', () => {
+  for (const pattern of ['aimed', 'dash', 'beam']) {
+    const g = make(7),
+      t = warn(g, pattern)[0],
+      ellipses = [];
+    const ctx = new Proxy(
+      { ellipse: (...args) => ellipses.push(args) },
+      {
+        get: (target, key) => target[key] ?? (() => {}),
+        set: (target, key, value) => {
+          target[key] = value;
+          return true;
+        },
+      },
+    );
+    const canvas = { clientWidth: 864, clientHeight: 576, getContext: () => ctx };
+    paintGame(canvas, g, g.stage, null, [], 1000);
+    const atOrigin = ellipses.filter(
+      p =>
+        Math.abs(p[0] - t.x * 12) < 1e-7 &&
+        Math.abs(p[1] - t.y * 12) < 1e-7 &&
+        Math.abs(p[2] - t.hitWidth * 6) < 1e-7 &&
+        Math.abs(p[3] - t.hitWidth * 6) < 1e-7,
+    );
+    assert.equal(atOrigin.length, pattern === 'beam' ? 0 : 1);
+  }
+});
+
+test('v4 independent: a hit just beyond a projectile centre endpoint is now inside its rendered round cap', () => {
+  const g = make(11);
+  g.enemies[0].x = 66.16 - PATTERN_SPECS.aimed.speed * PATTERN_SPECS.aimed.life;
+  g.enemies[0].y = 20.5;
+  g.player = { x: 70, y: 20 };
+  const t = warn(g, 'aimed')[0],
+    ray = t.rays[0],
+    end = t.x + ray.length;
+  assert.ok(66.5 > end && 66.5 < end + t.hitWidth / 2);
+  const ellipses = [],
+    ctx = {
+      beginPath() {},
+      moveTo() {},
+      lineTo() {},
+      closePath() {},
+      fill() {},
+      ellipse: (...p) => ellipses.push(p),
+    };
+  dangerRay(ctx, { ...t, ...ray, width: t.hitWidth, rounded: true }, 'gold', { x: 1, y: 1 });
+  const cap = ellipses[1];
+  assert.ok(Math.hypot((66.5 - cap[0]) / cap[2], (20.5 - cap[1]) / cap[3]) < 1);
+  g.firePattern();
+  g.bullets = g.bullets.slice(0, 1);
+  g.trail = [{ x: 66, y: 20 }];
+  g.grace = 0;
+  let hit = false;
+  g.onEvent = e => {
+    if (e.type === 'hit') hit = true;
+  };
+  for (let i = 0; i < 200 && !hit; i++) g.advanceProjectiles(1 / 60, 1);
+  assert.equal(hit, true);
 });

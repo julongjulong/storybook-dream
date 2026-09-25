@@ -16,7 +16,7 @@ export const BOSS_PROFILES = [
     minionSpeed: 0,
     minionCount: 0,
     warning: 2.4,
-    recovery: 3.5,
+    recovery: 2.45,
   },
   {
     name: '뒤뚱뒤뚱 물갈퀴 장화',
@@ -25,8 +25,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 6.16,
     minionSpeed: 4.1,
     minionCount: 1,
-    warning: 2.2,
-    recovery: 2.38,
+    warning: 1.4,
+    recovery: 1.67,
   },
   {
     name: '벽돌집 설계 소동',
@@ -35,8 +35,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 6.93,
     minionSpeed: 4.8,
     minionCount: 2,
-    warning: 2.1,
-    recovery: 2.29,
+    warning: 1.25,
+    recovery: 1.6,
   },
   {
     name: '할머니 집 열쇠 달리기',
@@ -45,8 +45,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 7.7,
     minionSpeed: 5.2,
     minionCount: 2,
-    warning: 2,
-    recovery: 2.21,
+    warning: 1.2,
+    recovery: 1.55,
   },
   {
     name: '콩나무 종 방울',
@@ -55,8 +55,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 8.03,
     minionSpeed: 5.5,
     minionCount: 2,
-    warning: 1.9,
-    recovery: 2.13,
+    warning: 1.15,
+    recovery: 1.49,
   },
   {
     name: '개미 창고 빛줄기',
@@ -65,8 +65,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 8.58,
     minionSpeed: 5.8,
     minionCount: 3,
-    warning: 1.9,
-    recovery: 2.04,
+    warning: 1.1,
+    recovery: 1.43,
   },
   {
     name: '생쥐 가위 구조 작전',
@@ -75,8 +75,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 9.02,
     minionSpeed: 6,
     minionCount: 3,
-    warning: 1.8,
-    recovery: 1.95,
+    warning: 1.05,
+    recovery: 1.37,
   },
   {
     name: '포도밭 사다리 빛놀이',
@@ -85,8 +85,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 9.35,
     minionSpeed: 6.2,
     minionCount: 3,
-    warning: 1.8,
-    recovery: 1.87,
+    warning: 1,
+    recovery: 1.31,
   },
   {
     name: '바람의 모자 끈',
@@ -95,8 +95,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 9.68,
     minionSpeed: 6.4,
     minionCount: 3,
-    warning: 1.8,
-    recovery: 1.87,
+    warning: 1,
+    recovery: 1.31,
   },
   {
     name: '쇠도끼 반짝 물결',
@@ -105,8 +105,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 9.9,
     minionSpeed: 6.5,
     minionCount: 4,
-    warning: 1.7,
-    recovery: 1.78,
+    warning: 0.95,
+    recovery: 1.25,
   },
   {
     name: '피리 마개 행진',
@@ -115,8 +115,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 10.12,
     minionSpeed: 6.6,
     minionCount: 4,
-    warning: 1.7,
-    recovery: 1.78,
+    warning: 0.95,
+    recovery: 1.25,
   },
   {
     name: '트로이 오리 문지기',
@@ -125,8 +125,8 @@ export const BOSS_PROFILES = [
     bossSpeed: 10.34,
     minionSpeed: 6.8,
     minionCount: 4,
-    warning: 1.6,
-    recovery: 1.7,
+    warning: 0.9,
+    recovery: 1.19,
   },
 ];
 export const PLAYER_SPEEDS = [8.5, 10, 11.5, 13];
@@ -136,6 +136,7 @@ export const PATTERN_SPECS = {
   ring: { speed: 10.5, life: 3.2, duration: 3.6, waves: 2, waveDelay: 0.9 },
   beam: { duration: 1.4, width: 1.25 },
   dash: { duration: 1, speed: 12, range: 12 },
+  crumbdash: { duration: 1, speed: 12, range: 12, crumbEvery: 1.5, crumbLife: 2.5 },
 };
 export const MAX_BULLETS = 14;
 export const PATTERN_NAMES = {
@@ -144,6 +145,7 @@ export const PATTERN_NAMES = {
   ring: '열린 방울 고리',
   dash: '한번 쭉 달리기',
   beam: '반짝 빛줄기',
+  crumbdash: '빵가루 데굴 돌진',
 };
 export const velocity = (x, y, speed) => {
   const length = Math.hypot(x, y);
@@ -176,19 +178,45 @@ export const validPoint = p =>
   p.x < WIDTH - 2 &&
   p.y >= 2 &&
   p.y < HEIGHT - 2;
-export const sameAngle = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b))) < 1e-7;
-export const validPatternAngles = (pattern, angles, base) => {
-  if (!Array.isArray(angles) || !angles.length || !angles.every(Number.isFinite) || !Number.isFinite(base))
-    return false;
-  if (pattern === 'spread')
-    return (
-      [3, 5].includes(angles.length) &&
-      angles.every((a, i) => sameAngle(a, base + (i - (angles.length - 1) / 2) * 0.3))
-    );
-  if (pattern === 'ring')
-    return (
-      [5, 7].includes(angles.length) &&
-      angles.every((a, i) => sameAngle(a, base + Math.PI / 4 + (i * Math.PI * 1.5) / (angles.length - 1)))
-    );
-  return angles.length === 1 && sameAngle(angles[0], base);
+
+// Dash-type patterns: the boss itself charges along the tell.
+export const isDash = pattern => pattern === 'dash' || pattern === 'crumbdash';
+
+// v5 boss plans per case. moves: what the boss may choose at any time.
+// late: extra moves from 50% restored (phase 2). A list is a combo, chained with a short follow-up tell.
+// hunt (0..1): how strongly the boss steers toward the rabbit while it is out drawing.
+export const BOSS_PLANS = {
+  race: { hunt: 0.35, moves: [], late: [] },
+  duck: { hunt: 0.3, moves: ['aimed'], late: [] },
+  pigs: { hunt: 0.4, moves: ['spread'], late: [['spread', 'spread']] },
+  redhood: { hunt: 0.7, moves: ['crumbdash', 'aimed'], late: [['crumbdash', 'crumbdash']] },
+  beans: { hunt: 0.5, moves: ['ring', 'aimed'], late: [['aimed', 'ring']] },
+  ant: { hunt: 0.5, moves: ['beam', 'spread'], late: [['spread', 'beam']] },
+  lion: { hunt: 0.6, moves: ['aimed', 'dash', 'beam'], late: [['dash', 'aimed']] },
+  fox: { hunt: 0.55, moves: ['ring', 'beam', 'spread'], late: [['ring', 'spread']] },
+  wind: { hunt: 0.6, moves: ['spread', 'dash', 'ring'], late: [['dash', 'spread']] },
+  ax: { hunt: 0.55, moves: ['aimed', 'beam', 'ring'], late: [['beam', 'aimed']] },
+  piper: { hunt: 0.65, moves: ['ring', 'spread', 'aimed', 'dash'], late: [['aimed', 'aimed']] },
+  troy: {
+    hunt: 0.7,
+    moves: ['beam', 'ring', 'dash', 'spread'],
+    late: [
+      ['dash', 'ring'],
+      ['spread', 'beam'],
+    ],
+  },
+};
+export const FOLLOW_UP_WARNING = 0.55; // seconds of tell for the second hit of a combo
+export const PHASE_TWO = 0.5; // share restored when the boss enters phase 2
+
+// Small seeded random source, so a case plays the same way for the same inputs.
+export const makeRng = seed => {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 };

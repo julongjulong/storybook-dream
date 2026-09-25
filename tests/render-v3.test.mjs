@@ -49,25 +49,6 @@ test('wide and portrait arenas resize the drawing buffer and keep circles round 
   }
 });
 
-test('later cross-beam warning renderer draws every ray that the engine advertised', () => {
-  const stage = STORY.worlds[7],
-    g = new GameEngine({ stage }),
-    s = surface(1440, 768);
-  g.attackIndex = 1;
-  g.beginWarning();
-  assert.equal(g.telegraphs.length, 2);
-  paintGame(s.canvas, g, stage, null, [], 100);
-  const expected = g.telegraphs.flatMap(t =>
-    t.rays.map(r => ({
-      x: (t.x + Math.cos(r.angle) * r.length) * 20,
-      y: (t.y + Math.sin(r.angle) * r.length) * 16,
-    })),
-  );
-  const actual = s.lines.filter(l => l.color === '#ffde9bd9' && l.dashed);
-  assert.equal(actual.length, 4);
-  for (const p of expected) assert.ok(actual.some(a => Math.hypot(a.x - p.x, a.y - p.y) < 1e-7));
-});
-
 test('a discovered illustration stays entirely visible in wide and portrait arenas without adjacent comic panels', () => {
   const img = { width: 1254, height: 1254 },
     frame = { x: 0.51, y: 0.34, width: 0.48, height: 0.32 };

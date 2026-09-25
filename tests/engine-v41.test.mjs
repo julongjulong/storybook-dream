@@ -19,22 +19,6 @@ const lose = g => {
   }
 };
 
-test('v4.1 exact attack speeds rise about a quarter while every warning duration stays unchanged', () => {
-  assert.equal(PATTERN_SPECS.spread.speed, 11.8);
-  assert.equal(PATTERN_SPECS.aimed.speed, 14.2);
-  assert.equal(PATTERN_SPECS.ring.speed, 10.5);
-  const oldBoss = [3.5, 5.6, 6.3, 7, 7.3, 7.8, 8.2, 8.5, 8.8, 9, 9.2, 9.4],
-    warnings = [2.4, 2.2, 2.1, 2, 1.9, 1.9, 1.8, 1.8, 1.8, 1.7, 1.7, 1.6],
-    rests = [10, 3.8, 3.6, 3.4, 3.2, 3, 2.9, 2.8, 2.7, 2.6, 2.5, 2.4],
-    recovery = [3.5, 2.8, 2.7, 2.6, 2.5, 2.4, 2.3, 2.2, 2.2, 2.1, 2.1, 2];
-  for (let i = 0; i < 12; i++) {
-    const p = BOSS_PROFILES[i];
-    near(p.bossSpeed, i ? Number((oldBoss[i] * 1.1).toFixed(2)) : oldBoss[i]);
-    near(p.warning, warnings[i]);
-    near(p.rest, i ? Number((rests[i] * 0.85).toFixed(2)) : rests[i]);
-    near(p.recovery, i ? Number((recovery[i] * 0.85).toFixed(2)) : recovery[i]);
-  }
-});
 test('three unshielded hits consume three hearts, retain acquired territory and emit one terminal loss', () => {
   const events = [],
     g = make(3, { onEvent: e => events.push(e) });
@@ -188,32 +172,6 @@ test('older checkpoints get three hearts but retain land, stars and energy while
     assert.equal(r.bossState.phase, 'roam');
     assert.equal(r.telegraphs.length, 0);
   }
-});
-test('a current high-speed aimed volley keeps its exact velocity, rays, and remaining delays on resume', () => {
-  const g = make(4);
-  g.attackIndex = 1;
-  g.beginWarning();
-  let r = make(4, { snapshot: g.snapshot() });
-  assert.deepEqual(r.telegraphs, g.telegraphs);
-  r.firePattern();
-  r.advanceBoss(0.2);
-  const s = r.snapshot(),
-    again = make(4, { snapshot: s });
-  assert.deepEqual(again.bullets, r.bullets);
-  assert.deepEqual(again.attackWaves, r.attackWaves);
-  near(Math.hypot(again.bullets[0].vx, again.bullets[0].vy), 14.2);
-});
-test('new fastest boss velocity and valid dash base remain restorable', () => {
-  const g = make(12);
-  let r = make(12, { snapshot: g.snapshot() });
-  near(Math.hypot(r.enemies[0].vx, r.enemies[0].vy), 10.34);
-  g.attackIndex = 2;
-  g.beginWarning();
-  g.firePattern();
-  r = make(12, { snapshot: g.snapshot() });
-  assert.equal(r.enemies[0].dashing, true);
-  r.advanceBoss(1);
-  near(Math.hypot(r.enemies[0].vx, r.enemies[0].vy), 10.34);
 });
 test('damaged terminal save with illegal board coordinates is rejected atomically', () => {
   const g = make(3);

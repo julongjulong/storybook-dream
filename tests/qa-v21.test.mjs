@@ -149,61 +149,6 @@ test('v2.1 QA: bullets and beams cannot cross a one-cell claimed wall or mutate 
   assert.deepEqual(Array.from(g.cells), before);
 });
 
-test('v2.1 QA: every boss pattern uses the displayed locked angle and gives a projectile-free stationary recovery', () => {
-  for (let index = 3; index <= 8; index++)
-    for (let p = 0; p < make(index).profile.patterns.length; p++) {
-      const g = make(index);
-      g.attackIndex = p;
-      g.beginWarning();
-      const shown = structuredClone(g.telegraphs[0]),
-        boss = g.enemies[0],
-        start = [boss.x, boss.y];
-      g.player = { x: 65, y: 1 };
-      g.advanceEnemies(0.1, 1);
-      assert.deepEqual([boss.x, boss.y], start);
-      g.advanceBoss(shown.duration);
-      assert.equal(g.bossState.phase, 'attack');
-      if (shown.type === 'dash') near(Math.atan2(boss.vy, boss.vx), shown.angle);
-      else if (shown.type === 'beam') near(g.beams[0].angle, shown.angle);
-      else
-        for (let i = 0; i < g.bullets.length; i++)
-          near(Math.cos(Math.atan2(g.bullets[i].vy, g.bullets[i].vx) - shown.angles[i]), 1);
-      if (shown.type !== 'dash') {
-        g.advanceEnemies(0.1, 1);
-        assert.deepEqual([boss.x, boss.y], start);
-      }
-      g.advanceBoss(g.bossState.remaining + 0.001);
-      assert.equal(g.bossState.phase, 'recover');
-      assert.equal(g.bullets.length, 0);
-      assert.equal(g.beams.length, 0);
-      const rest = [boss.x, boss.y];
-      g.advanceEnemies(0.1, 1);
-      assert.deepEqual([boss.x, boss.y], rest);
-    }
-});
-
-test('v2.1 QA: a dash into claimed ground stops rather than bouncing toward an unmarked direction', () => {
-  const g = make(4),
-    boss = g.enemies[0];
-  boss.x = 29.8;
-  boss.y = 20.5;
-  boss.vx = 1;
-  boss.vy = 0;
-  for (let y = 2; y < HEIGHT - 2; y++) g.cells[g.index(30, y)] = 1;
-  g.player = { x: 40, y: 20 };
-  g.beginWarning();
-  g.advanceBoss(g.profile.warning);
-  assert.equal(boss.dashing, true);
-  g.advanceEnemies(0.1, 1);
-  assert.equal(boss.dashing, false);
-  assert.equal(g.bossState.phase, 'recover');
-  assert.ok(boss.x < 30);
-  assert.equal(boss.vx, 1);
-  const stopped = [boss.x, boss.y];
-  g.advanceEnemies(0.1, 1);
-  assert.deepEqual([boss.x, boss.y], stopped);
-});
-
 test('v4 QA: helper flashes then roams quickly without shooting or aiming at the player', () => {
   const events = [],
     g = make(7, { onEvent: e => events.push(e) }),

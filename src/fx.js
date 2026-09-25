@@ -80,6 +80,14 @@ export class Effects {
       this.popup(`${c.name} 발견!`, c.x + 0.5, c.y - 1.5, 2.4, '#d6ffe9', 2.2);
       this.burst(c.x + 0.5, c.y + 0.5, 28, '#b6f0d0', 8);
       sfx('clue');
+    } else if (event.type === 'phase2') {
+      const b = engine?.enemies.find(e => e.boss);
+      this.shake = Math.max(this.shake, 0.3);
+      sfx('warning');
+      if (b) {
+        this.popup('신났다!', b.x, b.y - 3, 1.8, '#ffb4a8');
+        this.burst(b.x, b.y, 18, '#ffb4a8', 6);
+      }
     } else if (event.type === 'pickup') {
       const p = engine?.player;
       if (p) {

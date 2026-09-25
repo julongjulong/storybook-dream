@@ -1,5 +1,6 @@
 import { GameEngine, WIDTH, HEIGHT, ABILITIES } from './engine.js';
-import { paintGame, strokeRay } from './render.js';
+import { isDash } from './game/config.js';
+import { paintGame } from './render.js';
 import { STORY } from './story-data.js';
 import { ART, STORY_ART } from './art.js';
 import { artFrame } from './art-layout.js';
@@ -459,7 +460,7 @@ function gameEvent(event) {
   } else if (['warning', 'dash', 'beam', 'hit', 'pickup', 'ability', 'block'].includes(event.type))
     audio.effect(event.type === 'block' ? 'ability' : event.type);
   if (event.type === 'attack')
-    audio.effect(event.pattern === 'beam' ? 'beam' : event.pattern === 'dash' ? 'dash' : 'warning');
+    audio.effect(event.pattern === 'beam' ? 'beam' : isDash(event.pattern) ? 'dash' : 'warning');
   if (event.type === 'clue') {
     save.current = engine.snapshot();
     persist();

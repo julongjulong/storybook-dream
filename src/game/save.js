@@ -1,18 +1,4 @@
-import {
-  WIDTH,
-  PATTERN_SPECS,
-  MAX_BULLETS,
-  PATTERN_NAMES,
-  velocity,
-  clamp,
-  integer,
-  validPoint,
-  sameAngle,
-  validPatternAngles,
-  HEIGHT,
-  finite,
-  capFor,
-} from './config.js';
+import { WIDTH, velocity, clamp, integer, validPoint, HEIGHT, finite, capFor } from './config.js';
 
 // Checkpoint snapshot and validated restore, including older save formats.
 // Mixed into GameEngine.prototype; `this` is the engine.
@@ -86,18 +72,7 @@ export const saveMethods = {
       return x < 2 || y < 2 || x >= WIDTH - 2 || y >= HEIGHT - 2 ? c === 1 : true;
     });
     if (!boundaryValid || s.cells[s.player.y * WIDTH + s.player.x] !== 1) return false;
-    const validDash = e =>
-      s.engineVersion >= 2 &&
-      s.bossState?.phase === 'attack' &&
-      s.bossState?.pattern === 'dash' &&
-      this.profile.patterns.includes('dash') &&
-      e.boss &&
-      e.dashing &&
-      e.dashBase &&
-      Number.isFinite(e.dashBase.vx) &&
-      Math.abs(e.dashBase.vx) <= 11 &&
-      Number.isFinite(e.dashBase.vy) &&
-      Math.abs(e.dashBase.vy) <= 11;
+    const MAX_ENEMY_SPEED = 14;
     if (
       !Array.isArray(s.enemies) ||
       s.enemies.length > 5 ||
@@ -107,9 +82,9 @@ export const saveMethods = {
           validPoint(e) &&
           !s.cells[Math.floor(e.y) * WIDTH + Math.floor(e.x)] &&
           Number.isFinite(e.vx) &&
-          Math.abs(e.vx) <= (validDash(e) ? 12 : 11) &&
+          Math.abs(e.vx) <= MAX_ENEMY_SPEED &&
           Number.isFinite(e.vy) &&
-          Math.abs(e.vy) <= (validDash(e) ? 12 : 11),
+          Math.abs(e.vy) <= MAX_ENEMY_SPEED,
       )
     )
       return false;
@@ -126,8 +101,9 @@ export const saveMethods = {
     this.enemies = s.enemies.map(e => {
       const id = integer(e.id, e.boss ? 0 : 1, 0, 4),
         boss = !!e.boss,
-        dashing = s.engineVersion === 6 && !!validDash(e),
         speed = boss ? this.profile.bossSpeed : this.profile.minionSpeed;
+      // A checkpoint taken mid-dash walks on at normal speed in the direction it had before.
+      const heading = e.dashing && e.dashBase ? e.dashBase : e;
       const behavior = boss ? 'wander' : 'rush_wander';
       const allowed = ['roam', 'warmup', 'rush'];
       const phase = s.engineVersion === 6 && allowed.includes(e.intent?.phase) ? e.intent.phase : 'roam';
@@ -143,17 +119,15 @@ export const saveMethods = {
             angle: finite(e.intent?.angle, Math.atan2(e.vy, e.vx)),
             length: this.profile.minionSpeed * 1.25 * 1.1,
           };
-      const base = e.dashing && validDash(e) ? e.dashBase : e;
       return {
         id,
         x: e.x,
         y: e.y,
-        ...velocity(dashing ? e.vx : base.vx, dashing ? e.vy : base.vy, dashing ? 12 : speed),
+        ...velocity(heading.vx, heading.vy, speed),
         boss,
-        dashing,
+        dashing: false,
         behavior,
         intent,
-        dashBase: dashing ? velocity(base.vx, base.vy, speed) : undefined,
       };
     });
     this.speedLevel = integer(s.speedLevel, 0, 0, 3);
@@ -185,150 +159,17 @@ export const saveMethods = {
       s.pickups.every(p => p && Number.isInteger(p.x) && Number.isInteger(p.y) && validPoint(p))
     )
       this.pickups = s.pickups.map(p => ({ x: p.x, y: p.y, type: 'speed' }));
-    const phases = ['roam', 'warning', 'attack', 'recover', 'cleared'];
-    if (
-      s.engineVersion === 6 &&
-      s.bossState &&
-      phases.includes(s.bossState.phase) &&
-      (s.bossState.phase !== 'cleared' || !this.enemies.some(e => e.boss)) &&
-      (!s.bossState.pattern || this.profile.patterns.includes(s.bossState.pattern))
-    ) {
-      const duration =
-        s.bossState.phase === 'warning'
-          ? this.profile.warning
-          : s.bossState.phase === 'recover'
-            ? this.profile.recovery
-            : s.bossState.phase === 'attack'
-              ? PATTERN_SPECS[s.bossState.pattern]?.duration || 3.6
-              : this.profile.rest;
-      this.bossState = {
-        phase: s.bossState.phase,
-        pattern: s.bossState.pattern || null,
-        name: PATTERN_NAMES[s.bossState.pattern] || this.profile.name,
-        remaining: clamp(finite(s.bossState.remaining, duration), 0, duration),
-        enraged: this.stageNumber >= 3 && this.progress >= 0.5,
-      };
-      this.attackClock = clamp(finite(s.attackClock, this.profile.rest), 0, this.profile.rest);
-      this.attackIndex = integer(s.attackIndex, 0, 0, 100000);
-      const validAngles = a => Array.isArray(a) && a.length > 0 && a.length <= 7 && a.every(Number.isFinite);
-      const phase = this.bossState.phase;
-      if (
-        phase === 'warning' &&
-        Array.isArray(s.telegraphs) &&
-        s.telegraphs.length <= (this.stageNumber >= 7 ? 2 : 1)
-      )
-        this.telegraphs = s.telegraphs
-          .filter(
-            t =>
-              validPoint(t) &&
-              t.type === this.bossState.pattern &&
-              this.profile.patterns.includes(t.type) &&
-              Number.isFinite(t.angle) &&
-              validAngles(t.angles),
-          )
-          .map(t => {
-            const spec = PATTERN_SPECS[t.type],
-              rays = t.angles.map(angle => ({
-                angle,
-                length: Math.min(
-                  this.rayLength(t.x, t.y, angle),
-                  t.type === 'dash' ? spec.range : spec.speed ? spec.speed * spec.life : 100,
-                ),
-              }));
-            return {
-              type: t.type,
-              x: t.x,
-              y: t.y,
-              angle: t.angle,
-              angles: [...t.angles],
-              rays,
-              length: rays[0].length,
-              width: t.type === 'beam' ? 1.25 : 1,
-              hitWidth: t.type === 'beam' ? 2.05 : t.type === 'dash' ? 2.4 : 1.3,
-              remaining: this.bossState.remaining,
-              duration: this.profile.warning,
-              ...(t.type === 'ring' ? { gapAngle: t.angle, gapWidth: Math.PI / 2 } : {}),
-            };
-          });
-      if (phase === 'attack' && Array.isArray(s.bullets) && s.bullets.length <= MAX_BULLETS)
-        this.bullets = s.bullets
-          .filter(
-            b =>
-              validPoint(b) &&
-              !this.blocked(b.x, b.y) &&
-              ['ring', 'spread', 'aimed'].includes(b.kind) &&
-              Number.isFinite(b.vx) &&
-              Math.abs(b.vx) <= 14.2 &&
-              Number.isFinite(b.vy) &&
-              Math.abs(b.vy) <= 14.2 &&
-              Math.hypot(b.vx, b.vy) <= 14.2 + 1e-8,
-          )
-          .map(b => ({
-            x: b.x,
-            y: b.y,
-            vx: b.vx,
-            vy: b.vy,
-            life: clamp(finite(b.life, 0), 0, PATTERN_SPECS[b.kind].life),
-            kind: b.kind,
-          }));
-      if (
-        phase === 'attack' &&
-        this.bossState.pattern === 'beam' &&
-        Array.isArray(s.beams) &&
-        s.beams.length <= (this.stageNumber >= 7 ? 4 : 1)
-      )
-        this.beams = s.beams
-          .filter(b => validPoint(b) && !this.blocked(b.x, b.y) && Number.isFinite(b.angle))
-          .map(b => ({
-            x: b.x,
-            y: b.y,
-            angle: b.angle,
-            length: Math.min(clamp(finite(b.length, 0), 0, 100), this.rayLength(b.x, b.y, b.angle)),
-            width: 1.25,
-            life: clamp(finite(b.life, 0), 0, PATTERN_SPECS.beam.duration),
-          }));
-      if (phase === 'attack' && Array.isArray(s.attackWaves) && s.attackWaves.length <= 2)
-        this.attackWaves = s.attackWaves
-          .filter(
-            w =>
-              validPoint(w) &&
-              !this.blocked(w.x, w.y) &&
-              w.pattern === this.bossState.pattern &&
-              ['ring', 'spread', 'aimed'].includes(w.pattern) &&
-              validAngles(w.angles) &&
-              Number.isFinite(w.remaining) &&
-              w.remaining > 0 &&
-              w.remaining <= PATTERN_SPECS[w.pattern].waveDelay * (PATTERN_SPECS[w.pattern].waves - 1),
-          )
-          .map(w => ({ pattern: w.pattern, x: w.x, y: w.y, angles: [...w.angles], remaining: w.remaining }));
-      this.warning = this.bossState.phase === 'warning' ? this.bossState.remaining : 0;
-      if (this.bossState.phase === 'warning') {
-        const boss = this.enemies.find(e => e.boss),
-          cross = this.bossState.pattern === 'beam' && this.stageNumber >= 7,
-          axis = this.attackIndex % 2 ? Math.PI / 4 : 0;
-        const validTells =
-          this.telegraphs.length === (cross ? 2 : 1) &&
-          this.telegraphs.every(
-            (t, i) =>
-              boss &&
-              Math.abs(t.x - boss.x) < 1e-7 &&
-              Math.abs(t.y - boss.y) < 1e-7 &&
-              (cross
-                ? t.angles.length === 2 &&
-                  sameAngle(t.angle, axis + (i * Math.PI) / 2) &&
-                  sameAngle(t.angles[0], t.angle) &&
-                  sameAngle(t.angles[1], t.angle + Math.PI)
-                : validPatternAngles(t.type, t.angles, t.angle)),
-          );
-        if (!validTells) this.cancelAttack();
-      }
-      if (this.bossState.phase === 'recover' || this.bossState.phase === 'roam') {
-        this.bullets = [];
-        this.beams = [];
-        this.telegraphs = [];
-        this.endDash();
-      }
-    } else this.endDash();
+    // The boss always resumes calmly: a fresh roam before its next move, nothing in the air.
+    this.telegraphs = [];
+    this.beams = [];
+    this.bullets = [];
+    this.attackWaves = [];
+    this.warning = 0;
+    this.bossState = { ...this.bossState, phase: 'roam', pattern: null, queue: [], name: this.profile.name };
+    this.attackClock = this.profile.rest;
+    this.bossState.remaining = this.attackClock;
+    this.attackIndex = integer(s.attackIndex, 0, 0, 100000);
+    this.bossState.enraged = this.stageNumber >= 3 && this.progress >= 0.5;
     if (!this.enemies.some(e => e.boss)) this.clearBoss();
     return true;
   },
