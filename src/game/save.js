@@ -114,6 +114,7 @@ export const saveMethods = {
     )
       return false;
     this.cells = Uint8Array.from(s.cells);
+    this.cellsVersion++;
     this.player = { ...s.player };
     this.anchor = { ...s.player };
     this.syncVisual();

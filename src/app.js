@@ -4,12 +4,14 @@ import { STORY } from './story-data.js';
 import { ART, STORY_ART } from './art.js';
 import { artFrame } from './art-layout.js';
 import { AudioDirector } from './audio.js';
+import { Effects } from './fx.js';
 import './debug.js';
 import './gamepad.js';
 
 const IMAGES_KEY = 'storybook-dream-images-v1';
 const app = document.getElementById('app'),
   audio = new AudioDirector(),
+  fx = new Effects(audio),
   KEY = 'storybook-dream-save-v1';
 const worlds = STORY.worlds,
   ids = worlds.map(w => w.id),
@@ -47,7 +49,6 @@ let mapIndex = 0,
   toastText = '',
   toastUntil = 0,
   cachedImage = null,
-  particles = [],
   touchDraw = false,
   speedFlashUntil = 0;
 const heldKeys = new Set();
@@ -207,7 +208,7 @@ function stopGame() {
   engine = null;
   currentStage = null;
   paused = false;
-  particles = [];
+  fx.reset();
 }
 function home() {
   stopGame();
@@ -424,6 +425,7 @@ function showToast(text, seconds = 3) {
   toastUntil = performance.now() + seconds * 1000;
 }
 function gameEvent(event) {
+  fx.onEvent(event, engine);
   if (event.type === 'lose') {
     showDefeat();
     return;
@@ -447,20 +449,8 @@ function gameEvent(event) {
     return;
   }
   if (event.type === 'capture') {
-    audio.effect('capture');
     save.current = engine.snapshot();
     persist();
-    for (const p of event.caughtPositions || [])
-      for (let i = 0; i < 12; i++)
-        particles.push({
-          x: p.x * 12,
-          y: p.y * 12,
-          vx: Math.cos((i * Math.PI) / 6) * 32,
-          vy: Math.sin((i * Math.PI) / 6) * 32,
-          life: 1.2,
-          max: 1.2,
-          color: p.boss ? '#ffe595' : '#c3eac7',
-        });
     document.getElementById('hint').textContent = event.bossCaught
       ? '보스를 가뒀어요! 남은 단서를 찾아요.'
       : event.caught
@@ -471,25 +461,13 @@ function gameEvent(event) {
   if (event.type === 'attack')
     audio.effect(event.pattern === 'beam' ? 'beam' : event.pattern === 'dash' ? 'dash' : 'warning');
   if (event.type === 'clue') {
-    audio.effect('capture');
     save.current = engine.snapshot();
     persist();
   }
   if (event.type === 'pickup') {
     speedFlashUntil = performance.now() + 1600;
-    const p = engine.player;
-    for (let i = 0; i < 10; i++)
-      particles.push({
-        x: (p.x + 0.5) * 12,
-        y: (p.y + 0.5) * 12,
-        vx: Math.cos((i * Math.PI) / 5) * 26,
-        vy: Math.sin((i * Math.PI) / 5) * 26,
-        life: 1,
-        max: 1,
-        color: '#ffe38e',
-      });
   }
-  if (event.message) {
+  if (event.message && !['capture', 'clue', 'pickup'].includes(event.type)) {
     if (['warning', 'recovery', 'minion-warning'].includes(event.type)) {
       const hint = document.getElementById('hint');
       if (hint) hint.textContent = event.message;
@@ -506,17 +484,12 @@ function tick(now) {
   const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
   last = now;
   if (!paused) {
-    stepBank = Math.min(stepBank + dt, STEP * MAX_STEPS);
+    fx.update(dt);
+    stepBank = Math.min(stepBank + dt * fx.timeScale, STEP * MAX_STEPS);
     while (stepBank >= STEP && engine) {
       engine.step(STEP);
       stepBank -= STEP;
     }
-    particles = particles.filter(p => {
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      p.life -= dt;
-      return p.life > 0;
-    });
   }
   render(now);
   frame = requestAnimationFrame(tick);
@@ -539,13 +512,14 @@ function render(now) {
   const canvas = document.getElementById('game');
   if (!canvas || !engine) return;
   const $ = id => document.getElementById(id);
-  const visual = paintGame(canvas, engine, currentStage, cachedImage, particles, now, stepBank / STEP);
+  const visual = paintGame(canvas, engine, currentStage, cachedImage, fx, now, stepBank / STEP);
   put($('progress-label'), 'textContent', `그림 ${Math.round(engine.progress * 100)}%`);
   put($('progress-fill'), 'width', `${Math.min(100, (engine.progress / engine.target) * 100)}%`);
   const lives = $('lives');
   put(lives, 'textContent', '♥'.repeat(engine.lives) + '♡'.repeat(3 - engine.lives));
   put(lives, 'aria-label', `남은 하트 ${engine.lives}개`);
   put(lives, 'data-remaining', String(engine.lives));
+  put(lives, 'class:bump', fx.heartBump > 0);
   const speedLabel = $('speed-label');
   put(
     speedLabel,

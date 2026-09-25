@@ -301,7 +301,25 @@ function bossIcon(ctx, symbol, x, y, r, now) {
 }
 
 // alpha (0..1): how far the screen is between the previous rule step and the latest one.
-export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1) {
+let fogLayer = null;
+function revealLayer(effects) {
+  if (typeof OffscreenCanvas !== 'function') return null;
+  fogLayer ??= new OffscreenCanvas(WIDTH, HEIGHT);
+  const layerCtx = fogLayer.getContext('2d'),
+    image = layerCtx.createImageData(WIDTH, HEIGHT);
+  for (let i = 0; i < WIDTH * HEIGHT; i++) {
+    image.data[i * 4] = 9;
+    image.data[i * 4 + 1] = 15;
+    image.data[i * 4 + 2] = 29;
+    image.data[i * 4 + 3] = Math.round(effects.fogOf(i) * 251);
+  }
+  layerCtx.putImageData(image, 0, 0);
+  return fogLayer;
+}
+
+// fx: the Effects instance from fx.js (tests may pass [] for none).
+export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
+  const effects = fx && !Array.isArray(fx) ? fx : null;
   const blend = (cur, prev) =>
     Number.isFinite(prev) && Math.abs(cur - prev) < 2 ? prev + (cur - prev) * alpha : cur;
   const width = Math.max(1, Math.round(canvas.clientWidth || 864)),
@@ -330,6 +348,12 @@ export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1)
   };
   ctx.fillStyle = '#ceded4';
   ctx.fillRect(0, 0, width, height);
+  if (effects) {
+    const cam = effects.camera(width, height, sx, sy);
+    ctx.translate(cam.cx + cam.x, cam.cy + cam.y);
+    ctx.scale(cam.scale, cam.scale);
+    ctx.translate(-cam.cx, -cam.cy);
+  }
   if (art) {
     const img = art.image || art,
       f = art.frame || { x: 0, y: 0, width: 1, height: 1 },
@@ -365,6 +389,35 @@ export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1)
       }
     }
     ctx.fill();
+    // Newly captured cells keep some fog for a moment while the reveal washes across.
+    // One pixel per cell, scaled up smoothly: a soft wash with no seams between cells.
+    const layer = effects?.revealing ? revealLayer(effects) : null;
+    if (layer) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(layer, 0, 0, WIDTH * sx, HEIGHT * sy);
+    }
+    // A soft warm rim where light meets the dark makes the claimed shape easy to read.
+    const edge = (x1, y1, x2, y2) => {
+      ctx.moveTo(x1 * sx, y1 * sy);
+      ctx.lineTo(x2 * sx, y2 * sy);
+    };
+    ctx.beginPath();
+    for (let y = 2; y < HEIGHT - 2; y++)
+      for (let x = 2; x < WIDTH - 2; x++) {
+        const i = y * WIDTH + x;
+        if (engine.cells[i]) continue;
+        if (engine.cells[i - 1]) edge(x, y, x, y + 1);
+        if (engine.cells[i + 1]) edge(x + 1, y, x + 1, y + 1);
+        if (engine.cells[i - WIDTH]) edge(x, y, x + 1, y);
+        if (engine.cells[i + WIDTH]) edge(x, y + 1, x + 1, y + 1);
+      }
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#ffe9a033';
+    ctx.lineWidth = Math.max(2, u * 0.55);
+    ctx.stroke();
+    ctx.strokeStyle = '#fff4c8aa';
+    ctx.lineWidth = Math.max(1, u * 0.12);
+    ctx.stroke();
   }
   ctx.strokeStyle = '#fff9';
   ctx.lineWidth = 1.5;
@@ -444,9 +497,21 @@ export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1)
   ctx.restore();
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  // A ring that keeps widening and fading, so goals are easy to spot in the dark.
+  const beacon = (x, y, radius, color, phase) => {
+    const t = (((now / 1400 + phase) % 1) + 1) % 1;
+    ctx.globalAlpha = 0.55 * (1 - t);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = Math.max(1.5, u * 0.18);
+    ctx.beginPath();
+    ctx.arc(x, y, radius * (1 + t * 1.6), 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  };
   for (const p of engine.pickups) {
     const x = (p.x + 0.5) * sx,
       y = (p.y + 0.5) * sy;
+    beacon(x, y, u * 0.9, '#ffeb9e', p.x / 7);
     dot(x, y, u * (0.9 + 0.1 * Math.sin(now / 300 + p.x)), '#ffeb9e');
     ctx.fillStyle = '#a6782f';
     ctx.font = `${Math.max(10, u * 1.35)}px sans-serif`;
@@ -456,6 +521,10 @@ export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1)
     const c = engine.clue,
       cx = (c.x + 0.5) * sx,
       cy = (c.y + 0.5) * sy;
+    if (!engine.clueFound) {
+      beacon(cx, cy, u * 1.5, '#b6e6d7', 0);
+      beacon(cx, cy, u * 1.5, '#b6e6d7', 0.5);
+    }
     dot(cx, cy, u * 1.5, engine.clueFound ? '#b9e3bc' : '#1c3542', '#b6e6d7');
     ctx.fillStyle = engine.clueFound ? '#305c3e' : '#d5f6e9';
     ctx.font = `bold ${Math.max(13, u * 1.6)}px sans-serif`;
@@ -481,6 +550,19 @@ export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1)
     ctx.lineTo(px, py);
     ctx.stroke();
     ctx.setLineDash([]);
+  }
+  if (effects?.rewind) {
+    const { line, life, max } = effects.rewind,
+      keep = Math.max(1, Math.ceil((line.length - 1) * (life / max)));
+    ctx.strokeStyle = `rgba(255,150,150,${(0.3 + 0.6 * (life / max)).toFixed(2)})`;
+    ctx.lineWidth = Math.max(2, u * 0.35);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    line
+      .slice(0, keep + 1)
+      .forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo']((p.x + 0.5) * sx, (p.y + 0.5) * sy));
+    ctx.stroke();
   }
   for (const e of engine.enemies) {
     const x = blend(e.x, engine.prevPos?.get(e)?.x) * sx,
@@ -522,9 +604,9 @@ export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1)
     dot(x, y, u * 0.5, b.kind === 'ring' ? '#f4d398' : b.kind === 'aimed' ? '#d7b2eb' : '#a9dbe8', '#fff');
     dot(x - u * 0.12, y - u * 0.14, u * 0.13, '#fffd');
   }
-  for (const p of particles) {
-    ctx.globalAlpha = p.life / p.max;
-    dot((p.x / 12) * sx, (p.y / 12) * sy, u * 0.25, p.color);
+  for (const p of effects?.sparks || []) {
+    ctx.globalAlpha = Math.max(0, p.life / p.max);
+    dot(p.x * sx, p.y * sy, u * (0.12 + 0.2 * (p.life / p.max)), p.color);
   }
   ctx.globalAlpha = 1;
   if (engine.shield > 0 || engine.grace > 0) {
@@ -539,5 +621,17 @@ export function paintGame(canvas, engine, stage, art, particles, now, alpha = 1)
     hop: engine.glide ? engine.glide.t : 0,
     lean: engine.drawHeld ? 1 : 0,
   });
+  for (const p of effects?.popups || []) {
+    const t = p.life / p.max,
+      grow = t > 0.85 ? 1 + (t - 0.85) * 3 : 1;
+    ctx.globalAlpha = Math.min(1, t * 2.5);
+    ctx.font = `900 ${Math.round(Math.max(14, u * 1.6 * p.size * grow))}px sans-serif`;
+    ctx.lineWidth = Math.max(3, u * 0.35);
+    ctx.strokeStyle = '#2b2233cc';
+    ctx.strokeText(p.text, p.x * sx, p.y * sy);
+    ctx.fillStyle = p.color;
+    ctx.fillText(p.text, p.x * sx, p.y * sy);
+  }
+  ctx.globalAlpha = 1;
   return visual;
 }

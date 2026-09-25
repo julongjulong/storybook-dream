@@ -60,6 +60,7 @@ export class GameEngine {
       : { name: '이야기 단서', x: 36, y: 24 };
     this.clueFound = false;
     this.cells = new Uint8Array(WIDTH * HEIGHT);
+    this.cellsVersion = 0; // bumps whenever claimed ground changes, so drawing can cache it
     for (let y = 0; y < HEIGHT; y++)
       for (let x = 0; x < WIDTH; x++)
         if (x < 2 || y < 2 || x >= WIDTH - 2 || y >= HEIGHT - 2) this.cells[y * WIDTH + x] = 1;
@@ -205,7 +206,9 @@ export class GameEngine {
   }
   capture() {
     if (this.lost) return;
-    const before = this.progress;
+    const before = this.progress,
+      was = this.cells.slice(),
+      line = this.trail.map(p => ({ ...p }));
     for (const p of this.trail) this.cells[this.index(p.x, p.y)] = 1;
     this.trail = [];
     const seen = new Uint8Array(this.cells.length),
@@ -242,8 +245,13 @@ export class GameEngine {
     if (caught.some(e => e.boss)) this.clearBoss();
     this.collectNearby();
     this.grace = 1.4;
+    this.cellsVersion++;
+    const claimed = [];
+    for (let i = 0; i < this.cells.length; i++) if (this.cells[i] && !was[i]) claimed.push(i);
     this.onEvent({
       type: 'capture',
+      line,
+      claimed,
       gain: this.progress - before,
       caught: caught.length,
       caughtPositions: caught.map(e => ({ x: e.x, y: e.y, boss: !!e.boss })),
@@ -280,6 +288,8 @@ export class GameEngine {
     }
     this.lives = Math.max(0, this.lives - 1);
     this.lost = this.lives === 0;
+    // The lost line and where the rabbit stood, for the rewind effect.
+    const line = [{ ...this.anchor }, ...this.trail.map(p => ({ ...p })), { ...this.visualPlayer }];
     this.trail = [];
     this.player = { ...this.anchor };
     this.setDirection(0, 0);
@@ -288,6 +298,7 @@ export class GameEngine {
     this.grace = this.lost ? 0 : 4;
     this.onEvent({
       type: 'hit',
+      line,
       lives: this.lives,
       terminal: this.lost,
       message: this.lost

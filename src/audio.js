@@ -507,7 +507,7 @@ export class AudioDirector {
     }
   }
 
-  _note(note, at, duration, kind = 'effect', strength = 1) {
+  _note(note, at, duration, kind = 'effect', strength = 1, pitch = 0) {
     if (!this.context || !this.master || this.context.state !== 'running' || this.voices.size >= 48) return;
     const ctx = this.context;
     const start = Math.max(ctx.currentTime, at);
@@ -531,7 +531,7 @@ export class AudioDirector {
     const attack = kind === 'harmony' ? 0.07 : kind === 'bass' ? 0.03 : 0.014;
     // Sine timbre is soft, with no sharp sawtooth harmonics or percussion noise.
     osc.type = 'sine';
-    osc.frequency.value = frequency(note);
+    osc.frequency.value = frequency(note) * 2 ** (pitch / 12);
     gain.gain.setValueAtTime(0, start);
     gain.gain.linearRampToValueAtTime(level, start + attack);
     if (isPlay && kind === 'melody') {
@@ -553,7 +553,8 @@ export class AudioDirector {
     osc.stop(end + 0.025);
   }
 
-  effect(name) {
+  // pitch: semitones up, so bigger captures can sound brighter.
+  effect(name, { pitch = 0 } = {}) {
     if (
       this.destroyed ||
       this.muted ||
@@ -575,6 +576,9 @@ export class AudioDirector {
       page: ['E4', 'C4'],
       'draw-on': ['G4', 'D5'],
       'draw-off': ['D5', 'G4'],
+      'capture-big': ['C5', 'E5', 'G5', 'C6'],
+      clue: ['G4', 'C5', 'E5', 'G5', 'E5', 'G5', 'C6'],
+      catch: ['E5', 'C5', 'G5'],
     };
     if (!motifs[name]) return;
     const now = this.context.currentTime;
@@ -584,9 +588,11 @@ export class AudioDirector {
     const short = name.startsWith('draw-');
     const interval =
       name === 'warning' ? 0.19 : name === 'dash' ? 0.07 : name === 'page' || short ? 0.06 : 0.105;
-    const duration = name === 'win' ? 0.32 : name === 'page' ? 0.12 : short ? 0.09 : 0.2;
+    const duration = name === 'win' || name === 'clue' ? 0.32 : name === 'page' ? 0.12 : short ? 0.09 : 0.2;
     const strength = short ? 0.45 : ['warning', 'dash', 'beam', 'page'].includes(name) ? 0.72 : 1;
-    motifs[name].forEach((note, i) => this._note(note, now + i * interval, duration, 'effect', strength));
+    motifs[name].forEach((note, i) =>
+      this._note(note, now + i * interval, duration, 'effect', strength, pitch),
+    );
   }
 
   _silence() {

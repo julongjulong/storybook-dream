@@ -6,6 +6,7 @@ import vm from 'node:vm';
 import { GameEngine, WIDTH, HEIGHT, ABILITIES } from '../src/engine.js';
 import { STORY } from '../src/story-data.js';
 import { paintGame, strokeRay } from '../src/render.js';
+import { Effects } from '../src/fx.js';
 import { artFrame } from '../src/art-layout.js';
 const source = fs
   .readFileSync(new URL('../src/app.js', import.meta.url), 'utf8')
@@ -128,6 +129,7 @@ function harness({ saved = null, blockedStorage = false } = {}) {
     ABILITIES,
     STORY,
     paintGame,
+    Effects,
     strokeRay,
     artFrame,
     ART: {},
