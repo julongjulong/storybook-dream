@@ -1,6 +1,7 @@
 // Independent QA exercises the public engine with normal animation frames and persisted state.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { warnV4 } from './v4-patterns.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { GameEngine, ABILITIES, MAX_BULLETS, PATTERN_SPECS, WIDTH } from '../src/engine.js';
@@ -10,7 +11,7 @@ const near = (actual, expected, epsilon = 1e-8) =>
   assert.ok(Math.abs(actual - expected) <= epsilon, `${actual} differs from ${expected}`);
 function fire(g, index) {
   g.attackIndex = index;
-  g.beginWarning();
+  warnV4(g);
   const tells = structuredClone(g.telegraphs);
   g.firePattern();
   return tells;

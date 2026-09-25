@@ -137,8 +137,18 @@ export const PATTERN_SPECS = {
   beam: { duration: 1.4, width: 1.25 },
   dash: { duration: 1, speed: 12, range: 12 },
   crumbdash: { duration: 1, speed: 12, range: 12, crumbEvery: 1.5, crumbLife: 2.5 },
+  // v5 signature moves (see src/game/moves.js)
+  sprinkler: { speed: 9, life: 3.2, duration: 2.2, arc: 3.4, sweepTime: 1.6, interval: 0.13 },
+  rain: { duration: 0.6, count: 4, radius: 1.6, life: 0.45 },
+  pulse: { speed: 9.5, life: 3.2, duration: 2.4, waves: 3, waveDelay: 0.45 },
+  split: { speed: 11, life: 3, duration: 2.2, waves: 2, waveDelay: 0.8, splitAt: 0.55, spread: 0.45 },
+  grapes: { duration: 1.8, count: 4, popAt: 1.1, seedSpeed: 7, seedLife: 1.2 },
+  gust: { speed: 7.5, life: 3.5, duration: 3, curve: 0.7 },
+  sweep: { duration: 1.6, width: 1.1, arc: 1.75 },
+  notes: { speed: 9, life: 3, duration: 2.2, waves: 5, waveDelay: 0.22, curve: 1.1 },
+  summon: { duration: 0.8 },
 };
-export const MAX_BULLETS = 14;
+export const MAX_BULLETS = 24;
 export const PATTERN_NAMES = {
   spread: '부채 방울',
   aimed: '한곳 조준 방울',
@@ -146,6 +156,15 @@ export const PATTERN_NAMES = {
   dash: '한번 쭉 달리기',
   beam: '반짝 빛줄기',
   crumbdash: '빵가루 데굴 돌진',
+  sprinkler: '빙글빙글 벽돌 물줄기',
+  rain: '톡톡 빗방울',
+  pulse: '둥둥 북소리 고리',
+  split: '매듭 풀리는 방울',
+  grapes: '톡 터지는 포도알',
+  gust: '살랑 나뭇잎 바람',
+  sweep: '빙그르 빛 돌림판',
+  notes: '꼬불꼬불 음표 행진',
+  summon: '문 열고 나온 친구들',
 };
 export const velocity = (x, y, speed) => {
   const length = Math.hypot(x, y);
@@ -188,21 +207,21 @@ export const isDash = pattern => pattern === 'dash' || pattern === 'crumbdash';
 export const BOSS_PLANS = {
   race: { hunt: 0.35, moves: [], late: [] },
   duck: { hunt: 0.3, moves: ['aimed'], late: [] },
-  pigs: { hunt: 0.4, moves: ['spread'], late: [['spread', 'spread']] },
+  pigs: { hunt: 0.4, moves: ['spread', 'sprinkler'], late: [['sprinkler', 'sprinkler']] },
   redhood: { hunt: 0.7, moves: ['crumbdash', 'aimed'], late: [['crumbdash', 'crumbdash']] },
-  beans: { hunt: 0.5, moves: ['ring', 'aimed'], late: [['aimed', 'ring']] },
-  ant: { hunt: 0.5, moves: ['beam', 'spread'], late: [['spread', 'beam']] },
-  lion: { hunt: 0.6, moves: ['aimed', 'dash', 'beam'], late: [['dash', 'aimed']] },
-  fox: { hunt: 0.55, moves: ['ring', 'beam', 'spread'], late: [['ring', 'spread']] },
-  wind: { hunt: 0.6, moves: ['spread', 'dash', 'ring'], late: [['dash', 'spread']] },
-  ax: { hunt: 0.55, moves: ['aimed', 'beam', 'ring'], late: [['beam', 'aimed']] },
-  piper: { hunt: 0.65, moves: ['ring', 'spread', 'aimed', 'dash'], late: [['aimed', 'aimed']] },
+  beans: { hunt: 0.5, moves: ['rain', 'aimed'], late: [['rain', 'rain']] },
+  ant: { hunt: 0.5, moves: ['pulse', 'spread', 'beam'], late: [['pulse', 'beam']] },
+  lion: { hunt: 0.6, moves: ['split', 'dash', 'beam'], late: [['dash', 'split']] },
+  fox: { hunt: 0.55, moves: ['grapes', 'spread', 'beam'], late: [['grapes', 'ring']] },
+  wind: { hunt: 0.6, moves: ['gust', 'dash', 'ring'], late: [['gust', 'gust']] },
+  ax: { hunt: 0.55, moves: ['sweep', 'aimed', 'ring'], late: [['sweep', 'aimed']] },
+  piper: { hunt: 0.65, moves: ['notes', 'ring', 'dash'], late: [['notes', 'notes']] },
   troy: {
     hunt: 0.7,
-    moves: ['beam', 'ring', 'dash', 'spread'],
+    moves: ['dash', 'ring', 'summon', 'split'],
     late: [
-      ['dash', 'ring'],
-      ['spread', 'beam'],
+      ['summon', 'dash'],
+      ['sweep', 'notes'],
     ],
   },
 };

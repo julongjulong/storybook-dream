@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { warnV4 } from './v4-patterns.mjs';
 import { GameEngine, PATTERN_SPECS, MAX_BULLETS, ABILITIES, PLAYER_SPEEDS } from '../src/engine.js';
 const ids = ['race', 'duck', 'pigs', 'redhood', 'beans', 'ant', 'lion', 'fox', 'wind', 'ax', 'piper', 'troy'];
 const game = (index = 3, options = {}) =>
@@ -10,7 +11,7 @@ const tick = (g, seconds) => {
 };
 const attack = (g, index = 0) => {
   g.attackIndex = index;
-  g.beginWarning();
+  warnV4(g);
   const tells = structuredClone(g.telegraphs);
   g.firePattern();
   return tells;

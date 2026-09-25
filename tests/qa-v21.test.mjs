@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { warnV4 } from './v4-patterns.mjs';
 import { GameEngine, WIDTH, HEIGHT, PLAYER_SPEEDS } from '../src/engine.js';
 
 const ids = ['race', 'duck', 'pigs', 'redhood', 'beans', 'ant', 'lion', 'fox', 'wind', 'ax', 'piper', 'troy'];
@@ -121,7 +122,7 @@ test('v2.1 QA: speed gifts remain independent from the shell slowdown and the ha
 
 test('v2.1 QA: freeze holds warning direction, countdown and enemy positions while allowing the player to move', () => {
   const g = make(6, { unlockedAbilities: ['clock'] });
-  g.beginWarning();
+  warnV4(g);
   g.useAbility('clock');
   const positions = g.enemies.map(e => [e.x, e.y]);
   const telegraph = structuredClone(g.telegraphs),
@@ -161,7 +162,7 @@ test('v4 QA: helper flashes then roams quickly without shooting or aiming at the
   assert.equal(g.telegraphs.length, 0);
   g.advanceIntent(e, 0.91);
   assert.equal(e.intent.phase, 'rush');
-  g.beginWarning();
+  warnV4(g);
   assert.equal(e.intent.phase, 'rush');
   g.advanceIntent(e, 1.51);
   assert.equal(e.intent.phase, 'roam');

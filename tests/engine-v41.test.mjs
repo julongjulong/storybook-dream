@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { warnV4 } from './v4-patterns.mjs';
 import { GameEngine, STAGE_IDS, BOSS_PROFILES, PATTERN_SPECS } from '../src/engine.js';
 const make = (index = 3, options = {}) =>
   new GameEngine({
@@ -155,7 +156,7 @@ test('terminal checkpoint flag and normalized zero hearts agree even in inconsis
 test('older checkpoints get three hearts but retain land, stars and energy while attacks reset', () => {
   for (const version of [undefined, 1, 2, 3, 4, 5]) {
     const g = make(3, { unlockedAbilities: ['shell'] });
-    g.beginWarning();
+    warnV4(g);
     g.cells[g.index(5, 8)] = 1;
     g.speedLevel = 2;
     const s = g.snapshot();

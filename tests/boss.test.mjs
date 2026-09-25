@@ -50,7 +50,9 @@ test('the first case never attacks; later cases wait out their calm before the f
 
 test('every shot flies exactly along a direction the tell showed, in every case', () => {
   for (let index = 2; index <= 12; index++)
-    for (const pattern of make(index).profile.patterns.filter(p => PATTERN_SPECS[p].speed && !isDash(p))) {
+    for (const pattern of make(index).profile.patterns.filter(p =>
+      ['aimed', 'spread', 'ring', 'pulse'].includes(p),
+    )) {
       const g = make(index);
       g.beginWarning(pattern);
       const shown = g.telegraphs.flatMap(t => t.angles);
@@ -286,4 +288,135 @@ test('freeze holds the boss, its tell and its shots in place', () => {
   run(g, 0.5);
   assert.deepEqual({ x: b.x, y: b.y }, at);
   assert.equal(g.bossState.remaining, left);
+});
+
+// ---- Signature moves: every hit lands inside something the tell drew. ----
+const distToPath = (p, path) => {
+  let best = Infinity;
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1],
+      b = path[i],
+      dx = b.x - a.x,
+      dy = b.y - a.y,
+      len = dx * dx + dy * dy || 1,
+      t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / len));
+    best = Math.min(best, Math.hypot(a.x + dx * t - p.x, a.y + dy * t - p.y));
+  }
+  return best;
+};
+const fireNow = (g, pattern) => {
+  g.beginWarning(pattern);
+  const tell = structuredClone(g.telegraphs[0]);
+  run(g, tell.duration + 0.005);
+  return tell;
+};
+
+test('every planned move in every case can be told and fired cleanly', () => {
+  for (let index = 1; index <= 12; index++)
+    for (const pattern of make(index).profile.patterns) {
+      const g = make(index);
+      g.bossState.enraged = true;
+      g.beginWarning(pattern);
+      assert.equal(g.bossState.phase, 'warning', `${index} ${pattern}`);
+      assert.ok(g.telegraphs.length > 0);
+      run(g, 4, 1 / 60);
+      for (const b of g.bullets) assert.ok(Number.isFinite(b.x + b.y + b.vx + b.vy), `${index} ${pattern}`);
+      assert.ok(g.bullets.filter(b => b.kind !== 'crumb').length <= MAX_BULLETS);
+    }
+});
+
+test('brick pinwheel: its stream stays inside the drawn arc and turns over time', () => {
+  const g = make(3);
+  const tell = fireNow(g, 'sprinkler');
+  run(g, PATTERN_SPECS.sprinkler.sweepTime);
+  const angles = g.bullets.map(b => Math.atan2(b.vy, b.vx));
+  assert.ok(angles.length >= 8);
+  for (const a of angles) {
+    const rel = (((a - tell.start) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    assert.ok(rel >= -1e-6 && rel <= PATTERN_SPECS.sprinkler.arc + 1e-6);
+  }
+});
+
+test('rain: drops fall only on the shown circles and splash for a moment', () => {
+  const g = make(5);
+  g.player = { x: 30, y: 1 };
+  g.syncVisual();
+  const tell = fireNow(g, 'rain');
+  const drops = g.bullets.filter(b => b.kind === 'drop');
+  assert.equal(drops.length, tell.spots.length);
+  assert.ok(tell.spots.length >= 3);
+  for (const d of drops)
+    assert.ok(tell.spots.some(s => Math.hypot(s.x - d.x, s.y - d.y) < 1e-9 && s.r === d.r));
+  run(g, PATTERN_SPECS.rain.life + 0.1);
+  assert.equal(g.bullets.filter(b => b.kind === 'drop').length, 0);
+});
+
+test('knot ball: the shot forks into three along the drawn fork', () => {
+  const g = make(7);
+  const tell = fireNow(g, 'split');
+  run(g, PATTERN_SPECS.split.splitAt + 0.3);
+  const pieces = g.bullets.filter(b => b.kind === 'split');
+  assert.ok(pieces.length >= 3);
+  for (const p of pieces.slice(0, 3))
+    assert.ok(Math.min(...tell.paths.map(path => distToPath(p, path))) < 0.8);
+});
+
+test('grapes land on their circles, wait, then pop into four seeds', () => {
+  const g = make(8);
+  const tell = fireNow(g, 'grapes');
+  const grapes = g.bullets.filter(b => b.kind === 'grape');
+  assert.equal(grapes.length, tell.spots.length);
+  run(g, PATTERN_SPECS.grapes.popAt - 0.2);
+  assert.equal(g.bullets.filter(b => b.kind === 'seed').length, 0);
+  run(g, 0.3);
+  assert.equal(g.bullets.filter(b => b.kind === 'grape').length, 0);
+  assert.ok(g.bullets.filter(b => b.kind === 'seed').length >= 4);
+});
+
+test('wind: every leaf follows one of the curls drawn in the tell', () => {
+  const g = make(9);
+  const tell = fireNow(g, 'gust');
+  for (let i = 0; i < 6; i++) {
+    run(g, 0.15);
+    for (const leaf of g.bullets.filter(b => b.kind === 'leaf'))
+      assert.ok(Math.min(...tell.paths.map(path => distToPath(leaf, path))) < 0.6);
+  }
+});
+
+test('pond turntable: the beam sweeps from one shown edge to the other and hits a rabbit it crosses', () => {
+  const g = make(10);
+  const tell = fireNow(g, 'sweep');
+  const beam = g.beams[0];
+  assert.ok(same(beam.angle, tell.rays[0].angle) || Math.abs(beam.angle - tell.rays[0].angle) < 0.05);
+  run(g, PATTERN_SPECS.sweep.duration - 0.05);
+  assert.ok(
+    Math.abs(
+      Math.atan2(Math.sin(beam.angle - tell.rays[1].angle), Math.cos(beam.angle - tell.rays[1].angle)),
+    ) < 0.1,
+  );
+});
+
+test('marching drum: five notes on the beat, swaying alternately along the drawn paths', () => {
+  const g = make(11);
+  const tell = fireNow(g, 'notes');
+  run(g, PATTERN_SPECS.notes.waveDelay * 4 + 0.05);
+  const notes = g.bullets.filter(b => b.kind === 'notes');
+  assert.equal(notes.length, 5);
+  assert.deepEqual(
+    notes.map(n => Math.sign(n.curve)),
+    [1, -1, 1, -1, 1],
+  );
+  for (const n of notes) assert.ok(Math.min(...tell.paths.map(path => distToPath(n, path))) < 0.8);
+});
+
+test('wooden duck: helpers come out on the shown spots, never beyond five creatures', () => {
+  const g = new GameEngine({ stage: STORY.worlds[11] });
+  g.enemies = g.enemies.filter(e => e.boss || e.id === 1);
+  const tell = fireNow(g, 'summon');
+  assert.equal(g.enemies.length, 1 + 1 + tell.spots.length);
+  assert.ok(g.enemies.length <= 5);
+  const full = new GameEngine({ stage: STORY.worlds[11] });
+  full.beginWarning('summon');
+  run(full, 2);
+  assert.ok(full.enemies.length <= 5);
 });

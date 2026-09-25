@@ -1,4 +1,5 @@
 import { PATTERN_SPECS, MAX_BULLETS, PATTERN_NAMES, FOLLOW_UP_WARNING, isDash, velocity } from './config.js';
+import { SIGNATURE } from './moves.js';
 
 // Boss behaviour (v5): roam and hunt → tell → attack (one move or a combo) → short break.
 // Mixed into GameEngine.prototype; `this` is the engine.
@@ -23,7 +24,9 @@ export const bossMethods = {
       if (key(o.move) === this.lastMove) o.weight *= 0.25;
       if (exposed && isDash(first)) o.weight *= 2;
       if (exposed && first === 'aimed') o.weight *= 1.5;
-      if (!exposed && ['spread', 'ring', 'beam'].includes(first)) o.weight *= 1.4;
+      if (exposed && ['split', 'notes', 'rain', 'grapes'].includes(first)) o.weight *= 1.3;
+      if (!exposed && ['spread', 'ring', 'beam', 'sprinkler', 'pulse', 'gust', 'sweep'].includes(first))
+        o.weight *= 1.4;
     }
     let roll = this.rng() * options.reduce((sum, o) => sum + o.weight, 0);
     for (const o of options) if ((roll -= o.weight) <= 0) return o.move;
@@ -46,43 +49,76 @@ export const bossMethods = {
     const spec = PATTERN_SPECS[pattern],
       angle = Math.atan2(this.player.y + 0.5 - boss.y, this.player.x + 0.5 - boss.x),
       enraged = this.bossState.enraged,
-      count = pattern === 'ring' ? (enraged ? 7 : 5) : pattern === 'spread' ? (enraged ? 5 : 3) : 1;
-    // A ring always leaves a 90-degree opening centred on where the rabbit stood.
-    const angles =
-      pattern === 'ring'
-        ? Array.from({ length: count }, (_, i) => angle + Math.PI / 4 + (i * Math.PI * 1.5) / (count - 1))
+      ringLike = pattern === 'ring' || pattern === 'pulse',
+      count = ringLike
+        ? pattern === 'pulse'
+          ? enraged
+            ? 10
+            : 8
+          : enraged
+            ? 7
+            : 5
         : pattern === 'spread'
-          ? Array.from({ length: count }, (_, i) => angle + (i - (count - 1) / 2) * 0.3)
-          : [angle];
+          ? enraged
+            ? 5
+            : 3
+          : 1;
+    // A ring always leaves a 90-degree opening centred on where the rabbit stood.
+    const angles = ringLike
+      ? Array.from({ length: count }, (_, i) => angle + Math.PI / 4 + (i * Math.PI * 1.5) / (count - 1))
+      : pattern === 'spread'
+        ? Array.from({ length: count }, (_, i) => angle + (i - (count - 1) / 2) * 0.3)
+        : [angle];
     const duration = followUp ? FOLLOW_UP_WARNING : this.profile.warning;
     const crossBeam = pattern === 'beam' && this.stageNumber >= 7,
       axes = crossBeam
         ? [this.attackIndex % 2 ? Math.PI / 4 : 0, (this.attackIndex % 2 ? Math.PI / 4 : 0) + Math.PI / 2]
         : [angle];
-    this.telegraphs = axes.map(axis => {
-      const shotAngles = pattern === 'beam' ? (crossBeam ? [axis, axis + Math.PI] : [axis]) : angles;
-      const rays = shotAngles.map(a => ({
-        angle: a,
-        length: Math.min(
-          this.rayLength(boss.x, boss.y, a),
-          isDash(pattern) ? spec.range : spec.speed ? spec.speed * spec.life : 100,
-        ),
-      }));
-      return {
-        type: pattern,
-        x: boss.x,
-        y: boss.y,
-        angle: axis,
-        angles: shotAngles,
-        rays,
-        length: rays[0].length,
-        width: pattern === 'beam' ? spec.width : 1,
-        hitWidth: pattern === 'beam' ? spec.width + 0.8 : isDash(pattern) ? 2.4 : 1.3,
-        remaining: duration,
-        duration,
-        ...(pattern === 'ring' ? { gapAngle: angle, gapWidth: Math.PI / 2 } : {}),
-      };
-    });
+    const signature = SIGNATURE[pattern];
+    if (signature) {
+      // Signature moves describe their own tell: rays, curved paths and circle spots.
+      const tell = signature.tell(this, boss, angle);
+      this.telegraphs = [
+        {
+          ...tell,
+          type: pattern,
+          x: boss.x,
+          y: boss.y,
+          angle,
+          angles: tell.angles || tell.rays.map(r => r.angle),
+          rays: tell.rays,
+          length: tell.rays[0]?.length || 0,
+          width: 1,
+          hitWidth: pattern === 'sweep' ? spec.width + 0.8 : 1.3,
+          remaining: duration,
+          duration,
+        },
+      ];
+    } else
+      this.telegraphs = axes.map(axis => {
+        const shotAngles = pattern === 'beam' ? (crossBeam ? [axis, axis + Math.PI] : [axis]) : angles;
+        const rays = shotAngles.map(a => ({
+          angle: a,
+          length: Math.min(
+            this.rayLength(boss.x, boss.y, a),
+            isDash(pattern) ? spec.range : spec.speed ? spec.speed * spec.life : 100,
+          ),
+        }));
+        return {
+          type: pattern,
+          x: boss.x,
+          y: boss.y,
+          angle: axis,
+          angles: shotAngles,
+          rays,
+          length: rays[0].length,
+          width: pattern === 'beam' ? spec.width : 1,
+          hitWidth: pattern === 'beam' ? spec.width + 0.8 : isDash(pattern) ? 2.4 : 1.3,
+          remaining: duration,
+          duration,
+          ...(ringLike ? { gapAngle: angle, gapWidth: Math.PI / 2 } : {}),
+        };
+      });
     Object.assign(this.bossState, {
       phase: 'warning',
       pattern,
@@ -101,9 +137,13 @@ export const bossMethods = {
           ? '길 표시를 보고 비켜 서요!'
           : pattern === 'beam'
             ? '반짝 선이 나올 자리를 보여 줘요!'
-            : pattern === 'ring'
+            : pattern === 'ring' || pattern === 'pulse'
               ? '방울 고리의 열린 틈을 찾아요!'
-              : '방울이 나올 방향을 먼저 보여 줘요!',
+              : SIGNATURE[pattern] && this.telegraphs[0]?.spots?.length
+                ? '동그라미 자리를 피해요!'
+                : SIGNATURE[pattern] && this.telegraphs[0]?.paths?.length
+                  ? '길 표시를 따라 날아와요!'
+                  : '방울이 나올 방향을 먼저 보여 줘요!',
     });
   },
   advanceBoss(dt) {
@@ -183,7 +223,8 @@ export const bossMethods = {
     this.attackIndex++;
     this.bossState.phase = 'attack';
     this.bossState.remaining = spec.duration;
-    if (pattern === 'beam')
+    if (SIGNATURE[pattern]) SIGNATURE[pattern].fire(this, warning, boss);
+    else if (pattern === 'beam')
       for (const tell of tells)
         for (const ray of tell.rays || [{ angle: tell.angle, length: tell.length }])
           this.beams.push({
@@ -212,15 +253,23 @@ export const bossMethods = {
     const spec = PATTERN_SPECS[wave.pattern];
     if (!spec?.speed || this.blocked(wave.x, wave.y)) return;
     const speed = spec.speed * this.assistScale(0.1);
-    for (const angle of wave.angles) {
+    for (const aim of wave.angles) {
       if (this.bullets.filter(b => b.kind !== 'crumb').length >= MAX_BULLETS) break;
+      // Notes sway: each starts a little to one side and curls back the other way.
+      const angle = wave.side ? aim - wave.side * 0.35 : aim,
+        swerves = !!(wave.side || spec.curve);
       this.bullets.push({
         x: wave.x,
         y: wave.y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life: Math.min(spec.life, this.rayLength(wave.x, wave.y, angle) / speed),
+        life:
+          swerves || spec.splitAt
+            ? spec.life
+            : Math.min(spec.life, this.rayLength(wave.x, wave.y, angle) / speed),
         kind: wave.pattern,
+        ...(wave.side ? { curve: wave.side * spec.curve } : {}),
+        ...(spec.splitAt ? { splitAt: spec.splitAt, splitSpread: spec.spread, splitCount: 3 } : {}),
       });
     }
     this.onEvent({ type: 'volley', pattern: wave.pattern });

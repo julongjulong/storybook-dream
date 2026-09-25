@@ -1,6 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GameEngine, WIDTH, HEIGHT, ABILITIES, BOSS_PROFILES, PLAYER_SPEEDS } from '../src/engine.js';
+import { warnV4 } from './v4-patterns.mjs';
+import {
+  GameEngine,
+  WIDTH,
+  HEIGHT,
+  ABILITIES,
+  BOSS_PROFILES,
+  PLAYER_SPEEDS,
+  MAX_BULLETS,
+} from '../src/engine.js';
 const make = (options = {}) => {
   const game = new GameEngine({ stage: { id: 'race' }, ...options });
   game.setDrawHeld(true);
@@ -287,7 +296,7 @@ test('feather removes nearby bullets and small enemies but preserves the boss an
 test('every shooting pattern shows its fixed direction for the stage warning duration before firing', () => {
   for (const index of [3, 4, 5, 6, 7, 8]) {
     const g = make({ stage: { id: 'custom', index } });
-    g.beginWarning();
+    warnV4(g);
     const before = structuredClone(g.telegraphs[0]);
     g.player = { x: 60, y: 1 };
     g.advanceBoss(g.profile.warning - 0.1);
@@ -302,18 +311,20 @@ test('every shooting pattern shows its fixed direction for the stage warning dur
     assert.ok(g.bullets.length || g.beams.length || g.enemies[0].dashing);
   }
 });
-test('each later story has a distinct cycle and all shots respect the fourteen-bullet ceiling', () => {
+test('each later story has a distinct cycle and all shots respect the bullet ceiling', () => {
   const cycles = BOSS_PROFILES.slice(2).map(p => p.patterns.join(','));
   assert.equal(new Set(cycles).size, 10);
   const g = make({ stage: { id: 'snowwhite', index: 8 } });
   g.bossState.enraged = true;
   g.bullets = Array.from({ length: 6 }, () => ({ x: 40, y: 30, vx: 1, vy: 1, life: 5 }));
-  g.beginWarning();
+  warnV4(g);
   assert.equal(g.telegraphs[0].angles.length, 7);
   g.advanceBoss(g.profile.warning);
   assert.equal(g.bullets.length, 13);
   g.advanceBoss(0.9);
-  assert.equal(g.bullets.length, 14);
+  assert.equal(g.bullets.length, Math.min(MAX_BULLETS, 20));
+  for (let i = 0; i < 5; i++) g.emitWave({ pattern: 'aimed', x: 40, y: 30, angles: [0, 1, 2] });
+  assert.equal(g.bullets.length, MAX_BULLETS);
 });
 test('half-restored later stages enter a stronger phase while tutorials never do', () => {
   for (const index of [1, 3]) {
@@ -342,7 +353,7 @@ test('capturing a boss returns effect positions and clears pending attacks', () 
     { id: 0, x: 8, y: 20, vx: 1, vy: 1, boss: true },
     { id: 1, x: 50, y: 30, vx: 1, vy: 1, boss: false },
   ];
-  g.beginWarning();
+  warnV4(g);
   cut(g, 12);
   const event = events.find(e => e.type === 'capture');
   assert.deepEqual(event.caughtPositions, [{ x: 8, y: 20, boss: true }]);

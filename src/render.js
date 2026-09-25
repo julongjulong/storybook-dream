@@ -462,6 +462,49 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
       );
       strokeRay(ctx, { ...live, width: 0.16 }, '#ffde9bd9', true, scale);
     }
+    // Curved or forked paths: a soft band with a dashed centre line.
+    for (const path of t.paths || []) {
+      if (path.length < 2) continue;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      path.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](p.x * sx, p.y * sy));
+      ctx.strokeStyle = '#ffcf6d25';
+      ctx.lineWidth = u * 1.3;
+      ctx.stroke();
+      ctx.strokeStyle = '#ffde9bd9';
+      ctx.lineWidth = Math.max(1.5, u * 0.16);
+      ctx.setLineDash([u * 0.65, u * 0.5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    for (const w of t.wedges || []) {
+      ctx.fillStyle = '#ffcf6d1c';
+      ctx.beginPath();
+      ctx.moveTo(t.x * sx, t.y * sy);
+      for (let i = 0; i <= 16; i++) {
+        const a = w.from + ((w.to - w.from) * i) / 16;
+        ctx.lineTo((t.x + Math.cos(a) * w.radius) * sx, (t.y + Math.sin(a) * w.radius) * sy);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+    // Circles where something will land; the inner ring closes in as the moment nears.
+    for (const spot of t.spots || []) {
+      const left = t.duration ? Math.max(0, t.remaining / t.duration) : 0;
+      ctx.fillStyle = '#ffcf6d2e';
+      ctx.beginPath();
+      ctx.ellipse(spot.x * sx, spot.y * sy, spot.r * sx, spot.r * sy, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ffde9bd9';
+      ctx.lineWidth = Math.max(1.5, u * 0.14);
+      ctx.setLineDash([u * 0.5, u * 0.4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.ellipse(spot.x * sx, spot.y * sy, spot.r * sx * left, spot.r * sy * left, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
     if (Number.isFinite(t.gapAngle)) {
       ctx.strokeStyle = '#9fe8cacc';
       ctx.lineWidth = u * 0.35;
@@ -625,7 +668,62 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
       ctx.globalAlpha = 1;
       continue;
     }
-    dot(x, y, u * 0.5, b.kind === 'ring' ? '#f4d398' : b.kind === 'aimed' ? '#d7b2eb' : '#a9dbe8', '#fff');
+    if (b.kind === 'drop') {
+      // A splash: a ring spreading over the hit circle.
+      const t = 1 - b.life / 0.45;
+      ctx.strokeStyle = '#9ed8f0';
+      ctx.lineWidth = Math.max(2, u * 0.25);
+      ctx.beginPath();
+      ctx.ellipse(
+        x,
+        y,
+        (b.r || 1) * sx * (0.4 + 0.6 * t),
+        (b.r || 1) * sy * (0.4 + 0.6 * t),
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.stroke();
+      dot(x, y, u * 0.5, '#bfe6f5');
+      continue;
+    }
+    if (b.kind === 'grape') {
+      // Grapes blink faster just before they pop.
+      const soon = b.popAt - (b.age || 0) < 0.4 && Math.sin(now / 45) > 0;
+      dot(x, y, u * 0.75, soon ? '#e0b6ff' : '#9b6fc2', '#fff');
+      dot(x - u * 0.2, y - u * 0.22, u * 0.18, '#fffd');
+      continue;
+    }
+    if (b.kind === 'leaf') {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(Math.atan2(b.vy, b.vx));
+      ctx.fillStyle = '#9fd18b';
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = Math.max(1, u * 0.1);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, u * 0.7, u * 0.35, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      continue;
+    }
+    if (b.kind === 'notes') {
+      dot(x, y, u * 0.5, '#f7c6d9', '#fff');
+      ctx.fillStyle = '#6b3b57';
+      ctx.font = `bold ${Math.max(10, u * 1.1)}px sans-serif`;
+      ctx.fillText('♪', x, y);
+      continue;
+    }
+    const colors = {
+      ring: '#f4d398',
+      pulse: '#f4d398',
+      aimed: '#d7b2eb',
+      sprinkler: '#f4a3b5',
+      split: '#cda777',
+      seed: '#c7a6e6',
+    };
+    dot(x, y, u * (b.kind === 'seed' ? 0.38 : 0.5), colors[b.kind] || '#a9dbe8', '#fff');
     dot(x - u * 0.12, y - u * 0.14, u * 0.13, '#fffd');
   }
   for (const p of effects?.sparks || []) {

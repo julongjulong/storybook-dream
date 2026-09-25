@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { warnV4 } from './v4-patterns.mjs';
 import { GameEngine, BOSS_PROFILES, PLAYER_SPEEDS } from '../src/engine.js';
 const ids = ['race', 'duck', 'pigs', 'redhood', 'beans', 'ant', 'lion', 'fox', 'wind', 'ax', 'piper', 'troy'];
 const game = (index = 3, extra = {}) => new GameEngine({ stage: { id: ids[index - 1], index }, ...extra });
@@ -36,7 +37,7 @@ test('all enemies have normalized stage velocities and the intended helper count
 
 test('ring warning and emitted shots leave a real ninety-degree exit around their locked target', () => {
   const g = game(5);
-  g.beginWarning();
+  warnV4(g);
   const t = structuredClone(g.telegraphs[0]);
   g.player = { x: 1, y: 1 };
   g.advanceBoss(g.profile.warning);
@@ -62,7 +63,7 @@ test('rushing helpers flash before accelerating and do not acquire an aimed chas
   assert.equal(g.advanceIntent(e, 0.11), 1.7);
   assert.equal(e.intent.phase, 'rush');
   near(Math.hypot(e.vx, e.vy), speed);
-  g.beginWarning();
+  warnV4(g);
   assert.equal(e.intent.phase, 'rush');
   assert.equal(g.telegraphs.length, 1);
 });
@@ -82,14 +83,14 @@ test('freeze preserves helper tells as well as the boss tell', () => {
 test('recovery and cancellation remove every old hazard before the next attack begins', () => {
   const g = game(6);
   g.attackIndex = 1;
-  g.beginWarning();
+  warnV4(g);
   g.firePattern();
   assert.ok(g.bullets.length);
   g.advanceBoss(3.61);
   assert.equal(g.bullets.length, 0);
   assert.equal(g.bossState.phase, 'recover');
   g.attackIndex = 0;
-  g.beginWarning();
+  warnV4(g);
   g.firePattern();
   assert.equal(g.beams.length, 1);
   g.cancelAttack();

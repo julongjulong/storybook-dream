@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { warnV4, V4_PATTERNS } from './v4-patterns.mjs';
 import { GameEngine, STAGE_IDS, BOSS_PROFILES, TARGETS, PATTERN_SPECS } from '../src/engine.js';
 const make = (index = 3, extra = {}) =>
   new GameEngine({
@@ -32,7 +33,7 @@ test('only first chapter has no boss shots, and second chapter teaches one aimed
   assert.equal(tutorial.bullets.length, 0);
   assert.equal(tutorial.attackWaves.length, 0);
   const second = make(2);
-  second.beginWarning();
+  warnV4(second);
   assert.equal(second.telegraphs.length, 1);
   second.firePattern();
   assert.equal(second.bullets.length, 1);
@@ -40,10 +41,10 @@ test('only first chapter has no boss shots, and second chapter teaches one aimed
 });
 test('every displayed projectile ray matches a real shot direction and its lifetime-limited range', () => {
   for (let index = 2; index <= 12; index++)
-    for (let p = 0; p < make(index).profile.patterns.length; p++) {
+    for (let p = 0; p < V4_PATTERNS[index].length; p++) {
       const g = make(index);
       g.attackIndex = p;
-      g.beginWarning();
+      warnV4(g);
       const tells = structuredClone(g.telegraphs),
         pattern = g.bossState.pattern,
         spec = PATTERN_SPECS[pattern];
@@ -81,7 +82,7 @@ test('every displayed projectile ray matches a real shot direction and its lifet
 });
 test('last projectile frame cannot travel beyond the predicted endpoint', () => {
   const g = make(3);
-  g.beginWarning();
+  warnV4(g);
   const ray = g.telegraphs[0].rays[0],
     origin = { ...g.telegraphs[0] };
   g.firePattern();
@@ -185,7 +186,7 @@ test('clue discovery is derived from saved cells, never a forged checkpoint flag
 test('v3 and v4 checkpoints discard stale attack rays while retaining restoration work', () => {
   for (const version of [3, 4]) {
     const g = make(3);
-    g.beginWarning();
+    warnV4(g);
     const s = g.snapshot();
     s.engineVersion = version;
     s.cells[g.index(5, 8)] = 1;
@@ -214,7 +215,7 @@ test('modern rushing-helper checkpoint preserves its phase while old helper beha
 });
 test('captured boss stays cleared without restarting a false recovery timer while helpers remain', () => {
   const g = make(5);
-  g.beginWarning();
+  warnV4(g);
   g.firePattern();
   g.enemies = g.enemies.filter(e => !e.boss);
   g.clearBoss();
