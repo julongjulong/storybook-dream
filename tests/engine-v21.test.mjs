@@ -52,7 +52,7 @@ test('ring warning and emitted shots leave a real ninety-degree exit around thei
 
 test('rushing helpers flash before accelerating and do not acquire an aimed chase', () => {
   const g = game(4),
-    e = g.enemies[1];
+    e = g.enemies.find(x => x.behavior === 'rush_wander');
   g.attackClock = 100;
   e.intent.remaining = 0;
   const speed = Math.hypot(e.vx, e.vy);

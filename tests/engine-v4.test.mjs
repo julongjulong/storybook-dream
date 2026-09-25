@@ -94,7 +94,7 @@ test('last projectile frame cannot travel beyond the predicted endpoint', () => 
 });
 test('helpers flash for .9 seconds then roam at 1.7 times base speed for 1.5 seconds without shooting', () => {
   const g = make(6),
-    e = g.enemies[1];
+    e = g.enemies.find(x => x.behavior === 'rush_wander');
   g.enemies = [e];
   e.intent.remaining = 0;
   g.advanceIntent(e, 0.01);
@@ -201,17 +201,17 @@ test('v3 and v4 checkpoints discard stale attack rays while retaining restoratio
 });
 test('modern rushing-helper checkpoint preserves its phase while old helper behaviors migrate to roaming', () => {
   const g = make(6);
-  g.enemies[1].intent = { phase: 'rush', remaining: 0.8, angle: 0 };
+  g.enemies.find(x => x.behavior === 'rush_wander').intent = { phase: 'rush', remaining: 0.8, angle: 0 };
   const s = g.snapshot(),
     r = make(6, { snapshot: s });
-  assert.equal(r.enemies[1].intent.phase, 'rush');
-  near(r.enemies[1].intent.remaining, 0.8);
+  assert.equal(r.enemies.find(x => x.behavior === 'rush_wander').intent.phase, 'rush');
+  near(r.enemies.find(x => x.behavior === 'rush_wander').intent.remaining, 0.8);
   s.engineVersion = 4;
-  s.enemies[1].behavior = 'peek_chase';
-  s.enemies[1].intent.phase = 'chase';
+  s.enemies.find(x => x.behavior === 'rush_wander').behavior = 'peek_chase';
+  s.enemies.find(x => x.behavior === 'rush_wander').intent.phase = 'chase';
   const old = make(6, { snapshot: s });
-  assert.equal(old.enemies[1].behavior, 'rush_wander');
-  assert.equal(old.enemies[1].intent.phase, 'roam');
+  assert.equal(old.enemies.find(x => x.behavior === 'rush_wander').behavior, 'rush_wander');
+  assert.equal(old.enemies.find(x => x.behavior === 'rush_wander').intent.phase, 'roam');
 });
 test('captured boss stays cleared without restarting a false recovery timer while helpers remain', () => {
   const g = make(5);

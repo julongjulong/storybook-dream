@@ -16,6 +16,7 @@ import {
   BOSS_PLANS,
   PHASE_TWO,
   makeRng,
+  minionBehavior,
 } from './game/config.js';
 import { playerMethods } from './game/player.js';
 import { enemiesMethods } from './game/enemies.js';
@@ -61,7 +62,9 @@ export class GameEngine {
     };
     this.rng = makeRng(this.stageNumber * 7919 + 17);
     this.lastMove = null;
-    this.hitsInRow = 0; // unprotected hits since the last capture; eases the attacks a little
+    this.hitsInRow = 0;
+    this.fuse = null; // { at: cells along the line from the anchor }, only while the rabbit stands still
+    this.standing = 0; // unprotected hits since the last capture; eases the attacks a little
     this.clue = validPoint(stage.clue)
       ? {
           name: String(stage.clue.name || '이야기 단서'),
@@ -141,7 +144,7 @@ export class GameEngine {
         y: 19 + i * 4,
         ...velocity(-1, 0.8, this.profile.minionSpeed),
         boss: false,
-        behavior: 'rush_wander',
+        behavior: minionBehavior(this.stageNumber, i + 1),
         intent: { phase: 'roam', remaining: 3 + i * 0.8, angle: 0 },
       });
     this.pickups = [
@@ -191,6 +194,8 @@ export class GameEngine {
       this.onEvent({ type: 'phase2', message: '보스가 신이 났어요! 새 기술을 조심해요.' });
     if (this.bossState.phase !== 'cleared') this.bossState.enraged = enraged;
     this.advanceEnemies(dt, factor);
+    if (this.lost) return;
+    this.advanceFuse(dt * factor, dt);
     if (this.lost) return;
     this.advanceBoss(dt * factor);
     this.advanceProjectiles(dt, factor);

@@ -153,7 +153,7 @@ test('v2.1 QA: bullets and beams cannot cross a one-cell claimed wall or mutate 
 test('v4 QA: helper flashes then roams quickly without shooting or aiming at the player', () => {
   const events = [],
     g = make(7, { onEvent: e => events.push(e) }),
-    e = g.enemies[1];
+    e = g.enemies.find(x => x.behavior === 'rush_wander');
   e.intent.remaining = 0;
   g.advanceIntent(e, 0.01);
   assert.equal(e.intent.phase, 'warmup');

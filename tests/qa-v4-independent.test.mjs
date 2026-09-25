@@ -34,7 +34,7 @@ test('v4 independent: second-stage battle introduction emits one shot even after
 });
 test('v4 independent: minion warmup becomes faster movement without aiming or spawning bullets', () => {
   const g = make(10);
-  g.enemies = g.enemies.filter(e => !e.boss).slice(0, 1);
+  g.enemies = g.enemies.filter(e => e.behavior === 'rush_wander').slice(0, 1);
   const e = g.enemies[0];
   e.x = 30;
   e.y = 25;

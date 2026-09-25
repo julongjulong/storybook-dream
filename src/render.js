@@ -595,6 +595,13 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
     ctx.stroke();
     ctx.setLineDash([]);
   }
+  // Fuse: a flickering spark running along the line toward the rabbit.
+  const spark = engine.fusePoint?.();
+  if (spark) {
+    const flicker = 0.8 + 0.2 * Math.sin(now / 40);
+    dot(spark.x * sx, spark.y * sy, u * 1.1 * flicker, '#ff9b4a55');
+    dot(spark.x * sx, spark.y * sy, u * 0.5 * flicker, '#ffd08a', '#fff');
+  }
   if (effects?.rewind) {
     const { line, life, max } = effects.rewind,
       keep = Math.max(1, Math.ceil((line.length - 1) * (life / max)));
@@ -628,6 +635,27 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
       ctx.translate(x, y);
       ctx.scale(1 + squash + windup * 0.12, 1 - squash - windup * 0.1);
       bossIcon(ctx, stage.boss.symbol, 0, 0, u * 2.25 * (phase2 ? 1.08 : 1), now);
+      ctx.restore();
+    } else if (e.behavior === 'chaser') {
+      // Paper boat: a little arrow that shows where it is heading.
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(Math.atan2(e.vy, e.vx));
+      ctx.fillStyle = engine.freeze > 0 ? '#a5dbe6' : '#f3efe2';
+      ctx.strokeStyle = '#6b7c93';
+      ctx.lineWidth = Math.max(1, u * 0.14);
+      ctx.beginPath();
+      ctx.moveTo(u * 1.1, 0);
+      ctx.lineTo(-u * 0.8, -u * 0.7);
+      ctx.lineTo(-u * 0.45, 0);
+      ctx.lineTo(-u * 0.8, u * 0.7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#482f3b';
+      ctx.beginPath();
+      ctx.arc(u * 0.2, 0, u * 0.14, 0, Math.PI * 2);
+      ctx.fill();
       ctx.restore();
     } else {
       const warming = e.intent?.phase === 'warmup',

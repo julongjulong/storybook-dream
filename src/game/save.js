@@ -1,4 +1,14 @@
-import { WIDTH, velocity, clamp, integer, validPoint, HEIGHT, finite, capFor } from './config.js';
+import {
+  WIDTH,
+  velocity,
+  clamp,
+  integer,
+  validPoint,
+  HEIGHT,
+  finite,
+  capFor,
+  minionBehavior,
+} from './config.js';
 
 // Checkpoint snapshot and validated restore, including older save formats.
 // Mixed into GameEngine.prototype; `this` is the engine.
@@ -104,7 +114,7 @@ export const saveMethods = {
         speed = boss ? this.profile.bossSpeed : this.profile.minionSpeed;
       // A checkpoint taken mid-dash walks on at normal speed in the direction it had before.
       const heading = e.dashing && e.dashBase ? e.dashBase : e;
-      const behavior = boss ? 'wander' : 'rush_wander';
+      const behavior = boss ? 'wander' : minionBehavior(this.stageNumber, id);
       const allowed = ['roam', 'warmup', 'rush'];
       const phase = s.engineVersion === 6 && allowed.includes(e.intent?.phase) ? e.intent.phase : 'roam';
       const intent = boss

@@ -225,6 +225,13 @@ export const BOSS_PLANS = {
     ],
   },
 };
+// New helpers: a chaser from case 4 (helper #1 follows the rabbit's line),
+// and from case 6 a fuse that runs along a line the rabbit has stopped on.
+export const CHASER_FROM = 4;
+export const FUSE_FROM = 6;
+export const FUSE = { wait: 1.2, speed: 4 }; // seconds standing still before it lights; cells per second
+export const minionBehavior = (stageNumber, id) =>
+  stageNumber >= CHASER_FROM && id === 1 ? 'chaser' : 'rush_wander';
 export const FOLLOW_UP_WARNING = 0.55; // seconds of tell for the second hit of a combo
 export const PHASE_TWO = 0.5; // share restored when the boss enters phase 2
 

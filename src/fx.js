@@ -88,6 +88,10 @@ export class Effects {
         this.popup('신났다!', b.x, b.y - 3, 1.8, '#ffb4a8');
         this.burst(b.x, b.y, 18, '#ffb4a8', 6);
       }
+    } else if (event.type === 'fuse') {
+      sfx('warning');
+      const a = engine?.anchor;
+      if (a) this.burst(a.x + 0.5, a.y + 0.5, 8, '#ffb070', 4);
     } else if (event.type === 'pickup') {
       const p = engine?.player;
       if (p) {
