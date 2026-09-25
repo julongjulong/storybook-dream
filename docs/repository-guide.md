@@ -20,44 +20,30 @@
 
 ## 처음 받은 저장소 실행
 
-Node.js가 설치된 개발 PC에서 저장소 폴더를 열고 다음 순서로 실행한다. 외부 npm 패키지는 없어 npm install은 필요 없다.
+Node.js가 설치된 개발 PC에서 저장소 폴더를 열고 다음 순서로 실행한다.
 
 ```powershell
-npm run build
+npm install
 npm test
-node scripts/verify-release.mjs
+npm run dev
 ```
 
-빌드가 끝나면 index.html을 Chrome/Edge로 열 수 있다. 개발 중에는 npm start를 실행하고 http://127.0.0.1:4181/dev.html을 연다.
+`npm run dev`는 http://localhost:4181 에 개발 서버를 띄운다. Windows 앱으로 확인하려면 `npm run app`, 배포용 exe는 `npm run dist`(release/ 폴더)다.
 
-PNG를 바꿨다면 Windows PowerShell에서 아래 변환을 먼저 실행한다. 새 시트의 패널 경계가 달라졌다면 frames.json도 함께 수정한다.
-
-```powershell
-./scripts/prepare-art.ps1
-npm run build
-npm test
-node scripts/verify-release.mjs
-./scripts/package-release.ps1
-```
-
-압축 파일은 저장소의 상위 폴더에 생성된다. 가족 배포 ZIP은 플레이·현재 소스 배포용이며 이전 디자인 전체의 보관본은 Git 저장소다.
+PNG를 바꿨다면 Windows PowerShell에서 `./scripts/prepare-art.ps1`로 JPEG를 먼저 갱신한다. 새 시트의 패널 경계가 달라졌다면 frames.json도 함께 수정한다.
 
 ## 커밋에 포함하는 것
 
 원본/사용 중인 이미지, WAV 5곡, 코드, 기획서, 테스트, 제작 도구를 포함한다. 이미지는 일반 Git 바이너리로 저장하며 Git LFS 설치 없이 체크아웃할 수 있다.
 
-index.html, output/storybook-dream.html, src/assets.js, src/story-art.js, src/sheet-frames.js는 빌드 결과라 추적하지 않는다. 개인 진행 저장, 이어하기 HTML, ZIP, 로컬 환경 설정도 제외한다. 파일은 기기에 그대로 남으며 Git 기록에만 들어가지 않는다.
+dist/, release/, node_modules/는 빌드·설치 결과라 추적하지 않는다. 개인 진행 저장, ZIP, 로컬 환경 설정도 제외한다.
 
 ## 다음 변경 저장
 
 ```powershell
 git status
-npm run build
 npm test
-git add src assets docs tests scripts style.css README.md
-git diff --cached --stat
-git commit -m "게임 변경 내용 요약"
-git push
+git add src assets docs tests scripts electron style.css index.html package.json package-lock.json README.md
 ```
 
 새 경로의 파일은 의도한 경로를 git add에 추가한다. 완료판을 남길 때에는 package.json 버전을 올리고 새 버전 태그를 만든다. 기존 태그는 덮어쓰지 않는다.
@@ -73,8 +59,8 @@ git push
 ```powershell
 git clone https://github.com/julongjulong/storybook-dream.git
 cd storybook-dream
-npm run build
+npm install
 npm test
 ```
 
-이미 받은 PC에서는 작업 시작 전에 git pull --ff-only로 최신 커밋을 받는다. 게임 실행용 index.html은 npm run build로 생성된다.
+이미 받은 PC에서는 작업 시작 전에 git pull --ff-only로 최신 커밋을 받는다. package.json이 바뀌었으면 npm install을 다시 실행한다.
