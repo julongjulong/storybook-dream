@@ -2,63 +2,330 @@
 // Durations are measured in beats; each phrase is one four-beat bar.
 const MELODIES = {
   dream: [
-    [['E4', 1], ['G4', 1], ['A4', 1.5], ['G4', .5]],
-    [['D4', 1], ['E4', 1], ['G4', 2]],
-    [['A4', 1], ['C5', 1], ['B4', 1], ['G4', 1]],
-    [['E4', 1.5], ['D4', .5], ['C4', 2]],
-    [['E4', 1], ['G4', .5], ['A4', .5], ['C5', 2]],
-    [['B4', 1], ['G4', 1], ['E4', 2]],
-    [['F4', 1], ['A4', 1], ['G4', 1], ['D4', 1]],
-    [['E4', 1], ['D4', 1], ['C4', 1.5], [null, .5]],
+    [
+      ['E4', 1],
+      ['G4', 1],
+      ['A4', 1.5],
+      ['G4', 0.5],
+    ],
+    [
+      ['D4', 1],
+      ['E4', 1],
+      ['G4', 2],
+    ],
+    [
+      ['A4', 1],
+      ['C5', 1],
+      ['B4', 1],
+      ['G4', 1],
+    ],
+    [
+      ['E4', 1.5],
+      ['D4', 0.5],
+      ['C4', 2],
+    ],
+    [
+      ['E4', 1],
+      ['G4', 0.5],
+      ['A4', 0.5],
+      ['C5', 2],
+    ],
+    [
+      ['B4', 1],
+      ['G4', 1],
+      ['E4', 2],
+    ],
+    [
+      ['F4', 1],
+      ['A4', 1],
+      ['G4', 1],
+      ['D4', 1],
+    ],
+    [
+      ['E4', 1],
+      ['D4', 1],
+      ['C4', 1.5],
+      [null, 0.5],
+    ],
   ],
   play: [
-    [['G4', .5], ['E4', .5], ['C4', 1], ['E4', .5], ['G4', .5], ['A4', 1]],
-    [['A4', .5], ['F4', .5], ['D4', 1], ['F4', .5], ['E4', .5], ['D4', 1]],
-    [['E4', .5], ['G4', .5], ['C5', 1], ['B4', .5], ['G4', .5], ['E4', 1]],
-    [['D4', .5], ['G4', .5], ['B4', .5], ['A4', .5], ['G4', 1], [null, 1]],
-    [['G4', .5], ['E4', .5], ['C5', 1], ['A4', .5], ['G4', .5], ['E4', 1]],
-    [['F4', .5], ['A4', .5], ['C5', 1], ['A4', .5], ['F4', .5], ['D4', 1]],
-    [['E4', .5], ['G4', .5], ['A4', 1], ['G4', .5], ['E4', .5], ['D4', 1]],
-    [['B3', .5], ['D4', .5], ['G4', 1], ['C4', 1.5], [null, .5]],
+    [
+      ['G4', 0.5],
+      ['E4', 0.5],
+      ['C4', 1],
+      ['E4', 0.5],
+      ['G4', 0.5],
+      ['A4', 1],
+    ],
+    [
+      ['A4', 0.5],
+      ['F4', 0.5],
+      ['D4', 1],
+      ['F4', 0.5],
+      ['E4', 0.5],
+      ['D4', 1],
+    ],
+    [
+      ['E4', 0.5],
+      ['G4', 0.5],
+      ['C5', 1],
+      ['B4', 0.5],
+      ['G4', 0.5],
+      ['E4', 1],
+    ],
+    [
+      ['D4', 0.5],
+      ['G4', 0.5],
+      ['B4', 0.5],
+      ['A4', 0.5],
+      ['G4', 1],
+      [null, 1],
+    ],
+    [
+      ['G4', 0.5],
+      ['E4', 0.5],
+      ['C5', 1],
+      ['A4', 0.5],
+      ['G4', 0.5],
+      ['E4', 1],
+    ],
+    [
+      ['F4', 0.5],
+      ['A4', 0.5],
+      ['C5', 1],
+      ['A4', 0.5],
+      ['F4', 0.5],
+      ['D4', 1],
+    ],
+    [
+      ['E4', 0.5],
+      ['G4', 0.5],
+      ['A4', 1],
+      ['G4', 0.5],
+      ['E4', 0.5],
+      ['D4', 1],
+    ],
+    [
+      ['B3', 0.5],
+      ['D4', 0.5],
+      ['G4', 1],
+      ['C4', 1.5],
+      [null, 0.5],
+    ],
   ],
   celebrate: [
-    [['C4', .5], ['E4', .5], ['G4', 1], ['C5', 2]],
-    [['A4', 1], ['G4', 1], ['E4', 2]],
-    [['F4', .5], ['A4', .5], ['C5', 1], ['D5', 1], ['C5', 1]],
-    [['B4', 1], ['G4', 1], ['D4', 1.5], [null, .5]],
-    [['E4', .5], ['G4', .5], ['C5', 1], ['E5', 1], ['D5', 1]],
-    [['C5', 1], ['A4', 1], ['F4', 2]],
-    [['E4', 1], ['G4', 1], ['D4', 1], ['B3', 1]],
-    [['C4', 1], ['E4', 1], ['C5', 1.5], [null, .5]],
+    [
+      ['C4', 0.5],
+      ['E4', 0.5],
+      ['G4', 1],
+      ['C5', 2],
+    ],
+    [
+      ['A4', 1],
+      ['G4', 1],
+      ['E4', 2],
+    ],
+    [
+      ['F4', 0.5],
+      ['A4', 0.5],
+      ['C5', 1],
+      ['D5', 1],
+      ['C5', 1],
+    ],
+    [
+      ['B4', 1],
+      ['G4', 1],
+      ['D4', 1.5],
+      [null, 0.5],
+    ],
+    [
+      ['E4', 0.5],
+      ['G4', 0.5],
+      ['C5', 1],
+      ['E5', 1],
+      ['D5', 1],
+    ],
+    [
+      ['C5', 1],
+      ['A4', 1],
+      ['F4', 2],
+    ],
+    [
+      ['E4', 1],
+      ['G4', 1],
+      ['D4', 1],
+      ['B3', 1],
+    ],
+    [
+      ['C4', 1],
+      ['E4', 1],
+      ['C5', 1.5],
+      [null, 0.5],
+    ],
   ],
   boss: [
-    [['E4', .5], ['A4', .5], ['C5', .5], ['B4', .5], ['A4', 1], ['E4', .5], [null, .5]],
-    [['F4', .5], ['A4', .5], ['C5', 1], ['A4', .5], ['G4', .5], ['F4', 1]],
-    [['D4', .5], ['G4', .5], ['B4', .5], ['A4', .5], ['G4', 1], ['D5', 1]],
-    [['C5', 1], ['G4', .5], ['E4', .5], ['G4', 1], [null, 1]],
-    [['A4', .5], ['C5', .5], ['E5', 1], ['D5', .5], ['C5', .5], ['A4', 1]],
-    [['D5', .5], ['C5', .5], ['A4', 1], ['F4', .5], ['A4', .5], ['C5', 1]],
-    [['B4', .5], ['D5', .5], ['G4', 1], ['A4', .5], ['B4', .5], ['D5', 1]],
-    [['C5', 1], ['G4', .5], ['E4', .5], ['C4', 1.5], [null, .5]],
+    [
+      ['E4', 0.5],
+      ['A4', 0.5],
+      ['C5', 0.5],
+      ['B4', 0.5],
+      ['A4', 1],
+      ['E4', 0.5],
+      [null, 0.5],
+    ],
+    [
+      ['F4', 0.5],
+      ['A4', 0.5],
+      ['C5', 1],
+      ['A4', 0.5],
+      ['G4', 0.5],
+      ['F4', 1],
+    ],
+    [
+      ['D4', 0.5],
+      ['G4', 0.5],
+      ['B4', 0.5],
+      ['A4', 0.5],
+      ['G4', 1],
+      ['D5', 1],
+    ],
+    [
+      ['C5', 1],
+      ['G4', 0.5],
+      ['E4', 0.5],
+      ['G4', 1],
+      [null, 1],
+    ],
+    [
+      ['A4', 0.5],
+      ['C5', 0.5],
+      ['E5', 1],
+      ['D5', 0.5],
+      ['C5', 0.5],
+      ['A4', 1],
+    ],
+    [
+      ['D5', 0.5],
+      ['C5', 0.5],
+      ['A4', 1],
+      ['F4', 0.5],
+      ['A4', 0.5],
+      ['C5', 1],
+    ],
+    [
+      ['B4', 0.5],
+      ['D5', 0.5],
+      ['G4', 1],
+      ['A4', 0.5],
+      ['B4', 0.5],
+      ['D5', 1],
+    ],
+    [
+      ['C5', 1],
+      ['G4', 0.5],
+      ['E4', 0.5],
+      ['C4', 1.5],
+      [null, 0.5],
+    ],
   ],
   morning: [
-    [['E4', 1.5], ['G4', .5], ['C5', 2]],
-    [['B4', 1], ['G4', 1], ['E4', 1.5], [null, .5]],
-    [['A4', 1], ['G4', 1], ['F4', 2]],
-    [['E4', 1.5], ['D4', .5], ['C4', 2]],
-    [['F4', 1], ['A4', 1], ['C5', 2]],
-    [['B4', 1], ['G4', 1], ['D4', 1.5], [null, .5]],
-    [['E4', 1], ['G4', 1], ['C5', 1], ['G4', 1]],
-    [['E4', 1], ['C4', 2], [null, 1]],
+    [
+      ['E4', 1.5],
+      ['G4', 0.5],
+      ['C5', 2],
+    ],
+    [
+      ['B4', 1],
+      ['G4', 1],
+      ['E4', 1.5],
+      [null, 0.5],
+    ],
+    [
+      ['A4', 1],
+      ['G4', 1],
+      ['F4', 2],
+    ],
+    [
+      ['E4', 1.5],
+      ['D4', 0.5],
+      ['C4', 2],
+    ],
+    [
+      ['F4', 1],
+      ['A4', 1],
+      ['C5', 2],
+    ],
+    [
+      ['B4', 1],
+      ['G4', 1],
+      ['D4', 1.5],
+      [null, 0.5],
+    ],
+    [
+      ['E4', 1],
+      ['G4', 1],
+      ['C5', 1],
+      ['G4', 1],
+    ],
+    [
+      ['E4', 1],
+      ['C4', 2],
+      [null, 1],
+    ],
   ],
 };
 
 const HARMONY = {
-  dream: [['C3','E3','G3'], ['C3','E3','G3'], ['A2','C3','E3'], ['C3','E3','G3'], ['F2','A3','C4'], ['A2','C3','E3'], ['F2','A3','C4'], ['G2','B3','D4']],
-  play: [['C3','E3','G3'], ['D3','F3','A3'], ['A2','C3','E3'], ['G2','B3','D4'], ['C3','E3','G3'], ['F2','A3','C4'], ['F2','A3','C4'], ['G2','B3','D4']],
-  celebrate: [['C3','E3','G3'], ['A2','C3','E3'], ['F2','A3','C4'], ['G2','B3','D4'], ['C3','E3','G3'], ['F2','A3','C4'], ['G2','B3','D4'], ['C3','E3','G3']],
-  boss: [['A2','C3','E3'], ['F2','A3','C4'], ['G2','B3','D4'], ['C3','E3','G3'], ['A2','C3','E3'], ['D3','F3','A3'], ['G2','B3','D4'], ['C3','E3','G3']],
-  morning: [['C3','E3','G3'], ['A2','C3','E3'], ['F2','A3','C4'], ['C3','E3','G3'], ['F2','A3','C4'], ['G2','B3','D4'], ['C3','E3','G3'], ['C3','E3','G3']],
+  dream: [
+    ['C3', 'E3', 'G3'],
+    ['C3', 'E3', 'G3'],
+    ['A2', 'C3', 'E3'],
+    ['C3', 'E3', 'G3'],
+    ['F2', 'A3', 'C4'],
+    ['A2', 'C3', 'E3'],
+    ['F2', 'A3', 'C4'],
+    ['G2', 'B3', 'D4'],
+  ],
+  play: [
+    ['C3', 'E3', 'G3'],
+    ['D3', 'F3', 'A3'],
+    ['A2', 'C3', 'E3'],
+    ['G2', 'B3', 'D4'],
+    ['C3', 'E3', 'G3'],
+    ['F2', 'A3', 'C4'],
+    ['F2', 'A3', 'C4'],
+    ['G2', 'B3', 'D4'],
+  ],
+  celebrate: [
+    ['C3', 'E3', 'G3'],
+    ['A2', 'C3', 'E3'],
+    ['F2', 'A3', 'C4'],
+    ['G2', 'B3', 'D4'],
+    ['C3', 'E3', 'G3'],
+    ['F2', 'A3', 'C4'],
+    ['G2', 'B3', 'D4'],
+    ['C3', 'E3', 'G3'],
+  ],
+  boss: [
+    ['A2', 'C3', 'E3'],
+    ['F2', 'A3', 'C4'],
+    ['G2', 'B3', 'D4'],
+    ['C3', 'E3', 'G3'],
+    ['A2', 'C3', 'E3'],
+    ['D3', 'F3', 'A3'],
+    ['G2', 'B3', 'D4'],
+    ['C3', 'E3', 'G3'],
+  ],
+  morning: [
+    ['C3', 'E3', 'G3'],
+    ['A2', 'C3', 'E3'],
+    ['F2', 'A3', 'C4'],
+    ['C3', 'E3', 'G3'],
+    ['F2', 'A3', 'C4'],
+    ['G2', 'B3', 'D4'],
+    ['C3', 'E3', 'G3'],
+    ['C3', 'E3', 'G3'],
+  ],
 };
 
 export const MUSIC_INFO = Object.freeze({
@@ -82,23 +349,34 @@ function makeScore(scene) {
   MELODIES[scene].forEach((bar, index) => {
     let beat = index * 4;
     for (const [note, duration] of bar) {
-      if (note) events.push({ beat, note, duration: duration * .86, kind: 'melody' });
+      if (note) events.push({ beat, note, duration: duration * 0.86, kind: 'melody' });
       beat += duration;
     }
     const chord = HARMONY[scene][index];
     events.push({ beat: index * 4, note: chord[0], duration: 2.7, kind: 'bass' });
     if (scene === 'boss') {
-      for (const offset of [.5, 1.5, 2.5, 3.5]) {
-        events.push({ beat: index * 4 + offset, note: chord[1 + Math.floor(offset) % 2], duration: .36, kind: 'harmony' });
+      for (const offset of [0.5, 1.5, 2.5, 3.5]) {
+        events.push({
+          beat: index * 4 + offset,
+          note: chord[1 + (Math.floor(offset) % 2)],
+          duration: 0.36,
+          kind: 'harmony',
+        });
       }
       // Quiet, pitched pulses add movement at higher boss phases without a siren.
-      for (const offset of [0, 1, 2, 3]) events.push({ beat: index * 4 + offset, note: chord[0], duration: .3, kind: 'pulse' });
+      for (const offset of [0, 1, 2, 3])
+        events.push({ beat: index * 4 + offset, note: chord[0], duration: 0.3, kind: 'pulse' });
     } else if (scene === 'play') {
       for (const offset of [1, 3]) {
-        for (const note of chord.slice(1)) events.push({ beat: index * 4 + offset, note, duration: .7, kind: 'harmony' });
+        for (const note of chord.slice(1))
+          events.push({ beat: index * 4 + offset, note, duration: 0.7, kind: 'harmony' });
       }
     } else {
-      chord.slice(1).forEach((note, n) => events.push({ beat: index * 4 + .12 * n, note, duration: 3.3, kind: 'harmony' }));
+      chord
+        .slice(1)
+        .forEach((note, n) =>
+          events.push({ beat: index * 4 + 0.12 * n, note, duration: 3.3, kind: 'harmony' }),
+        );
     }
   });
   return events.sort((a, b) => a.beat - b.beat);
@@ -111,7 +389,7 @@ export class AudioDirector {
     this.context = null;
     this.master = null;
     this.muted = false;
-    this.volume = .45;
+    this.volume = 0.45;
     this.intensity = 0;
     this.scene = null;
     this.paused = false;
@@ -131,7 +409,8 @@ export class AudioDirector {
         this.resume();
       }
     };
-    if (typeof document !== 'undefined') document.addEventListener('visibilitychange', this.visibilityHandler);
+    if (typeof document !== 'undefined')
+      document.addEventListener('visibilitychange', this.visibilityHandler);
   }
 
   // Only invoke from a user gesture. Other methods never create a context.
@@ -174,7 +453,7 @@ export class AudioDirector {
     if (!this.master || this.context.state === 'closed') return;
     const now = this.context.currentTime;
     this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setTargetAtTime(this.muted ? 0 : this.volume, now, .025);
+    this.master.gain.setTargetAtTime(this.muted ? 0 : this.volume, now, 0.025);
   }
 
   play(scene) {
@@ -186,9 +465,18 @@ export class AudioDirector {
   }
 
   _start() {
-    if (this.destroyed || this.timer !== null || !this.scene || !this.context || this.context.state !== 'running' || this.paused || this.hidden) return;
+    if (
+      this.destroyed ||
+      this.timer !== null ||
+      !this.scene ||
+      !this.context ||
+      this.context.state !== 'running' ||
+      this.paused ||
+      this.hidden
+    )
+      return;
     this.index = 0;
-    this.loopStart = this.context.currentTime + .04;
+    this.loopStart = this.context.currentTime + 0.04;
     this._schedule();
     this.timer = setInterval(() => this._schedule(), 50);
   }
@@ -199,13 +487,18 @@ export class AudioDirector {
     const score = SCORES[this.scene];
     const now = this.context.currentTime;
     // Restart after throttling instead of playing a backlog of old notes.
-    if (this.loopStart + score[this.index].beat * beatSeconds < now - .4) {
+    if (this.loopStart + score[this.index].beat * beatSeconds < now - 0.4) {
       this.index = 0;
-      this.loopStart = now + .04;
+      this.loopStart = now + 0.04;
     }
-    while (this.loopStart + score[this.index].beat * beatSeconds < now + .18) {
+    while (this.loopStart + score[this.index].beat * beatSeconds < now + 0.18) {
       const event = score[this.index];
-      this._note(event.note, this.loopStart + event.beat * beatSeconds, event.duration * beatSeconds, event.kind);
+      this._note(
+        event.note,
+        this.loopStart + event.beat * beatSeconds,
+        event.duration * beatSeconds,
+        event.kind,
+      );
       this.index += 1;
       if (this.index === score.length) {
         this.index = 0;
@@ -218,23 +511,33 @@ export class AudioDirector {
     if (!this.context || !this.master || this.context.state !== 'running' || this.voices.size >= 48) return;
     const ctx = this.context;
     const start = Math.max(ctx.currentTime, at);
-    const end = start + Math.max(.08, duration);
+    const end = start + Math.max(0.08, duration);
     const gain = ctx.createGain();
     const osc = ctx.createOscillator();
     const isPlay = this.scene === 'play' || this.scene === 'boss';
-    const baseLevel = kind === 'bass' ? .07 : kind === 'harmony' ? .026 : kind === 'pulse' ? .006 + this.intensity * .024 : kind === 'effect' ? .09 : .105;
-    const sceneLevel = kind === 'effect' ? 1 : this.scene === 'morning' ? .78 : this.scene === 'boss' ? .9 : 1;
+    const baseLevel =
+      kind === 'bass'
+        ? 0.07
+        : kind === 'harmony'
+          ? 0.026
+          : kind === 'pulse'
+            ? 0.006 + this.intensity * 0.024
+            : kind === 'effect'
+              ? 0.09
+              : 0.105;
+    const sceneLevel =
+      kind === 'effect' ? 1 : this.scene === 'morning' ? 0.78 : this.scene === 'boss' ? 0.9 : 1;
     const level = baseLevel * sceneLevel * strength;
-    const attack = kind === 'harmony' ? .07 : kind === 'bass' ? .03 : .014;
+    const attack = kind === 'harmony' ? 0.07 : kind === 'bass' ? 0.03 : 0.014;
     // Sine timbre is soft, with no sharp sawtooth harmonics or percussion noise.
     osc.type = 'sine';
     osc.frequency.value = frequency(note);
     gain.gain.setValueAtTime(0, start);
     gain.gain.linearRampToValueAtTime(level, start + attack);
     if (isPlay && kind === 'melody') {
-      gain.gain.exponentialRampToValueAtTime(.016, start + duration * .7);
+      gain.gain.exponentialRampToValueAtTime(0.016, start + duration * 0.7);
     } else {
-      gain.gain.linearRampToValueAtTime(level * .65, Math.max(start + attack, end - .09));
+      gain.gain.linearRampToValueAtTime(level * 0.65, Math.max(start + attack, end - 0.09));
     }
     gain.gain.linearRampToValueAtTime(0, end);
     osc.connect(gain);
@@ -247,11 +550,19 @@ export class AudioDirector {
       this.voices.delete(voice);
     };
     osc.start(start);
-    osc.stop(end + .025);
+    osc.stop(end + 0.025);
   }
 
   effect(name) {
-    if (this.destroyed || this.muted || this.paused || this.hidden || !this.context || this.context.state !== 'running') return;
+    if (
+      this.destroyed ||
+      this.muted ||
+      this.paused ||
+      this.hidden ||
+      !this.context ||
+      this.context.state !== 'running'
+    )
+      return;
     const motifs = {
       capture: ['C5', 'E5'],
       pickup: ['E4', 'G4', 'C5'],
@@ -266,11 +577,11 @@ export class AudioDirector {
     if (!motifs[name]) return;
     const now = this.context.currentTime;
     // Repeated collisions or repeated captures cannot produce a loud sound stack.
-    if (now - (this.lastEffect.get(name) ?? -Infinity) < (name === 'warning' ? .7 : .25)) return;
+    if (now - (this.lastEffect.get(name) ?? -Infinity) < (name === 'warning' ? 0.7 : 0.25)) return;
     this.lastEffect.set(name, now);
-    const interval = name === 'warning' ? .19 : name === 'dash' ? .07 : name === 'page' ? .075 : .105;
-    const duration = name === 'win' ? .32 : name === 'page' ? .12 : .2;
-    const strength = ['warning', 'dash', 'beam', 'page'].includes(name) ? .72 : 1;
+    const interval = name === 'warning' ? 0.19 : name === 'dash' ? 0.07 : name === 'page' ? 0.075 : 0.105;
+    const duration = name === 'win' ? 0.32 : name === 'page' ? 0.12 : 0.2;
+    const strength = ['warning', 'dash', 'beam', 'page'].includes(name) ? 0.72 : 1;
     motifs[name].forEach((note, i) => this._note(note, now + i * interval, duration, 'effect', strength));
   }
 
@@ -288,9 +599,11 @@ export class AudioDirector {
           voice.gain.gain.cancelScheduledValues(now);
           voice.gain.gain.setValueAtTime(value, now);
         }
-        voice.gain.gain.linearRampToValueAtTime(0, now + .008);
-        voice.osc.stop(now + .012);
-      } catch { /* A voice may already have ended. */ }
+        voice.gain.gain.linearRampToValueAtTime(0, now + 0.008);
+        voice.osc.stop(now + 0.012);
+      } catch {
+        /* A voice may already have ended. */
+      }
     }
     this.voices.clear();
   }
@@ -308,7 +621,9 @@ export class AudioDirector {
     try {
       if (this.context.state !== 'running') await this.context.resume();
       if (!this.paused && !this.hidden && !this.destroyed) this._start();
-    } catch { /* Browser may require a fresh user gesture. */ }
+    } catch {
+      /* Browser may require a fresh user gesture. */
+    }
   }
 
   stop() {
@@ -319,7 +634,8 @@ export class AudioDirector {
   destroy() {
     this.destroyed = true;
     this.stop();
-    if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', this.visibilityHandler);
+    if (typeof document !== 'undefined')
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
     this.context?.close().catch(() => {});
     this.context = null;
     this.master = null;
