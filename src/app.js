@@ -221,13 +221,7 @@ function home() {
 }
 function storyPages(
   pages,
-  {
-    id = 'race',
-    label = '꿈속 이야기',
-    onDone,
-    skipText = '건너뛰기',
-    finishText = '모험 시작',
-  } = {},
+  { id = 'race', label = '꿈속 이야기', onDone, skipText = '건너뛰기', finishText = '모험 시작' } = {},
 ) {
   let page = 0;
   const draw = () => {
@@ -504,12 +498,20 @@ function gameEvent(event) {
     } else showToast(event.message);
   }
 }
+// Rules advance in fixed 1/120 s steps so play feels the same at 60 Hz, 144 Hz or a hitching frame.
+const STEP = 1 / 120,
+  MAX_STEPS = 12;
+let stepBank = 0;
 function tick(now) {
   if (!engine) return;
   const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
   last = now;
   if (!paused) {
-    engine.step(dt);
+    stepBank = Math.min(stepBank + dt, STEP * MAX_STEPS);
+    while (stepBank >= STEP && engine) {
+      engine.step(STEP);
+      stepBank -= STEP;
+    }
     particles = particles.filter(p => {
       p.x += p.vx * dt;
       p.y += p.vy * dt;
@@ -520,29 +522,51 @@ function tick(now) {
   render(now);
   frame = requestAnimationFrame(tick);
 }
+// The HUD is plain DOM; write a value only when it changes to keep frames free of layout work.
+const hudCache = new WeakMap();
+function put(node, key, value) {
+  if (!node) return;
+  let seen = hudCache.get(node);
+  if (!seen) hudCache.set(node, (seen = {}));
+  if (seen[key] === value) return;
+  seen[key] = value;
+  if (key.startsWith('data-')) node.dataset[key.slice(5)] = value;
+  else if (key.startsWith('class:')) node.classList.toggle(key.slice(6), value);
+  else if (key.startsWith('aria-')) node.setAttribute(key, value);
+  else if (key === 'width' || key === 'opacity') node.style[key] = value;
+  else node[key] = value;
+}
 function render(now) {
   const canvas = document.getElementById('game');
   if (!canvas || !engine) return;
+  const $ = id => document.getElementById(id);
   const visual = paintGame(canvas, engine, currentStage, cachedImage, particles, now);
-  document.getElementById('progress-label').textContent = `그림 ${Math.round(engine.progress * 100)}%`;
-  document.getElementById('progress-fill').style.width =
-    `${Math.min(100, (engine.progress / engine.target) * 100)}%`;
-  const lives = document.getElementById('lives');
-  lives.textContent = '♥'.repeat(engine.lives) + '♡'.repeat(3 - engine.lives);
-  lives.setAttribute('aria-label', `남은 하트 ${engine.lives}개`);
-  lives.dataset.remaining = String(engine.lives);
-  const speedLabel = document.getElementById('speed-label');
-  speedLabel.textContent = `걸음 ${'★'.repeat(engine.speedLevel)}${'☆'.repeat(3 - engine.speedLevel)}${engine.shell ? ' · 방패' : ''}`;
-  speedLabel.title = `현재 걸음 ${engine.speed.toFixed(1)} · 별을 모으면 더 빨라져요`;
-  speedLabel.classList.toggle('speed-up', now < speedFlashUntil);
-  const clueStatus = document.getElementById('clue-status');
-  clueStatus.textContent = engine.clueFound
-    ? `찾았다! ${currentStage.clue?.name || '사건의 단서'}`
-    : '? 숨은 단서를 찾아요';
-  clueStatus.dataset.found = String(!!engine.clueFound);
+  put($('progress-label'), 'textContent', `그림 ${Math.round(engine.progress * 100)}%`);
+  put($('progress-fill'), 'width', `${Math.min(100, (engine.progress / engine.target) * 100)}%`);
+  const lives = $('lives');
+  put(lives, 'textContent', '♥'.repeat(engine.lives) + '♡'.repeat(3 - engine.lives));
+  put(lives, 'aria-label', `남은 하트 ${engine.lives}개`);
+  put(lives, 'data-remaining', String(engine.lives));
+  const speedLabel = $('speed-label');
+  put(
+    speedLabel,
+    'textContent',
+    `걸음 ${'★'.repeat(engine.speedLevel)}${'☆'.repeat(3 - engine.speedLevel)}${engine.shell ? ' · 방패' : ''}`,
+  );
+  put(speedLabel, 'title', `현재 걸음 ${engine.speed.toFixed(1)} · 별을 모으면 더 빨라져요`);
+  put(speedLabel, 'class:speed-up', now < speedFlashUntil);
+  const clueStatus = $('clue-status');
+  put(
+    clueStatus,
+    'textContent',
+    engine.clueFound ? `찾았다! ${currentStage.clue?.name || '사건의 단서'}` : '? 숨은 단서를 찾아요',
+  );
+  put(clueStatus, 'data-found', String(!!engine.clueFound));
   const state = engine.bossState || {},
-    banner = document.getElementById('boss-banner');
-  banner.textContent =
+    banner = $('boss-banner');
+  put(
+    banner,
+    'textContent',
     state.phase === 'cleared'
       ? '보스를 가뒀어요. 남은 조사를 마쳐요.'
       : state.phase === 'warning'
@@ -553,44 +577,49 @@ function render(now) {
             ? `지금 그려요! 쉬는 틈 ${Math.ceil(state.remaining)}초`
             : state.enraged
               ? '그림이 돌아오고 있어요. 예고를 살펴봐요.'
-              : '';
-  banner.dataset.phase = state.phase || '';
+              : '',
+  );
+  put(banner, 'data-phase', state.phase || '');
   audio.setIntensity?.(state.enraged ? 1 : engine.progress > 0.25 ? 0.45 : 0);
-  document.getElementById('energy').textContent =
-    '도움 별 ' +
-    '★'.repeat(Math.max(0, engine.energy || 0)) +
-    '☆'.repeat(Math.max(0, 3 - (engine.energy || 0)));
-  document.getElementById('ability-status').textContent = engine.shield
-    ? `방패 ${engine.shield}회`
-    : engine.freeze > 0
-      ? '잠깐 멈춤'
-      : '';
+  const energy = Math.max(0, engine.energy || 0);
+  put($('energy'), 'textContent', '도움 별 ' + '★'.repeat(energy) + '☆'.repeat(Math.max(0, 3 - energy)));
+  put(
+    $('ability-status'),
+    'textContent',
+    engine.shield ? `방패 ${engine.shield}회` : engine.freeze > 0 ? '잠깐 멈춤' : '',
+  );
+  const earned = earnedAbilities();
   for (const button of document.querySelectorAll('[data-power]')) {
     const id = button.dataset.power,
-      owned = earnedAbilities().includes(id),
+      owned = earned.includes(id),
       count = engine.availableCharges?.[id] || 0;
-    button.disabled =
-      !owned || count === 0 || engine.energy <= 0 || engine.won || engine.lost || engine.abilityCooldown > 0;
-    document.getElementById('charge-' + id).textContent = owned ? `${count}회 남음` : '아직 잠김';
+    put(
+      button,
+      'disabled',
+      !owned || count === 0 || energy <= 0 || engine.won || engine.lost || engine.abilityCooldown > 0,
+    );
+    put($('charge-' + id), 'textContent', owned ? `${count}회 남음` : '아직 잠김');
   }
-  const draw = document.getElementById('draw-mode');
-  draw.classList.toggle('active', !!engine.drawHeld);
-  draw.setAttribute('aria-pressed', String(!!engine.drawHeld));
-  const toast = document.getElementById('toast');
-  toast.style.opacity = now < toastUntil ? '1' : '0';
-  toast.textContent = now < toastUntil ? toastText : '';
-  canvas.dataset.player = JSON.stringify(engine.player);
-  canvas.dataset.visual = JSON.stringify(visual);
-  canvas.dataset.trail = String(engine.trail.length);
-  canvas.dataset.drawing = String(!!engine.drawHeld);
-  canvas.dataset.energy = String(engine.energy);
-  canvas.dataset.pattern = state.pattern || '';
-  canvas.dataset.speed = engine.speed.toFixed(1);
-  canvas.dataset.speedLevel = String(engine.speedLevel);
-  canvas.dataset.phase = state.phase || '';
-  canvas.dataset.clueFound = String(!!engine.clueFound);
-  canvas.dataset.lives = String(engine.lives);
-  canvas.dataset.lost = String(!!engine.lost);
+  const draw = $('draw-mode');
+  put(draw, 'class:active', !!engine.drawHeld);
+  put(draw, 'aria-pressed', String(!!engine.drawHeld));
+  const toast = $('toast'),
+    showing = now < toastUntil;
+  put(toast, 'opacity', showing ? '1' : '0');
+  put(toast, 'textContent', showing ? toastText : '');
+  // Debug readouts for tests and the developer overlay.
+  put(canvas, 'data-player', `${engine.player.x},${engine.player.y}`);
+  put(canvas, 'data-visual', `${visual.x.toFixed(2)},${visual.y.toFixed(2)}`);
+  put(canvas, 'data-trail', String(engine.trail.length));
+  put(canvas, 'data-drawing', String(!!engine.drawHeld));
+  put(canvas, 'data-energy', String(engine.energy));
+  put(canvas, 'data-pattern', state.pattern || '');
+  put(canvas, 'data-speed', engine.speed.toFixed(1));
+  put(canvas, 'data-speedLevel', String(engine.speedLevel));
+  put(canvas, 'data-phase', state.phase || '');
+  put(canvas, 'data-clueFound', String(!!engine.clueFound));
+  put(canvas, 'data-lives', String(engine.lives));
+  put(canvas, 'data-lost', String(!!engine.lost));
 }
 function retryStage() {
   if (!engine?.lost || !currentStage) return;
