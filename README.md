@@ -1,6 +1,29 @@
-# 토끼 탐정과 열두 동화 사건 — v5 개발 중
+# 토끼 탐정과 열두 동화 사건 — v5
 
-Windows용 게임입니다. 빌드한 **storybook-dream-<버전>.exe**를 더블클릭하면 설치 없이 실행됩니다. 인터넷 연결은 필요 없습니다.
+Windows용 가족 게임입니다. 인터넷 연결과 설치 없이 실행됩니다.
+
+## 받아서 실행하기 (게임만 할 때)
+
+1. 이 페이지 오른쪽의 **Releases**를 누릅니다. (또는 [최신 릴리즈](https://github.com/julongjulong/storybook-dream/releases/latest))
+2. **Assets** 아래의 `storybook-dream-….exe`를 눌러 내려받습니다.
+3. 받은 exe를 더블클릭하면 바로 게임이 켜집니다.
+
+처음 실행할 때 Windows가 **"Windows의 PC 보호"** 창을 띄울 수 있습니다. 서명하지 않은 개인 제작 프로그램이라 그렇습니다. **추가 정보 → 실행**을 누르면 됩니다.
+
+진행은 자동 저장됩니다. 다른 PC로 옮길 때는 게임 안의 **보호자 설정 → 백업 파일 저장**을 쓰세요.
+
+> 초록색 **Code → Download ZIP**으로 받은 것은 게임 원본(소스)이라 더블클릭으로 실행되지 않습니다. 게임만 하려면 위의 Releases에서 exe를 받으세요.
+
+## 원본에서 직접 실행하기 (개발할 때)
+
+[Node.js](https://nodejs.org/) LTS를 설치한 뒤, 받은 폴더에서 PowerShell을 열고:
+
+```powershell
+npm install      # 처음 한 번
+npm run app      # 게임 창으로 실행
+npm run dist     # release 폴더에 exe 만들기
+```
+
 v5 개선 계획은 [docs/roadmap-v5.md](docs/roadmap-v5.md), AI 그림 프롬프트는 [docs/art-prompts-v5.md](docs/art-prompts-v5.md)에 있습니다.
 
 ## 키보드로 놀기
