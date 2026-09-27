@@ -4,6 +4,8 @@
 import fs from 'node:fs';
 
 const root = new URL('../', import.meta.url);
+// Characters, shots and stickers are saved as originals in assets/v5-source; scripts/prepare-sprites.mjs cuts them out.
+const cutOut = file => file.startsWith('sprites/') || file.startsWith('stickers/');
 const exists = path =>
   ['png', 'jpg', 'jpeg', 'webp'].some(ext => fs.existsSync(new URL(`assets/v5/${path}.${ext}`, root)));
 
@@ -301,22 +303,21 @@ for (const [id, look] of stickers)
     ),
   );
 
+const cutHelp =
+  '원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.';
 const sections = {
-  boards: ['1. 게임판 배경', '넣으면 바로 게임에 나와요. 크기 1536×1024 이상, 가로 3:2.'],
+  boards: [
+    '1. 게임판 배경',
+    '`assets/v5/boards/`에 넣으면 바로 게임에 나와요. 크기 1536×1024 이상, 가로 3:2.',
+  ],
   story: [
     '2. 또롱 스토리 그림',
-    '넣으면 바로 게임에 나와요. `ttorong-final-3`은 마지막 장의 게임판이기도 해요.',
+    '`assets/v5/story/`에 넣으면 바로 게임에 나와요. `ttorong-final-3`은 마지막 장의 게임판이기도 해요.',
   ],
-  bosses: [
-    '3. 보스 (판마다 4장)',
-    '넣어 주시면 Claude가 게임에 연결해요. **배경을 투명하게** (또는 흰 배경으로 뽑은 뒤 배경 제거).',
-  ],
-  sprites: ['4. 토끼 · 또롱 캐릭터', '넣어 주시면 Claude가 게임에 연결해요. **배경을 투명하게.**'],
-  small: [
-    '5. 졸병 · 탄',
-    '넣어 주시면 Claude가 게임에 연결해요. **배경을 투명하게.** 작게 쓰여서 512×512면 충분해요.',
-  ],
-  stickers: ['6. 스티커', '넣어 주시면 Claude가 게임에 연결해요. **배경을 투명하게.**'],
+  bosses: ['3. 보스 (판마다 4장)', cutHelp],
+  sprites: ['4. 토끼 · 또롱 캐릭터', cutHelp],
+  small: ['5. 졸병 · 탄', cutHelp],
+  stickers: ['6. 스티커', cutHelp],
 };
 
 const done = items.filter(i => exists(i.file)).length;
@@ -324,7 +325,7 @@ let md = `# v5 AI 그림 프롬프트 — 한 장에 하나씩
 
 **만드는 법**: 각 그림 아래 회색 상자 안의 글을 **통째로 복사**해서 이미지 생성기(ChatGPT 등)에 붙여 넣으세요. 다른 걸 덧붙일 필요 없어요.
 토끼가 나오는 그림은 기존 그림(\`assets/detective/race.png\`)을, 보스의 2~4번째 상태는 먼저 만든 "평소" 그림을 **참조 이미지로 함께 올리면** 캐릭터가 한결같아요.
-만든 그림은 제목 아래 적힌 **저장 위치와 이름**으로 저장하세요 (\`assets/v5/…\`, png·jpg·webp 모두 가능).
+만든 그림은 제목 아래 적힌 **저장 위치와 이름** 그대로 저장하세요. 배경·스토리 그림은 \`assets/v5/…\`, 캐릭터·탄·스티커 원본은 \`assets/v5-source/…\` (배경 지우기는 자동).
 
 **진행: ${done} / ${items.length}장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 \`node scripts/art-prompts.mjs\`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
 
@@ -337,7 +338,7 @@ for (const [key, [title, help]] of Object.entries(sections)) {
   md += `\n---\n\n## ${title} — ${n} / ${list.length}\n\n${help}\n`;
   for (const i of list) {
     const ok = exists(i.file);
-    md += `\n### ${ok ? '✅' : '⬜'} ${i.title}\n\n저장: \`assets/v5/${i.file}.png\`${i.note ? `  \n${ok ? '참고' : '메모'}: ${i.note}` : ''}\n\n\`\`\`text\n${i.prompt}\n\`\`\`\n`;
+    md += `\n### ${ok ? '✅' : '⬜'} ${i.title}\n\n저장: \`assets/${cutOut(i.file) ? 'v5-source' : 'v5'}/${i.file}.png\`${i.note ? `  \n${ok ? '참고' : '메모'}: ${i.note}` : ''}\n\n\`\`\`text\n${i.prompt}\n\`\`\`\n`;
   }
 }
 fs.writeFileSync(new URL('docs/art-prompts-v5.md', root), md);

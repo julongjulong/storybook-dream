@@ -2,7 +2,7 @@ import { GameEngine, WIDTH, HEIGHT, ABILITIES } from './engine.js';
 import { isDash } from './game/config.js';
 import { paintGame } from './render.js';
 import { STORY } from './story-data.js';
-import { ART, STORY_ART, BOARDS, BOARD_CLUES } from './art.js';
+import { ART, STORY_ART, BOARDS, BOARD_CLUES, SPRITES } from './art.js';
 import { artFrame } from './art-layout.js';
 import { AudioDirector } from './audio.js';
 import { Effects } from './fx.js';
@@ -57,6 +57,13 @@ let mapIndex = 0,
   touchDraw = false,
   speedFlashUntil = 0;
 const heldKeys = new Set();
+// Sprite pictures, usable once loaded; until then the painter draws simple shapes.
+const spriteImages = {};
+for (const [name, src] of Object.entries(SPRITES)) {
+  const img = new Image();
+  img.onload = () => (spriteImages[name] = img);
+  img.src = src;
+}
 const finale = STORY.finale;
 // A case on the map, or the final chapter.
 const stageById = id => worlds.find(w => w.id === id) || (id === finale.id ? finale : null);
@@ -564,7 +571,7 @@ function render(now) {
   const canvas = document.getElementById('game');
   if (!canvas || !engine) return;
   const $ = id => document.getElementById(id);
-  const visual = paintGame(canvas, engine, currentStage, cachedImage, fx, now, stepBank / STEP);
+  const visual = paintGame(canvas, engine, currentStage, cachedImage, fx, now, stepBank / STEP, spriteImages);
   put($('progress-label'), 'textContent', `그림 ${Math.round(engine.progress * 100)}%`);
   put($('progress-fill'), 'width', `${Math.min(100, (engine.progress / engine.target) * 100)}%`);
   const lives = $('lives');

@@ -2,9 +2,9 @@
 
 **만드는 법**: 각 그림 아래 회색 상자 안의 글을 **통째로 복사**해서 이미지 생성기(ChatGPT 등)에 붙여 넣으세요. 다른 걸 덧붙일 필요 없어요.
 토끼가 나오는 그림은 기존 그림(`assets/detective/race.png`)을, 보스의 2~4번째 상태는 먼저 만든 "평소" 그림을 **참조 이미지로 함께 올리면** 캐릭터가 한결같아요.
-만든 그림은 제목 아래 적힌 **저장 위치와 이름**으로 저장하세요 (`assets/v5/…`, png·jpg·webp 모두 가능).
+만든 그림은 제목 아래 적힌 **저장 위치와 이름** 그대로 저장하세요. 배경·스토리 그림은 `assets/v5/…`, 캐릭터·탄·스티커 원본은 `assets/v5-source/…` (배경 지우기는 자동).
 
-**진행: 8 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
+**진행: 18 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
 
 추천 순서: 게임판 배경 → 4판 빵 바구니 보스 4장 → 토끼 → 또롱 스토리 → 나머지 보스 → 졸병·탄 → 스티커.
 
@@ -13,7 +13,7 @@
 
 ## 1. 게임판 배경 — 8 / 12
 
-넣으면 바로 게임에 나와요. 크기 1536×1024 이상, 가로 3:2.
+`assets/v5/boards/`에 넣으면 바로 게임에 나와요. 크기 1536×1024 이상, 가로 3:2.
 
 ### ✅ 1판 토끼와 거북이
 
@@ -118,7 +118,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ## 2. 또롱 스토리 그림 — 0 / 11
 
-넣으면 바로 게임에 나와요. `ttorong-final-3`은 마지막 장의 게임판이기도 해요.
+`assets/v5/story/`에 넣으면 바로 게임에 나와요. `ttorong-final-3`은 마지막 장의 게임판이기도 해요.
 
 ### ⬜ 흔적 · 깃털 (1~3판 뒤)
 
@@ -212,11 +212,11 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ## 3. 보스 (판마다 4장) — 0 / 48
 
-넣어 주시면 Claude가 게임에 연결해요. **배경을 투명하게** (또는 흰 배경으로 뽑은 뒤 배경 제거).
+원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.
 
 ### ⬜ 1판 낙엽 뭉치 · 평소
 
-저장: `assets/v5/sprites/boss-race-idle.png`
+저장: `assets/v5-source/sprites/boss-race-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a rolling ball of autumn leaves with two little eyes peeking out. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -224,7 +224,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 1판 낙엽 뭉치 · 예고 준비
 
-저장: `assets/v5/sprites/boss-race-windup.png`  
+저장: `assets/v5-source/sprites/boss-race-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -233,7 +233,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 1판 낙엽 뭉치 · 공격
 
-저장: `assets/v5/sprites/boss-race-attack.png`  
+저장: `assets/v5-source/sprites/boss-race-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -242,7 +242,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 1판 낙엽 뭉치 · 2단계
 
-저장: `assets/v5/sprites/boss-race-phase2.png`  
+저장: `assets/v5-source/sprites/boss-race-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -251,7 +251,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 2판 수련 방울 · 평소
 
-저장: `assets/v5/sprites/boss-duck-idle.png`
+저장: `assets/v5-source/sprites/boss-duck-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a lily pad with a round water bubble on top, the bubble has the face. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -259,7 +259,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 2판 수련 방울 · 예고 준비
 
-저장: `assets/v5/sprites/boss-duck-windup.png`  
+저장: `assets/v5-source/sprites/boss-duck-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -268,7 +268,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 2판 수련 방울 · 공격
 
-저장: `assets/v5/sprites/boss-duck-attack.png`  
+저장: `assets/v5-source/sprites/boss-duck-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -277,7 +277,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 2판 수련 방울 · 2단계
 
-저장: `assets/v5/sprites/boss-duck-phase2.png`  
+저장: `assets/v5-source/sprites/boss-duck-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -286,7 +286,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 3판 벽돌 바람개비 · 평소
 
-저장: `assets/v5/sprites/boss-pigs-idle.png`
+저장: `assets/v5-source/sprites/boss-pigs-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a pinwheel made of pink bricks, face in the center hub. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -294,7 +294,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 3판 벽돌 바람개비 · 예고 준비
 
-저장: `assets/v5/sprites/boss-pigs-windup.png`  
+저장: `assets/v5-source/sprites/boss-pigs-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -303,7 +303,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 3판 벽돌 바람개비 · 공격
 
-저장: `assets/v5/sprites/boss-pigs-attack.png`  
+저장: `assets/v5-source/sprites/boss-pigs-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -312,7 +312,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 3판 벽돌 바람개비 · 2단계
 
-저장: `assets/v5/sprites/boss-pigs-phase2.png`  
+저장: `assets/v5-source/sprites/boss-pigs-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -321,7 +321,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 4판 빵 바구니 · 평소
 
-저장: `assets/v5/sprites/boss-redhood-idle.png`
+저장: `assets/v5-source/sprites/boss-redhood-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a round wicker bread basket with a checkered cloth, rolling on its side, crumbs flying. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -329,7 +329,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 4판 빵 바구니 · 예고 준비
 
-저장: `assets/v5/sprites/boss-redhood-windup.png`  
+저장: `assets/v5-source/sprites/boss-redhood-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -338,7 +338,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 4판 빵 바구니 · 공격
 
-저장: `assets/v5/sprites/boss-redhood-attack.png`  
+저장: `assets/v5-source/sprites/boss-redhood-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -347,7 +347,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 4판 빵 바구니 · 2단계
 
-저장: `assets/v5/sprites/boss-redhood-phase2.png`  
+저장: `assets/v5-source/sprites/boss-redhood-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -356,7 +356,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 5판 구름 물뿌리개 · 평소
 
-저장: `assets/v5/sprites/boss-beans-idle.png`
+저장: `assets/v5-source/sprites/boss-beans-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a small gray rain cloud holding a watering can. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -364,7 +364,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 5판 구름 물뿌리개 · 예고 준비
 
-저장: `assets/v5/sprites/boss-beans-windup.png`  
+저장: `assets/v5-source/sprites/boss-beans-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -373,7 +373,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 5판 구름 물뿌리개 · 공격
 
-저장: `assets/v5/sprites/boss-beans-attack.png`  
+저장: `assets/v5-source/sprites/boss-beans-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -382,7 +382,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 5판 구름 물뿌리개 · 2단계
 
-저장: `assets/v5/sprites/boss-beans-phase2.png`  
+저장: `assets/v5-source/sprites/boss-beans-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -391,7 +391,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 6판 도토리 북 · 평소
 
-저장: `assets/v5/sprites/boss-ant-idle.png`
+저장: `assets/v5-source/sprites/boss-ant-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a small drum shaped like an acorn, with two drumsticks for arms. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -399,7 +399,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 6판 도토리 북 · 예고 준비
 
-저장: `assets/v5/sprites/boss-ant-windup.png`  
+저장: `assets/v5-source/sprites/boss-ant-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -408,7 +408,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 6판 도토리 북 · 공격
 
-저장: `assets/v5/sprites/boss-ant-attack.png`  
+저장: `assets/v5-source/sprites/boss-ant-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -417,7 +417,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 6판 도토리 북 · 2단계
 
-저장: `assets/v5/sprites/boss-ant-phase2.png`  
+저장: `assets/v5-source/sprites/boss-ant-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -426,7 +426,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 7판 매듭 공 · 평소
 
-저장: `assets/v5/sprites/boss-lion-idle.png`
+저장: `assets/v5-source/sprites/boss-lion-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a bouncy ball made of tangled rope knots. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -434,7 +434,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 7판 매듭 공 · 예고 준비
 
-저장: `assets/v5/sprites/boss-lion-windup.png`  
+저장: `assets/v5-source/sprites/boss-lion-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -443,7 +443,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 7판 매듭 공 · 공격
 
-저장: `assets/v5/sprites/boss-lion-attack.png`  
+저장: `assets/v5-source/sprites/boss-lion-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -452,7 +452,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 7판 매듭 공 · 2단계
 
-저장: `assets/v5/sprites/boss-lion-phase2.png`  
+저장: `assets/v5-source/sprites/boss-lion-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -461,7 +461,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 8판 포도 방울 · 평소
 
-저장: `assets/v5/sprites/boss-fox-idle.png`
+저장: `assets/v5-source/sprites/boss-fox-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a bunch of purple grapes with a leaf hat, each grape slightly wobbly. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -469,7 +469,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 8판 포도 방울 · 예고 준비
 
-저장: `assets/v5/sprites/boss-fox-windup.png`  
+저장: `assets/v5-source/sprites/boss-fox-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -478,7 +478,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 8판 포도 방울 · 공격
 
-저장: `assets/v5/sprites/boss-fox-attack.png`  
+저장: `assets/v5-source/sprites/boss-fox-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -487,7 +487,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 8판 포도 방울 · 2단계
 
-저장: `assets/v5/sprites/boss-fox-phase2.png`  
+저장: `assets/v5-source/sprites/boss-fox-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -496,7 +496,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 9판 바람 구름 · 평소
 
-저장: `assets/v5/sprites/boss-wind-idle.png`
+저장: `assets/v5-source/sprites/boss-wind-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a swirling puff of wind cloud with a curly tail, cheeks puffed. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -504,7 +504,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 9판 바람 구름 · 예고 준비
 
-저장: `assets/v5/sprites/boss-wind-windup.png`  
+저장: `assets/v5-source/sprites/boss-wind-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -513,7 +513,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 9판 바람 구름 · 공격
 
-저장: `assets/v5/sprites/boss-wind-attack.png`  
+저장: `assets/v5-source/sprites/boss-wind-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -522,7 +522,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 9판 바람 구름 · 2단계
 
-저장: `assets/v5/sprites/boss-wind-phase2.png`  
+저장: `assets/v5-source/sprites/boss-wind-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -531,7 +531,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 10판 연못 돌림판 · 평소
 
-저장: `assets/v5/sprites/boss-ax-idle.png`
+저장: `assets/v5-source/sprites/boss-ax-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a round spinning pond disk like a lily-pad turntable, glinting. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -539,7 +539,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 10판 연못 돌림판 · 예고 준비
 
-저장: `assets/v5/sprites/boss-ax-windup.png`  
+저장: `assets/v5-source/sprites/boss-ax-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -548,7 +548,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 10판 연못 돌림판 · 공격
 
-저장: `assets/v5/sprites/boss-ax-attack.png`  
+저장: `assets/v5-source/sprites/boss-ax-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -557,7 +557,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 10판 연못 돌림판 · 2단계
 
-저장: `assets/v5/sprites/boss-ax-phase2.png`  
+저장: `assets/v5-source/sprites/boss-ax-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -566,7 +566,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 11판 박자 북 · 평소
 
-저장: `assets/v5/sprites/boss-piper-idle.png`
+저장: `assets/v5-source/sprites/boss-piper-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a marching drum with a feather plume and little legs. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -574,7 +574,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 11판 박자 북 · 예고 준비
 
-저장: `assets/v5/sprites/boss-piper-windup.png`  
+저장: `assets/v5-source/sprites/boss-piper-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -583,7 +583,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 11판 박자 북 · 공격
 
-저장: `assets/v5/sprites/boss-piper-attack.png`  
+저장: `assets/v5-source/sprites/boss-piper-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -592,7 +592,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 11판 박자 북 · 2단계
 
-저장: `assets/v5/sprites/boss-piper-phase2.png`  
+저장: `assets/v5-source/sprites/boss-piper-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -601,7 +601,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 12판 나무 오리 · 평소
 
-저장: `assets/v5/sprites/boss-troy-idle.png`
+저장: `assets/v5-source/sprites/boss-troy-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a small wooden duck on wheels with a hinged door on its chest. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -609,7 +609,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 12판 나무 오리 · 예고 준비
 
-저장: `assets/v5/sprites/boss-troy-windup.png`  
+저장: `assets/v5-source/sprites/boss-troy-windup.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -618,7 +618,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 12판 나무 오리 · 공격
 
-저장: `assets/v5/sprites/boss-troy-attack.png`  
+저장: `assets/v5-source/sprites/boss-troy-attack.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -627,7 +627,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 12판 나무 오리 · 2단계
 
-저장: `assets/v5/sprites/boss-troy-phase2.png`  
+저장: `assets/v5-source/sprites/boss-troy-phase2.png`  
 메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
@@ -638,11 +638,11 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ## 4. 토끼 · 또롱 캐릭터 — 0 / 12
 
-넣어 주시면 Claude가 게임에 연결해요. **배경을 투명하게.**
+원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.
 
 ### ⬜ 토끼 · 가만히
 
-저장: `assets/v5/sprites/rabbit-idle.png`
+저장: `assets/v5-source/sprites/rabbit-idle.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: standing relaxed, ears up, gentle smile. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -650,7 +650,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 토끼 · 걷기 1
 
-저장: `assets/v5/sprites/rabbit-walk-1.png`
+저장: `assets/v5-source/sprites/rabbit-walk-1.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: mid-hop walking to the right, front foot forward. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -658,7 +658,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 토끼 · 걷기 2
 
-저장: `assets/v5/sprites/rabbit-walk-2.png`
+저장: `assets/v5-source/sprites/rabbit-walk-2.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: mid-hop walking to the right, back foot pushing off. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -666,7 +666,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 토끼 · 선 긋기
 
-저장: `assets/v5/sprites/rabbit-draw.png`
+저장: `assets/v5-source/sprites/rabbit-draw.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: leaning forward and tiptoeing carefully, holding a glowing golden thread behind it, focused expression. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -674,7 +674,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 토끼 · 맞음
 
-저장: `assets/v5/sprites/rabbit-hit.png`
+저장: `assets/v5-source/sprites/rabbit-hit.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: startled, ears flopped, tiny stars around head, not hurt. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -682,7 +682,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 토끼 · 기뻐함
 
-저장: `assets/v5/sprites/rabbit-cheer.png`
+저장: `assets/v5-source/sprites/rabbit-cheer.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: jumping with both arms up, very happy. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -690,7 +690,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 또롱 · 빼꼼
 
-저장: `assets/v5/sprites/ttorong-peek.png`
+저장: `assets/v5-source/sprites/ttorong-peek.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. Ttorong is a small round young magpie with glossy black and white feathers, a slightly too-big head, big shy eyes, short legs, and a tiny shiny button tied around its neck with string. Cute, lonely but kind, never menacing. Pose: peeking out from behind something, only half visible, curious. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -698,7 +698,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 또롱 · 날아감
 
-저장: `assets/v5/sprites/ttorong-fly.png`
+저장: `assets/v5-source/sprites/ttorong-fly.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. Ttorong is a small round young magpie with glossy black and white feathers, a slightly too-big head, big shy eyes, short legs, and a tiny shiny button tied around its neck with string. Cute, lonely but kind, never menacing. Pose: flying away quickly holding a small shiny object in its beak. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -706,7 +706,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 또롱 · 부끄러움
 
-저장: `assets/v5/sprites/ttorong-shy.png`
+저장: `assets/v5-source/sprites/ttorong-shy.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. Ttorong is a small round young magpie with glossy black and white feathers, a slightly too-big head, big shy eyes, short legs, and a tiny shiny button tied around its neck with string. Cute, lonely but kind, never menacing. Pose: standing, one wing covering its face, embarrassed. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -714,7 +714,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 또롱 · 쓸쓸함
 
-저장: `assets/v5/sprites/ttorong-sad.png`
+저장: `assets/v5-source/sprites/ttorong-sad.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. Ttorong is a small round young magpie with glossy black and white feathers, a slightly too-big head, big shy eyes, short legs, and a tiny shiny button tied around its neck with string. Cute, lonely but kind, never menacing. Pose: sitting alone, looking down. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -722,7 +722,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 또롱 · 웃음
 
-저장: `assets/v5/sprites/ttorong-happy.png`
+저장: `assets/v5-source/sprites/ttorong-happy.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. Ttorong is a small round young magpie with glossy black and white feathers, a slightly too-big head, big shy eyes, short legs, and a tiny shiny button tied around its neck with string. Cute, lonely but kind, never menacing. Pose: wings open wide, laughing. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -730,7 +730,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 또롱 · 탐정
 
-저장: `assets/v5/sprites/ttorong-detective.png`
+저장: `assets/v5-source/sprites/ttorong-detective.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. Ttorong is a small round young magpie with glossy black and white feathers, a slightly too-big head, big shy eyes, short legs, and a tiny shiny button tied around its neck with string. Cute, lonely but kind, never menacing. Pose: wearing a tiny teal neckerchief like the rabbit's, proudly saluting with a wing. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -738,85 +738,85 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ---
 
-## 5. 졸병 · 탄 — 0 / 10
+## 5. 졸병 · 탄 — 10 / 10
 
-넣어 주시면 Claude가 게임에 연결해요. **배경을 투명하게.** 작게 쓰여서 512×512면 충분해요.
+원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.
 
-### ⬜ 졸병 · 배회
+### ✅ 졸병 · 배회
 
-저장: `assets/v5/sprites/minion-wander.png`
+저장: `assets/v5-source/sprites/minion-wander.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: a tiny round dust bunny with dot eyes, fluffy, pale blue. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 졸병 · 빨개짐
+### ✅ 졸병 · 빨개짐
 
-저장: `assets/v5/sprites/minion-wander-red.png`
+저장: `assets/v5-source/sprites/minion-wander-red.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: the same tiny dust bunny glowing red and puffed up, spiky fur like an exclamation. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 졸병 · 추적(종이배)
+### ✅ 졸병 · 추적(종이배)
 
-저장: `assets/v5/sprites/minion-chaser.png`
+저장: `assets/v5-source/sprites/minion-chaser.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: a tiny paper boat with eyes that sails forward, pointy front. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 불씨
+### ✅ 불씨
 
-저장: `assets/v5/sprites/minion-fuse.png`
+저장: `assets/v5-source/sprites/minion-fuse.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: a small warm spark shaped like a firefly, soft orange glow, friendly face. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 탄 · 빵가루
+### ✅ 탄 · 빵가루
 
-저장: `assets/v5/sprites/shot-crumb.png`
+저장: `assets/v5-source/sprites/shot-crumb.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: a single round bread crumb, golden. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 탄 · 빗방울
+### ✅ 탄 · 빗방울
 
-저장: `assets/v5/sprites/shot-raindrop.png`
+저장: `assets/v5-source/sprites/shot-raindrop.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: a single fat cartoon raindrop. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 탄 · 음표
+### ✅ 탄 · 음표
 
-저장: `assets/v5/sprites/shot-note.png`
+저장: `assets/v5-source/sprites/shot-note.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: a single round music note. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 탄 · 포도알
+### ✅ 탄 · 포도알
 
-저장: `assets/v5/sprites/shot-grape.png`
+저장: `assets/v5-source/sprites/shot-grape.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: a single purple grape with a tiny highlight. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 탄 · 나뭇잎
+### ✅ 탄 · 나뭇잎
 
-저장: `assets/v5/sprites/shot-leaf.png`
+저장: `assets/v5-source/sprites/shot-leaf.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: a single small green leaf. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 탄 · 방울
+### ✅ 탄 · 방울
 
-저장: `assets/v5/sprites/shot-bubble.png`
+저장: `assets/v5-source/sprites/shot-bubble.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A tiny game piece: a single soap bubble with a highlight. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -826,11 +826,11 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ## 6. 스티커 — 0 / 12
 
-넣어 주시면 Claude가 게임에 연결해요. **배경을 투명하게.**
+원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.
 
 ### ⬜ 스티커 · race
 
-저장: `assets/v5/stickers/sticker-race.png`
+저장: `assets/v5-source/stickers/sticker-race.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a tortoise shell with a tiny ribbon, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -838,7 +838,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · duck
 
-저장: `assets/v5/stickers/sticker-duck.png`
+저장: `assets/v5-source/stickers/sticker-duck.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a yellow rain boot, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -846,7 +846,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · pigs
 
-저장: `assets/v5/stickers/sticker-pigs.png`
+저장: `assets/v5-source/stickers/sticker-pigs.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a small brick with a heart, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -854,7 +854,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · redhood
 
-저장: `assets/v5/stickers/sticker-redhood.png`
+저장: `assets/v5-source/stickers/sticker-redhood.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a loaf of bread in a basket, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -862,7 +862,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · beans
 
-저장: `assets/v5/stickers/sticker-beans.png`
+저장: `assets/v5-source/stickers/sticker-beans.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a little brass bell, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -870,7 +870,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · ant
 
-저장: `assets/v5/stickers/sticker-ant.png`
+저장: `assets/v5-source/stickers/sticker-ant.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a grain of wheat and a tiny fiddle, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -878,7 +878,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · lion
 
-저장: `assets/v5/stickers/sticker-lion.png`
+저장: `assets/v5-source/stickers/sticker-lion.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a small mouse with a big smile, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -886,7 +886,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · fox
 
-저장: `assets/v5/stickers/sticker-fox.png`
+저장: `assets/v5-source/stickers/sticker-fox.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a bunch of grapes, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -894,7 +894,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · wind
 
-저장: `assets/v5/stickers/sticker-wind.png`
+저장: `assets/v5-source/stickers/sticker-wind.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a hat with a ribbon, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -902,7 +902,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · ax
 
-저장: `assets/v5/stickers/sticker-ax.png`
+저장: `assets/v5-source/stickers/sticker-ax.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a shiny golden axe, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -910,7 +910,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · piper
 
-저장: `assets/v5/stickers/sticker-piper.png`
+저장: `assets/v5-source/stickers/sticker-piper.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a flute with music notes, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -918,7 +918,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ### ⬜ 스티커 · troy
 
-저장: `assets/v5/stickers/sticker-troy.png`
+저장: `assets/v5-source/stickers/sticker-troy.png`
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a wooden duck on wheels, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.

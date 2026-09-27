@@ -136,6 +136,7 @@ function harness({ saved = null, blockedStorage = false } = {}) {
     STICKERS,
     BOARDS: {},
     BOARD_CLUES: {},
+    SPRITES: {},
     strokeRay,
     artFrame,
     ART: {},

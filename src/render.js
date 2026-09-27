@@ -335,7 +335,8 @@ function revealLayer(effects) {
 }
 
 // fx: the Effects instance from fx.js (tests may pass [] for none).
-export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
+// sprites: loaded images by name (sprites/<name>.png); anything missing falls back to drawn shapes.
+export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1, sprites = {}) {
   const effects = fx && !Array.isArray(fx) ? fx : null;
   const blend = (cur, prev) =>
     Number.isFinite(prev) && Math.abs(cur - prev) < 2 ? prev + (cur - prev) * alpha : cur;
@@ -362,6 +363,18 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
       ctx.lineWidth = Math.max(1, u * 0.14);
       ctx.stroke();
     }
+  };
+  // Draw a sprite centred at (x, y), size in pixels. Returns false when that picture is not loaded.
+  const sprite = (name, x, y, size, { turn = 0, flip = false } = {}) => {
+    const img = sprites[name];
+    if (!img) return false;
+    ctx.save();
+    ctx.translate(x, y);
+    if (turn) ctx.rotate(turn);
+    if (flip) ctx.scale(-1, 1);
+    ctx.drawImage(img, -size / 2, -size / 2, size, size);
+    ctx.restore();
+    return true;
   };
   ctx.fillStyle = '#ceded4';
   ctx.fillRect(0, 0, width, height);
@@ -629,7 +642,8 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
   if (spark) {
     const flicker = 0.8 + 0.2 * Math.sin(now / 40);
     dot(spark.x * sx, spark.y * sy, u * 1.1 * flicker, '#ff9b4a55');
-    dot(spark.x * sx, spark.y * sy, u * 0.5 * flicker, '#ffd08a', '#fff');
+    if (!sprite('minion-fuse', spark.x * sx, spark.y * sy, u * 2.2 * flicker))
+      dot(spark.x * sx, spark.y * sy, u * 0.5 * flicker, '#ffd08a', '#fff');
   }
   if (effects?.rewind) {
     const { line, life, max } = effects.rewind,
@@ -665,6 +679,10 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
       ctx.scale(1 + squash + windup * 0.12, 1 - squash - windup * 0.1);
       bossIcon(ctx, stage.boss.symbol, 0, 0, u * 2.25 * (phase2 ? 1.08 : 1), now);
       ctx.restore();
+    } else if (e.behavior === 'chaser' && sprites['minion-chaser']) {
+      // Paper boat picture faces right; mirror it when sailing left.
+      if (engine.freeze > 0) dot(x, y, u * 1.3, '#a5dbe688');
+      sprite('minion-chaser', x, y, u * 2.6, { flip: e.vx < 0 });
     } else if (e.behavior === 'chaser') {
       // Paper boat: a little arrow that shows where it is heading.
       ctx.save();
@@ -701,10 +719,13 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
             '#ee656530',
           );
       }
-      dot(x, y, u * 0.95, color, '#fff9');
-      ctx.fillStyle = '#482f3b';
-      ctx.font = `bold ${Math.max(10, u * 1.2)}px sans-serif`;
-      ctx.fillText(red ? '!' : '•', x, y);
+      if (engine.freeze > 0) dot(x, y, u * 1.15, '#a5dbe688');
+      if (!sprite(red ? 'minion-wander-red' : 'minion-wander', x, y, u * 2.4)) {
+        dot(x, y, u * 0.95, color, '#fff9');
+        ctx.fillStyle = '#482f3b';
+        ctx.font = `bold ${Math.max(10, u * 1.2)}px sans-serif`;
+        ctx.fillText(red ? '!' : '•', x, y);
+      }
       if (warming) {
         ctx.strokeStyle = '#ffb9a3';
         ctx.lineWidth = 2;
@@ -720,8 +741,10 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
     if (b.kind === 'crumb') {
       // Bread crumbs lie still and fade out in their last second.
       ctx.globalAlpha = Math.min(1, b.life);
-      dot(x, y, u * 0.45, '#d9a45b', '#7a4f2a');
-      dot(x - u * 0.12, y - u * 0.12, u * 0.12, '#f6d9a8');
+      if (!sprite('shot-crumb', x, y, u * 1.15)) {
+        dot(x, y, u * 0.45, '#d9a45b', '#7a4f2a');
+        dot(x - u * 0.12, y - u * 0.12, u * 0.12, '#f6d9a8');
+      }
       ctx.globalAlpha = 1;
       continue;
     }
@@ -741,16 +764,24 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
         Math.PI * 2,
       );
       ctx.stroke();
-      dot(x, y, u * 0.5, '#bfe6f5');
+      // The drop itself lands and shrinks into the splash.
+      if (!sprite('shot-raindrop', x, y, u * 1.6 * Math.max(0.2, 1 - t))) dot(x, y, u * 0.5, '#bfe6f5');
       continue;
     }
     if (b.kind === 'grape') {
       // Grapes blink faster just before they pop.
       const soon = b.popAt - (b.age || 0) < 0.4 && Math.sin(now / 45) > 0;
-      dot(x, y, u * 0.75, soon ? '#e0b6ff' : '#9b6fc2', '#fff');
-      dot(x - u * 0.2, y - u * 0.22, u * 0.18, '#fffd');
+      if (!sprite('shot-grape', x, y, u * (soon ? 1.9 : 1.6))) {
+        dot(x, y, u * 0.75, soon ? '#e0b6ff' : '#9b6fc2', '#fff');
+        dot(x - u * 0.2, y - u * 0.22, u * 0.18, '#fffd');
+      }
       continue;
     }
+    if (
+      b.kind === 'leaf' &&
+      sprite('shot-leaf', x, y, u * 1.5, { turn: Math.atan2(b.vy, b.vx) + Math.PI / 2 })
+    )
+      continue;
     if (b.kind === 'leaf' || b.kind === 'feather') {
       ctx.save();
       ctx.translate(x, y);
@@ -765,6 +796,7 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
       ctx.restore();
       continue;
     }
+    if (b.kind === 'notes' && sprite('shot-note', x, y, u * 1.4)) continue;
     if (b.kind === 'notes') {
       dot(x, y, u * 0.5, '#f7c6d9', '#fff');
       ctx.fillStyle = '#6b3b57';
@@ -780,6 +812,8 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1) {
       split: '#cda777',
       seed: '#c7a6e6',
     };
+    if (b.kind === 'seed' ? sprite('shot-grape', x, y, u * 0.9) : sprite('shot-bubble', x, y, u * 1.3))
+      continue;
     dot(x, y, u * (b.kind === 'seed' ? 0.38 : 0.5), colors[b.kind] || '#a9dbe8', '#fff');
     dot(x - u * 0.12, y - u * 0.14, u * 0.13, '#fffd');
   }

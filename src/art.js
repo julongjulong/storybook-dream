@@ -42,6 +42,19 @@ export const BOARD_CLUES = {
   wind: { x: 42, y: 25 },
 };
 
+// Game sprites made by scripts/prepare-sprites.mjs (transparent, 256 × 256), by name.
+export const SPRITES = Object.fromEntries(
+  Object.entries(v5Files)
+    .filter(([key]) => key.includes('/v5/sprites/'))
+    .map(([key, src]) => [
+      key
+        .split('/')
+        .pop()
+        .replace(/\.[a-z]+$/, ''),
+      src,
+    ]),
+);
+
 // Story pages point at their case sheet; family scenes have their own paintings.
 export const STORY_ART = {
   'opening-bedroom': url('opening-bedroom'),
