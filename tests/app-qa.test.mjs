@@ -135,6 +135,7 @@ function harness({ saved = null, blockedStorage = false } = {}) {
     isDash,
     STICKERS,
     BOARDS: {},
+    BOARD_CLUES: {},
     strokeRay,
     artFrame,
     ART: {},

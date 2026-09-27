@@ -30,6 +30,18 @@ export const BOARDS = Object.fromEntries(
   ].filter(([, src]) => src),
 );
 
+// Where each v5 board draws its key object, in board cells (72 × 48), so the "?" clue sits on it.
+// Only used when that board picture exists. Cases missing here keep their story clue spot.
+export const BOARD_CLUES = {
+  race: { x: 37, y: 32 },
+  duck: { x: 41, y: 30 },
+  pigs: { x: 30, y: 32 },
+  ant: { x: 37, y: 22 },
+  lion: { x: 36, y: 38 },
+  fox: { x: 45, y: 36 },
+  wind: { x: 42, y: 25 },
+};
+
 // Story pages point at their case sheet; family scenes have their own paintings.
 export const STORY_ART = {
   'opening-bedroom': url('opening-bedroom'),

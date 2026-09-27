@@ -1811,3 +1811,16 @@ kbd {
   margin-left: 6px;
   color: #8a7a62;
 }
+
+/* v5: the board keeps the picture's 3:2 shape (square cells), centred in whatever space is left.
+   Container units size it against the frame, so wide or tall windows never stretch it. */
+.immersive .canvas-wrap {
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.immersive canvas {
+  width: min(100cqw, 150cqh);
+  height: min(100cqh, 66.667cqw);
+}

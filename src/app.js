@@ -2,7 +2,7 @@ import { GameEngine, WIDTH, HEIGHT, ABILITIES } from './engine.js';
 import { isDash } from './game/config.js';
 import { paintGame } from './render.js';
 import { STORY } from './story-data.js';
-import { ART, STORY_ART, BOARDS } from './art.js';
+import { ART, STORY_ART, BOARDS, BOARD_CLUES } from './art.js';
 import { artFrame } from './art-layout.js';
 import { AudioDirector } from './audio.js';
 import { Effects } from './fx.js';
@@ -359,6 +359,9 @@ function stageIntro(stage) {
 }
 function startStage(stage, resume = false) {
   if (!stage) return;
+  // On a v5 board the clue sits where that picture draws the key object.
+  if (BOARDS[stage.id] && BOARD_CLUES[stage.id] && !customImages[stage.id])
+    stage = { ...stage, clue: { ...stage.clue, ...BOARD_CLUES[stage.id] } };
   stopGame();
   screen = 'game';
   currentStage = stage;
