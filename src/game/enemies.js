@@ -22,6 +22,11 @@ export const enemiesMethods = {
     } else if (intent.phase === 'warmup' && intent.remaining <= 0) {
       intent.phase = 'rush';
       intent.remaining = 1.5;
+      // Dust bunny: if the rabbit is out drawing, the red flash was a tell — charge straight at it.
+      if (this.isExposed()) {
+        const v = this.visualPlayer;
+        Object.assign(enemy, velocity(v.x + 0.5 - enemy.x, v.y + 0.5 - enemy.y, this.profile.minionSpeed));
+      }
     } else if (intent.phase === 'rush' && intent.remaining <= 0) {
       intent.phase = 'roam';
       intent.remaining = 4 + (enemy.id % 3) * 0.6;
@@ -34,8 +39,11 @@ export const enemiesMethods = {
     const heading = Math.atan2(enemy.vy, enemy.vx);
     let target = heading + Math.sin(this.elapsed * 1.3 + enemy.id) * 0.6;
     if (this.isExposed()) {
-      const v = this.visualPlayer;
-      target = Math.atan2(v.y + 0.5 - enemy.y, v.x + 0.5 - enemy.x);
+      // Paper boat: head for where the rabbit is going, a few cells ahead, to cut it off.
+      const v = this.visualPlayer,
+        g = this.glide,
+        ahead = g ? { x: g.dx, y: g.dy } : this.direction;
+      target = Math.atan2(v.y + 0.5 + ahead.y * 4 - enemy.y, v.x + 0.5 + ahead.x * 4 - enemy.x);
     }
     const turn = Math.atan2(Math.sin(target - heading), Math.cos(target - heading)),
       limit = 2.5 * dt,

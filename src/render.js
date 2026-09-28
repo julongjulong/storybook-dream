@@ -404,6 +404,14 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1, sprite
       sh * z,
     );
   }
+  const timeOfDay = engine.daylightPhase?.();
+  if (timeOfDay === 'night') {
+    ctx.fillStyle = 'rgba(18,26,70,0.32)';
+    ctx.fillRect(0, 0, width, height);
+  } else if (timeOfDay === 'noon') {
+    ctx.fillStyle = 'rgba(255,214,140,0.08)';
+    ctx.fillRect(0, 0, width, height);
+  }
   if (!engine.won) {
     ctx.fillStyle = 'rgba(9,15,29,.985)';
     ctx.beginPath();
@@ -743,6 +751,17 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1, sprite
         ctx.fillStyle = '#482f3b';
         ctx.font = `bold ${Math.max(10, u * 1.2)}px sans-serif`;
         ctx.fillText(red ? '!' : '•', x, y);
+      }
+      if (warming && engine.isExposed?.()) {
+        const v = engine.visualPlayer;
+        ctx.strokeStyle = 'rgba(255,110,110,0.75)';
+        ctx.lineWidth = Math.max(1.5, u * 0.15);
+        ctx.setLineDash([u * 0.5, u * 0.4]);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo((v.x + 0.5) * sx, (v.y + 0.5) * sy);
+        ctx.stroke();
+        ctx.setLineDash([]);
       }
       if (warming) {
         ctx.strokeStyle = '#ffb9a3';

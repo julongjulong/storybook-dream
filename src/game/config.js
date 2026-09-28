@@ -251,6 +251,18 @@ export const FINALE_ID = 'nest';
 export const FUSE = { wait: 1.2, speed: 4 }; // seconds standing still before it lights; cells per second
 export const minionBehavior = (stageNumber, id) =>
   stageNumber >= CHASER_FROM && id === 1 ? 'chaser' : 'rush_wander';
+// Time of day in a case (seconds of play): helpers join at noon and night; at night the boss
+// moves faster and rests less. warning: seconds of notice before each change.
+export const DAYLIGHT = {
+  noon: 120,
+  night: 240,
+  warning: 30,
+  nightBossSpeed: 1.2,
+  nightRest: 0.85,
+  maxEnemies: 7,
+};
+// Trapping helpers leaves heart pieces; this many make one heart.
+export const HEART_PIECES = 3;
 export const FOLLOW_UP_WARNING = 0.55; // seconds of tell for the second hit of a combo
 export const PHASE_TWO = 0.5; // share restored when the boss enters phase 2
 

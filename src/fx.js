@@ -108,6 +108,27 @@ export class Effects {
       this.popup(`${k.icon} 스티커!`, k.x + 0.5, k.y - 1, 1.6, '#fff1b8', 1.6);
       this.burst(k.x + 0.5, k.y + 0.5, 16, '#fff1b8', 6);
       sfx('pickup', { pitch: 5 });
+    } else if (event.type === 'daylight') {
+      this.shake = Math.max(this.shake, 0.25);
+      this.popup(
+        event.phase === 'noon' ? '☀ 정오!' : '🌙 밤!',
+        36,
+        20,
+        2.4,
+        event.phase === 'noon' ? '#ffe9a0' : '#c9d4ff',
+        1.8,
+      );
+      if (event.spawned) this.burst(event.spawned.x, event.spawned.y, 14, '#ffd0d0', 5);
+      sfx('warning');
+    } else if (event.type === 'heartpiece') {
+      const at = event.at;
+      if (at) this.popup('하트 조각!', at.x, at.y - 1.5, 1.4, '#ffb3c1', 1.4);
+      sfx('pickup', { pitch: 3 });
+    } else if (event.type === 'heal') {
+      this.heartBump = 0.5;
+      const v = engine?.visualPlayer;
+      if (v) this.popup('♥ +1', v.x + 0.5, v.y - 1.5, 1.6, '#ff8fa3', 1.4);
+      sfx('clue');
     } else if (event.type === 'pickup') {
       const p = engine?.player;
       if (p) {

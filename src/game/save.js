@@ -18,6 +18,7 @@ export const saveMethods = {
       engineVersion: 6,
       stickerFound: this.stickerFound,
       heartsLost: this.heartsLost,
+      heartPieces: this.heartPieces,
       balanceVersion: '4.1',
       lives: this.lives,
       lost: this.lost,
@@ -87,7 +88,7 @@ export const saveMethods = {
     const MAX_ENEMY_SPEED = 14;
     if (
       !Array.isArray(s.enemies) ||
-      s.enemies.length > 5 ||
+      s.enemies.length > 7 ||
       s.enemies.filter(e => e?.boss).length > 1 ||
       !s.enemies.every(
         e =>
@@ -109,6 +110,7 @@ export const saveMethods = {
     this.clueFound = this.isSafe(this.clue.x, this.clue.y);
     this.stickerFound = !!this.sticker && this.isSafe(this.sticker.x, this.sticker.y);
     this.heartsLost = integer(s.heartsLost, 3 - integer(s.lives, 3, 0, 3), 0, 3);
+    this.heartPieces = integer(s.heartPieces, 0, 0, 3);
     this.lives = s.engineVersion === 6 ? integer(s.lives, 3, 0, 3) : 3;
     this.lost = s.engineVersion === 6 && (this.lives === 0 || s.lost === true);
     if (this.lost) this.lives = 0;

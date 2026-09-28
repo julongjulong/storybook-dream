@@ -401,8 +401,8 @@ function startStage(stage, resume = false) {
   img.src = customImages[stage.id] || BOARDS[stage.id] || art(stage.id);
   app.innerHTML = `<main class="game-shell immersive ${stage.index === 1 ? 'is-tutorial' : ''}">
  <header class="game-top"><div><div class="game-title">${esc(stage.title)}</div><div class="game-subtitle">${esc(stage.boss.name)}</div></div><div class="actions"><button id="fullscreen" title="전체 화면 F">전체 화면</button><button id="pause" title="잠깐 쉬기 Esc">쉬기</button><button id="to-map" title="동화책 M">동화책</button></div></header>
- <div class="game-stats"><div class="progress-wrap"><span id="progress-label">그림 0%</span><div class="progress"><div class="progress-fill" id="progress-fill"></div></div><span>목표 ${Math.round(engine.target * 100)}%</span></div><span id="lives" class="lives" role="status" aria-label="남은 하트 3개">♥♥♥</span><span id="speed-label">걸음 ☆☆☆</span></div>
- <div class="battle-status"><span class="clue-status" id="clue-status">단서 미발견</span><div class="boss-banner" id="boss-banner"></div></div>
+ <div class="game-stats"><div class="progress-wrap"><span id="progress-label">그림 0%</span><div class="progress"><div class="progress-fill" id="progress-fill"></div></div><span>목표 ${Math.round(engine.target * 100)}%</span></div><span id="lives" class="lives" role="status" aria-label="남은 하트 3개">♥♥♥</span><span id="heart-pieces" class="heart-pieces" title="졸병을 가두면 하트 조각! 3개면 하트 하나"></span><span id="speed-label">걸음 ☆☆☆</span></div>
+ <div class="battle-status"><span class="clue-status" id="clue-status">단서 미발견</span><span id="daylight" class="daylight"></span><div class="boss-banner" id="boss-banner"></div></div>
  <div class="canvas-wrap"><canvas id="game" width="864" height="576" aria-label="동화 그림을 되찾는 땅따먹기 게임"></canvas><div class="game-toast" id="toast"></div>
  <div class="touch-controls"><div class="dpad" aria-label="이동 버튼"><button class="up" data-dir="0,-1" aria-label="위로">↑</button><button class="left" data-dir="-1,0" aria-label="왼쪽으로">←</button><button class="down" data-dir="0,1" aria-label="아래로">↓</button><button class="right" data-dir="1,0" aria-label="오른쪽으로">→</button></div><button id="draw-mode" class="draw-button" aria-pressed="false" title="터치 선 긋기 켜기 / 끄기">선 긋기</button></div></div>
  <div class="tutorial-hint" id="hint" ${stage.index === 1 ? '' : 'hidden'}>${stage.index === 1 ? 'Space + 방향키로 조사 · ? 단서를 감싸 연결! 하트 3개 · 선물 1~4' : ''}</div>
@@ -531,7 +531,7 @@ function gameEvent(event) {
   if (event.type === 'pickup') {
     speedFlashUntil = performance.now() + 1600;
   }
-  if (event.message && !['capture', 'clue', 'pickup', 'sticker'].includes(event.type)) {
+  if (event.message && !['capture', 'clue', 'pickup', 'sticker', 'heartpiece'].includes(event.type)) {
     if (['warning', 'recovery', 'minion-warning'].includes(event.type)) {
       const hint = document.getElementById('hint');
       if (hint) hint.textContent = event.message;
@@ -584,6 +584,20 @@ function render(now) {
   put(lives, 'aria-label', `남은 하트 ${engine.lives}개`);
   put(lives, 'data-remaining', String(engine.lives));
   put(lives, 'class:bump', fx.heartBump > 0);
+  const pieces = engine.heartPieces || 0;
+  put($('heart-pieces'), 'textContent', pieces ? '◆'.repeat(pieces) + '◇'.repeat(3 - pieces) : '');
+  // Time of day: counts down to noon, then to night.
+  const phase = engine.daylightPhase(),
+    left = engine.daylightLeft(),
+    clock =
+      left === null ? '' : ` ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`;
+  put(
+    $('daylight'),
+    'textContent',
+    phase === 'morning' ? `☀ 정오까지${clock}` : phase === 'noon' ? `☀ 정오 · 밤까지${clock}` : '🌙 밤',
+  );
+  put($('daylight'), 'data-phase', phase);
+  put($('daylight'), 'class:soon', left !== null && left <= 30);
   const speedLabel = $('speed-label');
   put(
     speedLabel,
@@ -617,7 +631,9 @@ function render(now) {
               : '',
   );
   put(banner, 'data-phase', state.phase || '');
-  audio.setIntensity?.(state.enraged ? 1 : engine.progress > 0.25 ? 0.45 : 0);
+  audio.setIntensity?.(
+    state.enraged || phase === 'night' ? 1 : engine.progress > 0.25 || phase === 'noon' ? 0.45 : 0,
+  );
   const energy = Math.max(0, engine.energy || 0);
   put($('energy'), 'textContent', '도움 별 ' + '★'.repeat(energy) + '☆'.repeat(Math.max(0, 3 - energy)));
   put(

@@ -6,6 +6,7 @@ import {
   isDash,
   velocity,
   SHOT_MAX_LIFE,
+  DAYLIGHT,
 } from './config.js';
 import { SIGNATURE } from './moves.js';
 
@@ -183,7 +184,8 @@ export const bossMethods = {
           state.pattern = null;
           state.name = this.profile.name;
           // Vary the calm between moves a little so the rhythm is not a metronome.
-          this.attackClock = this.profile.rest * (0.8 + this.rng() * 0.4);
+          this.attackClock =
+            this.profile.rest * (0.8 + this.rng() * 0.4) * this.nightScale(DAYLIGHT.nightRest);
           state.remaining = this.attackClock;
         }
       }
@@ -209,7 +211,14 @@ export const bossMethods = {
     const turn = Math.atan2(Math.sin(target - heading), Math.cos(target - heading)),
       limit = TURN_RATE * dt,
       next = heading + Math.max(-limit, Math.min(limit, turn));
-    Object.assign(boss, velocity(Math.cos(next), Math.sin(next), this.profile.bossSpeed));
+    Object.assign(
+      boss,
+      velocity(
+        Math.cos(next),
+        Math.sin(next),
+        this.profile.bossSpeed * this.nightScale(DAYLIGHT.nightBossSpeed),
+      ),
+    );
   },
   firePattern() {
     const boss = this.enemies.find(e => e.boss),

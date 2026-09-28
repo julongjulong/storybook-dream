@@ -17,6 +17,7 @@ import {
   PHASE_TWO,
   makeRng,
   minionBehavior,
+  HEART_PIECES,
 } from './game/config.js';
 import { playerMethods } from './game/player.js';
 import { enemiesMethods } from './game/enemies.js';
@@ -24,6 +25,7 @@ import { bossMethods } from './game/boss.js';
 import { projectilesMethods } from './game/projectiles.js';
 import { saveMethods } from './game/save.js';
 import { rewardsMethods } from './game/rewards.js';
+import { daylightMethods } from './game/daylight.js';
 
 export {
   WIDTH,
@@ -152,6 +154,7 @@ export class GameEngine {
     this.sticker = this.placeSticker();
     this.stickerFound = false;
     this.heartsLost = 0; // this attempt, for the no-hit star
+    this.heartPieces = 0; // from trapped helpers; HEART_PIECES make a heart
     this.initialOpen = (WIDTH - 4) * (HEIGHT - 4);
     this.restore(snapshot);
   }
@@ -183,7 +186,9 @@ export class GameEngine {
     if (dt <= 0 || this.lost) return;
     this.rememberPositions();
     if (this.won) return;
+    const before = this.elapsed;
     this.elapsed += dt;
+    this.advanceDaylight(before);
     const factor = this.freeze > 0 ? 0 : this.slow > 0 ? 0.4 : 1;
     for (const key of ['grace', 'freeze', 'slow', 'boost', 'abilityCooldown'])
       this[key] = Math.max(0, this[key] - dt);
@@ -199,6 +204,12 @@ export class GameEngine {
     if (this.lost) return;
     this.advanceBoss(dt * factor);
     this.advanceProjectiles(dt, factor);
+  }
+  mendHeart() {
+    if (this.heartPieces < HEART_PIECES || this.lives >= 3) return;
+    this.heartPieces = 0;
+    this.lives++;
+    this.onEvent({ type: 'heal', lives: this.lives, message: '하트 조각이 모여 하트가 하나 생겼어요!' });
   }
   // 1 normally; lower after hits in a row (per: how much each hit eases, up to two hits).
   assistScale(per) {
@@ -273,6 +284,13 @@ export class GameEngine {
       this.target = Math.max(0.3, this.target - 0.1);
     }
     this.hitsInRow = 0;
+    // Each trapped helper leaves a heart piece; enough pieces mend a heart (or wait as a spare).
+    const helpers = caught.filter(e => !e.boss).length;
+    if (helpers) {
+      this.heartPieces = Math.min(HEART_PIECES, this.heartPieces + helpers);
+      this.onEvent({ type: 'heartpiece', pieces: this.heartPieces, at: caught.find(e => !e.boss) });
+      this.mendHeart();
+    }
     this.collectNearby();
     this.grace = 1.4;
     this.cellsVersion++;
@@ -322,6 +340,7 @@ export class GameEngine {
     this.lives = Math.max(0, this.lives - 1);
     this.hitsInRow++;
     this.heartsLost++;
+    this.mendHeart(); // a spare heart from pieces is used right away
     this.lost = this.lives === 0;
     // The lost line and where the rabbit stood, for the rewind effect.
     const line = [{ ...this.anchor }, ...this.trail.map(p => ({ ...p })), { ...this.visualPlayer }];
@@ -403,4 +422,5 @@ Object.assign(
   projectilesMethods,
   saveMethods,
   rewardsMethods,
+  daylightMethods,
 );
