@@ -4,7 +4,7 @@
 토끼가 나오는 그림은 기존 그림(`assets/detective/race.png`)을, 보스의 2~4번째 상태는 먼저 만든 "평소" 그림을 **참조 이미지로 함께 올리면** 캐릭터가 한결같아요.
 만든 그림은 제목 아래 적힌 **저장 위치와 이름** 그대로 저장하세요. 배경·스토리 그림은 `assets/v5/…`, 캐릭터·탄·스티커 원본은 `assets/v5-source/…` (배경 지우기는 자동).
 
-**진행: 18 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
+**진행: 29 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
 
 추천 순서: 게임판 배경 → 4판 빵 바구니 보스 4장 → 토끼 → 또롱 스토리 → 나머지 보스 → 졸병·탄 → 스티커.
 
@@ -824,11 +824,11 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ---
 
-## 6. 스티커 — 0 / 12
+## 6. 스티커 — 11 / 12
 
 원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.
 
-### ⬜ 스티커 · race
+### ✅ 스티커 · race
 
 저장: `assets/v5-source/stickers/sticker-race.png`
 
@@ -836,7 +836,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a tortoise shell with a tiny ribbon, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · duck
+### ✅ 스티커 · duck
 
 저장: `assets/v5-source/stickers/sticker-duck.png`
 
@@ -844,7 +844,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a yellow rain boot, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · pigs
+### ✅ 스티커 · pigs
 
 저장: `assets/v5-source/stickers/sticker-pigs.png`
 
@@ -852,7 +852,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a small brick with a heart, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · redhood
+### ✅ 스티커 · redhood
 
 저장: `assets/v5-source/stickers/sticker-redhood.png`
 
@@ -860,7 +860,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a loaf of bread in a basket, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · beans
+### ✅ 스티커 · beans
 
 저장: `assets/v5-source/stickers/sticker-beans.png`
 
@@ -868,7 +868,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a little brass bell, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · ant
+### ✅ 스티커 · ant
 
 저장: `assets/v5-source/stickers/sticker-ant.png`
 
@@ -876,7 +876,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a grain of wheat and a tiny fiddle, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · lion
+### ✅ 스티커 · lion
 
 저장: `assets/v5-source/stickers/sticker-lion.png`
 
@@ -884,7 +884,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a small mouse with a big smile, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · fox
+### ✅ 스티커 · fox
 
 저장: `assets/v5-source/stickers/sticker-fox.png`
 
@@ -900,7 +900,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a hat with a ribbon, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · ax
+### ✅ 스티커 · ax
 
 저장: `assets/v5-source/stickers/sticker-ax.png`
 
@@ -908,7 +908,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a shiny golden axe, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · piper
+### ✅ 스티커 · piper
 
 저장: `assets/v5-source/stickers/sticker-piper.png`
 
@@ -916,7 +916,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. A cute die-cut sticker with a thick white border, flat colors, simple icon of a flute with music notes, isolated on a plain white background. Square image, 512x512. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 스티커 · troy
+### ✅ 스티커 · troy
 
 저장: `assets/v5-source/stickers/sticker-troy.png`
 

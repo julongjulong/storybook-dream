@@ -42,10 +42,10 @@ export const BOARD_CLUES = {
   wind: { x: 42, y: 25 },
 };
 
-// Game sprites made by scripts/prepare-sprites.mjs (transparent, 256 × 256), by name.
+// Game sprites and stickers made by scripts/prepare-sprites.mjs (transparent, 256 × 256), by name.
 export const SPRITES = Object.fromEntries(
   Object.entries(v5Files)
-    .filter(([key]) => key.includes('/v5/sprites/'))
+    .filter(([key]) => key.includes('/v5/sprites/') || key.includes('/v5/stickers/'))
     .map(([key, src]) => [
       key
         .split('/')

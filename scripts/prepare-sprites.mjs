@@ -6,8 +6,9 @@ import fs from 'node:fs';
 import zlib from 'node:zlib';
 
 const SIZE = 256;
-const NEAR = 14; // colour distance still counted as pure background
-const FAR = 46; // beyond this a pixel is fully the character (between: soft edge, e.g. a glow)
+// Colour distance from the background: up to near = pure background, from far = fully the picture,
+// in between = soft edge (a glow). Stickers drop their own card or plate and get a fresh white edge.
+const BANDS = { sprites: { near: 14, far: 46 }, stickers: { near: 14, far: 46 } };
 const root = new URL('../', import.meta.url);
 
 // ---- PNG read / write (8-bit RGB or RGBA, non-interlaced) ----
@@ -105,7 +106,7 @@ function writePng({ w, h, rgba }) {
 }
 
 // ---- background removal ----
-function cutOut({ w, h, rgba }) {
+function cutOut({ w, h, rgba }, { near: NEAR, far: FAR }) {
   // Background colour: median of the outer ring of pixels.
   const ring = [];
   for (let x = 0; x < w; x += 4) ring.push((0 * w + x) * 4, ((h - 1) * w + x) * 4);
@@ -191,7 +192,7 @@ function cutOut({ w, h, rgba }) {
 }
 
 // ---- crop to the character, pad, and shrink to SIZE × SIZE (area average, premultiplied) ----
-function fit({ w, h, rgba }) {
+function fit({ w, h, rgba }, pad = 1.08) {
   let minX = w,
     minY = h,
     maxX = -1,
@@ -206,7 +207,7 @@ function fit({ w, h, rgba }) {
         minY = Math.min(minY, y);
         maxY = Math.max(maxY, y);
       }
-  const side = Math.round(Math.max(maxX - minX + 1, maxY - minY + 1) * 1.08),
+  const side = Math.round(Math.max(maxX - minX + 1, maxY - minY + 1) * pad),
     cx = (minX + maxX + 1) / 2,
     cy = (minY + maxY + 1) / 2,
     scale = side / SIZE,
@@ -242,13 +243,46 @@ function fit({ w, h, rgba }) {
   return { w: SIZE, h: SIZE, rgba: out };
 }
 
+// Stickers: one even white cut-line around the picture, the same on every sticker
+// whatever card or plate the original was drawn on.
+function stickerEdge({ w, h, rgba }, radius = 9) {
+  const solid = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) solid[i] = rgba[i * 4 + 3] > 110 ? 1 : 0;
+  const offsets = [];
+  for (let dy = -radius; dy <= radius; dy++)
+    for (let dx = -radius; dx <= radius; dx++)
+      if (dx * dx + dy * dy <= radius * radius) offsets.push([dx, dy]);
+  const out = new Uint8Array(rgba);
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      let cover = 0;
+      for (const [dx, dy] of offsets) {
+        const nx = x + dx,
+          ny = y + dy;
+        if (nx >= 0 && ny >= 0 && nx < w && ny < h && solid[ny * w + nx]) {
+          // Soft outer rim: full white inside the radius, fading over the last pixel.
+          cover = Math.max(cover, Math.min(1, radius + 0.5 - Math.hypot(dx, dy)));
+          if (cover >= 1) break;
+        }
+      }
+      if (!cover) continue;
+      // Picture over white: out = picture·a + white·(1 − a), then the rim coverage as alpha.
+      const a = rgba[i * 4 + 3] / 255;
+      for (let k = 0; k < 3; k++) out[i * 4 + k] = Math.round(rgba[i * 4 + k] * a + 255 * (1 - a));
+      out[i * 4 + 3] = Math.round(Math.max(a, cover) * 255);
+    }
+  return { w, h, rgba: out };
+}
+
 for (const folder of ['sprites', 'stickers']) {
   const inDir = new URL(`assets/v5-source/${folder}/`, root),
     outDir = new URL(`assets/v5/${folder}/`, root);
   if (!fs.existsSync(inDir)) continue;
   fs.mkdirSync(outDir, { recursive: true });
   for (const name of fs.readdirSync(inDir).filter(n => n.toLowerCase().endsWith('.png'))) {
-    const sprite = fit(cutOut(readPng(fs.readFileSync(new URL(name, inDir)))));
+    const cut = cutOut(readPng(fs.readFileSync(new URL(name, inDir))), BANDS[folder]);
+    const sprite = folder === 'stickers' ? stickerEdge(fit(cut, 1.22)) : fit(cut);
     fs.writeFileSync(new URL(name, outDir), writePng(sprite));
     console.log(`${folder}/${name}`);
   }
