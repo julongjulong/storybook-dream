@@ -6,35 +6,23 @@
 
 | 자료 | 경로 | 관리 내용 |
 |---|---|---|
-| 게임 소스 | src/ | 전투 엔진, 화면, 저장, 스토리 데이터, 음악 악보·합성 코드 |
-| 최신 디자인 | assets/detective/ | 12개 사건의 여섯 컷 시트, 가족 장면 2장, PNG 원본과 JPEG, 패널 좌표 frames.json |
-| 이전 디자인 | assets/의 그림 및 assets/story/ | 이전 버전 그림과 시안. 현재판에서 사용하지 않아도 이력 자료로 보관 |
-| 음악 원본 | src/audio.js | 다섯 곡의 악보와 Web Audio 연주, 효과음 코드 |
-| 음악 미리듣기 | output/audio/ | dream, play, celebrate, boss, morning WAV 5곡 |
-| 기획·검수 | docs/ | game-design, story-bible, balance-v4.1, QA-v4.1, 아트·오디오 제작 기록 |
-| 자동 검사 | tests/ | 엔진·저장·화면·음악·포장 검사 |
-| 제작 도구 | scripts/ | 그림 변환, 내장, HTML 빌드, 배포 검증과 압축 |
+| 게임 소스 | src/ | 규칙 엔진(src/game), 화면, 연출(fx), 저장, 스토리 데이터, 음악 악보·합성 코드 |
+| Windows 앱 | electron/, vite.config.js, index.html | exe 창과 빌드 설정 |
+| 사건 그림 | assets/detective/ | 12개 사건의 여섯 컷 시트, 가족 장면 2장, PNG 원본과 JPEG, 패널 좌표 frames.json |
+| v5 그림 (게임용) | assets/v5/ | 게임판 배경(boards), 스토리(story), 배경을 지운 캐릭터·보스·탄(sprites)과 스티커(stickers) |
+| v5 그림 원본 | assets/v5-source/ | AI로 만든 원본. `npm run sprites`가 배경을 지워 assets/v5로 만든다. 게임에 직접 들어가지 않음 |
+| 음악 | src/audio.js | 다섯 곡의 악보와 Web Audio 연주, 효과음 코드 |
+| 기획 | docs/ | roadmap-v5(계획·진행), story-bible(이야기·또롱), art-prompts-v5(그림 프롬프트), audio-notes |
+| 지난 기록 | docs/archive/ | v2~v4 기획·QA·밸런스·아트 기록 (참고용) |
+| 자동 검사 | tests/ | 엔진·이동·보스·연출·보상·저장·화면 검사 |
+| 제작 도구 | scripts/ | 그림 변환(prepare-art, prepare-sprites), 프롬프트 문서 생성(art-prompts) |
 | 화면 스타일 | style.css | 게임 화면과 그림책 레이아웃 |
 
-현재 디자인 원본은 PNG이다. PSD/AI 같은 레이어 편집 원본은 아직 없다. WAV는 미리듣기이며 실제 게임은 audio.js의 악보를 합성해 재생한다. 음악 수정 시 코드와 제작 문서를 함께 갱신하고, 미리듣기도 바뀐 곡과 맞춰 갱신한다.
-
-## 처음 받은 저장소 실행
-
-Node.js가 설치된 개발 PC에서 저장소 폴더를 열고 다음 순서로 실행한다.
-
-```powershell
-npm install
-npm test
-npm run dev
-```
-
-`npm run dev`는 http://localhost:4181 에 개발 서버를 띄운다. Windows 앱으로 확인하려면 `npm run app`, 배포용 exe는 `npm run dist`(release/ 폴더)다.
-
-PNG를 바꿨다면 Windows PowerShell에서 `./scripts/prepare-art.ps1`로 JPEG를 먼저 갱신한다. 새 시트의 패널 경계가 달라졌다면 frames.json도 함께 수정한다.
+v2·v3 시절 그림(assets/story, 공주 동화 등)과 음악 미리듣기 WAV는 v5 정리 때 저장소에서 뺐다. 필요하면 Git 기록(v4.1.0 태그 이전 커밋)에서 꺼낼 수 있다.
 
 ## 커밋에 포함하는 것
 
-원본/사용 중인 이미지, WAV 5곡, 코드, 기획서, 테스트, 제작 도구를 포함한다. 이미지는 일반 Git 바이너리로 저장하며 Git LFS 설치 없이 체크아웃할 수 있다.
+사용 중인 그림과 그 원본, 코드, 기획서, 테스트, 제작 도구를 포함한다. 이미지는 일반 Git 바이너리로 저장하며 Git LFS 설치 없이 체크아웃할 수 있다.
 
 dist/, release/, node_modules/는 빌드·설치 결과라 추적하지 않는다. 개인 진행 저장, ZIP, 로컬 환경 설정도 제외한다.
 

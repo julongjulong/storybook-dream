@@ -1,10 +1,7 @@
 # Build output
 /dist/
 /release/
-/output/*
-!/output/audio/
-/output/audio/*
-!/output/audio/*.wav
+/output/
 
 # Dependencies and local tooling
 node_modules/
