@@ -68,7 +68,18 @@ export class Effects {
       this.heartBump = 0.5;
       if (event.line?.length > 1) this.rewind = { line: event.line, life: 0.4, max: 0.4 };
       const head = event.line?.at(-1);
-      if (head) this.burst(head.x + 0.5, head.y + 0.5, 10, '#ff9d9d', 5);
+      if (head) {
+        this.burst(head.x + 0.5, head.y + 0.5, 10, '#ff9d9d', 5);
+        const why = {
+          boss: '보스가 선에 닿았어요!',
+          minion: '꼬마가 선에 닿았어요!',
+          shot: '방울이 선에 닿았어요!',
+          crumb: '빵가루를 밟았어요!',
+          beam: '빛줄기에 닿았어요!',
+          fuse: '불씨가 따라왔어요!',
+        }[event.by];
+        if (why) this.popup(why, head.x + 0.5, head.y - 1.5, 1.3, '#ffc2c2', 1.6);
+      }
     } else if (event.type === 'block') {
       this.hitstop = 0.06;
       const v = engine?.visualPlayer;

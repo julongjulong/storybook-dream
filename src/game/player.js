@@ -60,6 +60,22 @@ export const playerMethods = {
       this.pace = 0;
       return;
     }
+    // Space let go before the very first step off safe ground finished: slide back home instead
+    // of ending up one cell outside, where it would look safe but is not.
+    if (
+      !g.reverse &&
+      !this.trail.length &&
+      !this.drawHeld &&
+      !this.isSafe(this.player.x + g.dx, this.player.y + g.dy)
+    ) {
+      g.t -= dt * Math.max(this.pace, this.speed);
+      if (g.t <= 0) {
+        this.glide = null;
+        this.pace = 0;
+      }
+      this.updateVisual();
+      return;
+    }
     this.pace = Math.min(this.speed, this.pace + (this.speed * dt) / RAMP);
     g.t += dt * this.pace;
     while (this.glide && this.glide.t >= 1 && !this.won && !this.lost) {

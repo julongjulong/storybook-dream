@@ -31,7 +31,7 @@ export const projectilesMethods = {
         b.y += (b.vy * travelDt) / substeps;
         if (this.blocked(b.x, b.y)) return false;
         if (armed && this.touchesTrail(b.x, b.y, b.r ?? DEFAULT_RADIUS)) {
-          this.damage();
+          this.damage(b.kind === 'crumb' ? 'crumb' : 'shot');
           return false;
         }
       }
@@ -75,7 +75,7 @@ export const projectilesMethods = {
         b.angle += b.spin * dt * factor;
         b.length = Math.min(b.maxLength ?? 100, this.rayLength(b.x, b.y, b.angle));
       } else b.length = Math.min(b.length, this.rayLength(b.x, b.y, b.angle));
-      if (factor > 0 && this.beamTouches(b)) this.damage();
+      if (factor > 0 && this.beamTouches(b)) this.damage('beam');
       b.life -= dt * factor;
       return b.life > 0;
     });

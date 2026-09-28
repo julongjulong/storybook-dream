@@ -309,7 +309,8 @@ export class GameEngine {
       this.onEvent({ type: 'win', stars: this.starsEarned(), sticker: this.stickerFound });
     }
   }
-  damage() {
+  // by: what touched the line (boss, minion, shot, crumb, beam, fuse), for the player's explanation.
+  damage(by = '') {
     if (this.won || this.lost || this.grace > 0 || !this.isExposed()) return false;
     if (this.shield > 0) {
       this.shield--;
@@ -332,6 +333,7 @@ export class GameEngine {
     this.grace = this.lost ? 0 : 4;
     this.onEvent({
       type: 'hit',
+      by,
       line,
       lives: this.lives,
       terminal: this.lost,

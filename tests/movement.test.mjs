@@ -160,3 +160,29 @@ test('the rabbit faces the way it last walked sideways', () => {
   run(g, 0.3);
   assert.equal(g.facing, -1);
 });
+
+test('letting go of Space during the first step off safe ground slides the rabbit back home', () => {
+  const g = create();
+  g.setDrawHeld(true);
+  g.setDirection(0, 1);
+  run(g, 0.05);
+  assert.ok(g.glide && g.visualPlayer.y > 1);
+  g.setDrawHeld(false);
+  g.setDirection(0, 0);
+  run(g, 0.5);
+  assert.deepEqual(g.player, { x: 12, y: 1 });
+  assert.deepEqual(g.visualPlayer, g.player);
+  assert.equal(g.trail.length, 0);
+  assert.equal(g.isExposed(), false);
+});
+
+test('a hit says what touched the line', () => {
+  const events = [];
+  const g = create();
+  g.onEvent = e => events.push(e);
+  g.setDrawHeld(true);
+  g.move(0, 1);
+  g.grace = 0;
+  g.damage('boss');
+  assert.equal(events.find(e => e.type === 'hit').by, 'boss');
+});

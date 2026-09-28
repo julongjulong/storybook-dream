@@ -63,7 +63,7 @@ export const enemiesMethods = {
     if (this.fuse.at >= this.trail.length) {
       this.fuse = null;
       this.standing = 0;
-      this.damage();
+      this.damage('fuse');
     }
   },
   // Where the fuse is now, for drawing: a point along anchor → line cells.
@@ -114,7 +114,8 @@ export const enemiesMethods = {
         if (this.blocked(enemy.x, enemy.y + dy)) enemy.vy *= -1;
         else enemy.y += dy;
         if (enemy.boss) this.dropCrumbs(enemy, Math.hypot(enemy.x - fromX, enemy.y - fromY));
-        if (this.touchesTrail(enemy.x, enemy.y, enemy.boss ? 1.2 : 0.72)) this.damage();
+        if (this.touchesTrail(enemy.x, enemy.y, enemy.boss ? 1.2 : 0.72))
+          this.damage(enemy.boss ? 'boss' : 'minion');
       }
     }
   },

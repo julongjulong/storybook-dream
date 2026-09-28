@@ -147,6 +147,8 @@ export const PATTERN_SPECS = {
   beam: { duration: 1.4, width: 1.25 },
   dash: { duration: 1, speed: 12, range: 12 },
   crumbdash: { duration: 1, speed: 12, range: 12, crumbEvery: 1.5, crumbLife: 2.5 },
+  // Case 1 tutorial: a slow, short roll with a long tell, to learn "see the tell, step aside".
+  roll: { duration: 1.4, speed: 7, range: 9 },
   // v5 signature moves (see src/game/moves.js)
   sprinkler: { speed: 9, life: 3.2, duration: 2.2, arc: 3.4, sweepTime: 1.6, interval: 0.13 },
   rain: { duration: 0.6, count: 4, radius: 1.6, life: 0.45 },
@@ -166,6 +168,7 @@ export const PATTERN_NAMES = {
   dash: '한번 쭉 달리기',
   beam: '반짝 빛줄기',
   crumbdash: '빵가루 데굴 돌진',
+  roll: '데굴데굴 굴러오기',
   sprinkler: '빙글빙글 벽돌 물줄기',
   rain: '톡톡 빗방울',
   pulse: '둥둥 북소리 고리',
@@ -210,14 +213,14 @@ export const validPoint = p =>
   p.y < HEIGHT - 2;
 
 // Dash-type patterns: the boss itself charges along the tell.
-export const isDash = pattern => pattern === 'dash' || pattern === 'crumbdash';
+export const isDash = pattern => pattern === 'dash' || pattern === 'crumbdash' || pattern === 'roll';
 
 // v5 boss plans per case. moves: what the boss may choose at any time.
 // late: extra moves from 50% restored (phase 2). A list is a combo, chained with a short follow-up tell.
 // hunt (0..1): how strongly the boss steers toward the rabbit while it is out drawing.
 // names / skin (optional): rename a move for this boss, or draw its leaves as something else.
 export const BOSS_PLANS = {
-  race: { hunt: 0.35, moves: [], late: [] },
+  race: { hunt: 0.35, moves: ['roll'], late: [] },
   duck: { hunt: 0.3, moves: ['aimed'], late: [] },
   pigs: { hunt: 0.4, moves: ['spread', 'sprinkler'], late: [['sprinkler', 'sprinkler']] },
   redhood: { hunt: 0.7, moves: ['crumbdash', 'aimed'], late: [['crumbdash', 'crumbdash']] },

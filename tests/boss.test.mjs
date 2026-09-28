@@ -32,15 +32,24 @@ test('every case has a plan, and every planned pattern is a real attack', () => 
     assert.equal(name, w.boss.name);
     for (const [k, v] of Object.entries(numbers)) assert.equal(v, BOSS_PROFILES[i][k]);
   }
-  assert.deepEqual(make(1).profile.patterns, []);
+  assert.deepEqual(make(1).profile.patterns, ['roll']);
   assert.deepEqual(make(2).profile.patterns, ['aimed']);
   assert.ok(make(4).profile.patterns.includes('crumbdash'));
 });
 
-test('the first case never attacks; later cases wait out their calm before the first tell', () => {
-  const quiet = make(1);
-  run(quiet, 20, 1 / 30);
-  assert.equal(quiet.telegraphs.length + quiet.bullets.length + quiet.beams.length, 0);
+test('the first case never shoots, only rolls slowly after a long tell; later cases wait out their calm', () => {
+  const events = [];
+  const quiet = make(1, { onEvent: e => events.push(e) });
+  let shots = 0;
+  for (let t = 0; t < 30; t += 1 / 30) {
+    quiet.step(1 / 30);
+    shots += quiet.bullets.length + quiet.beams.length;
+  }
+  assert.equal(shots, 0);
+  const rolls = events.filter(e => e.type === 'attack');
+  assert.ok(rolls.length >= 1 && rolls.every(e => e.pattern === 'roll'));
+  assert.ok(quiet.profile.warning >= 2);
+  assert.ok(PATTERN_SPECS.roll.speed < PATTERN_SPECS.dash.speed);
   const g = make(5);
   run(g, g.profile.rest * 0.5);
   assert.equal(g.bossState.phase, 'roam');

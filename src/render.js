@@ -840,6 +840,14 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1, sprite
     dot(p.x * sx, p.y * sy, u * (0.12 + 0.2 * (p.life / p.max)), p.color);
   }
   ctx.globalAlpha = 1;
+  if (engine.isExposed?.() && !engine.glide) {
+    const pulse = 0.5 + 0.5 * Math.sin(now / 160);
+    ctx.strokeStyle = `rgba(255,110,110,${(0.45 + 0.45 * pulse).toFixed(2)})`;
+    ctx.lineWidth = Math.max(2, u * 0.22);
+    ctx.beginPath();
+    ctx.arc(px, py, u * (1.35 + 0.2 * pulse), 0, Math.PI * 2);
+    ctx.stroke();
+  }
   if (engine.shield > 0 || engine.grace > 0) {
     ctx.strokeStyle = engine.shield ? '#9ce6d8' : '#fff7b8';
     ctx.lineWidth = 2;
