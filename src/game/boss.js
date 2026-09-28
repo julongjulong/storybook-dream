@@ -1,4 +1,12 @@
-import { PATTERN_SPECS, MAX_BULLETS, PATTERN_NAMES, FOLLOW_UP_WARNING, isDash, velocity } from './config.js';
+import {
+  PATTERN_SPECS,
+  MAX_BULLETS,
+  PATTERN_NAMES,
+  FOLLOW_UP_WARNING,
+  isDash,
+  velocity,
+  SHOT_MAX_LIFE,
+} from './config.js';
 import { SIGNATURE } from './moves.js';
 
 // Boss behaviour (v5): roam and hunt → tell → attack (one move or a combo) → short break.
@@ -99,10 +107,7 @@ export const bossMethods = {
         const shotAngles = pattern === 'beam' ? (crossBeam ? [axis, axis + Math.PI] : [axis]) : angles;
         const rays = shotAngles.map(a => ({
           angle: a,
-          length: Math.min(
-            this.rayLength(boss.x, boss.y, a),
-            isDash(pattern) ? spec.range : spec.speed ? spec.speed * spec.life : 100,
-          ),
+          length: Math.min(this.rayLength(boss.x, boss.y, a), isDash(pattern) ? spec.range : 100),
         }));
         return {
           type: pattern,
@@ -263,12 +268,10 @@ export const bossMethods = {
         y: wave.y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life:
-          swerves || spec.splitAt
-            ? spec.life
-            : Math.min(spec.life, this.rayLength(wave.x, wave.y, angle) / speed),
+        // Every shot flies until it meets a wall; curling ones get the full allowance and stop at the wall.
+        life: swerves || spec.splitAt ? SHOT_MAX_LIFE : this.rayLength(wave.x, wave.y, angle) / speed + 0.05,
         kind: wave.pattern,
-        ...(wave.side ? { curve: wave.side * spec.curve } : {}),
+        ...(wave.side ? { curve: wave.side * spec.curve, curveFor: spec.curveFor } : {}),
         ...(spec.splitAt ? { splitAt: spec.splitAt, splitSpread: spec.spread, splitCount: 3 } : {}),
       });
     }
@@ -290,16 +293,13 @@ export const bossMethods = {
   finishAttack() {
     this.endDash();
     if (this.bossState.queue?.length) {
-      this.bullets = this.bullets.filter(b => b.kind === 'crumb');
-      this.beams = [];
       this.attackWaves = [];
       this.beginWarning(this.bossState.queue.shift(), { followUp: true });
     } else this.beginRecovery();
   },
   beginRecovery() {
     this.endDash();
-    this.bullets = this.bullets.filter(b => b.kind === 'crumb'); // crumbs linger on their own timer
-    this.beams = [];
+    // Shots already flying keep going to the wall; beams fade on their own timers.
     this.telegraphs = [];
     this.attackWaves = [];
     this.warning = 0;

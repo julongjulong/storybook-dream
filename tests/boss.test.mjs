@@ -429,3 +429,37 @@ test('wooden duck: helpers come out on the shown spots, never beyond five creatu
   run(full, 2);
   assert.ok(full.enemies.length <= 5);
 });
+
+test('every shot of every boss flies until it meets a wall, even after the boss starts its break', () => {
+  for (let index = 1; index <= 13; index++) {
+    const stage = index === 13 ? STORY.finale : STORY.worlds[index - 1];
+    for (const pattern of new GameEngine({ stage }).profile.patterns) {
+      if (isDash(pattern) || ['beam', 'sweep', 'rain', 'summon'].includes(pattern)) continue;
+      const g = new GameEngine({ stage });
+      g.enemies = g.enemies.filter(e => e.boss);
+      g.player = { x: 12, y: 1 };
+      g.grace = 99;
+      g.beginWarning(pattern);
+      const seen = new Map();
+      for (let t = 0; t < 16; t += 1 / 60) {
+        g.step(1 / 60);
+        const now = new Set(g.bullets);
+        for (const [b, last] of seen)
+          // A splitting shot and a popping grape end mid-air on purpose; their pieces are checked instead.
+          if (!now.has(b) && !b.splitAt && !['grape', 'drop', 'crumb'].includes(b.kind)) {
+            // It vanished: the wall must be within this frame's travel from where it was.
+            const angle = Math.atan2(b.vy, b.vx),
+              step = Math.hypot(b.vx, b.vy) / 60;
+            assert.ok(
+              g.rayLength(last.x, last.y, angle) <= step + 0.5,
+              `case ${index} ${pattern} ${b.kind} vanished mid-air`,
+            );
+            seen.delete(b);
+          }
+        for (const b of g.bullets) seen.set(b, { x: b.x, y: b.y });
+        if (t > 3 && !g.bullets.length && g.bossState.phase !== 'attack' && g.bossState.phase !== 'warning')
+          break;
+      }
+    }
+  }
+});

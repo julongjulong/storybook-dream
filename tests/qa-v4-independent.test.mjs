@@ -453,36 +453,3 @@ test('v4 independent: real painter gives projectile and dash warnings round ends
     assert.equal(atOrigin.length, pattern === 'beam' ? 0 : 1);
   }
 });
-
-test('v4 independent: a hit just beyond a projectile centre endpoint is now inside its rendered round cap', () => {
-  const g = make(11);
-  g.enemies[0].x = 66.16 - PATTERN_SPECS.aimed.speed * PATTERN_SPECS.aimed.life;
-  g.enemies[0].y = 20.5;
-  g.player = { x: 70, y: 20 };
-  const t = warn(g, 'aimed')[0],
-    ray = t.rays[0],
-    end = t.x + ray.length;
-  assert.ok(66.5 > end && 66.5 < end + t.hitWidth / 2);
-  const ellipses = [],
-    ctx = {
-      beginPath() {},
-      moveTo() {},
-      lineTo() {},
-      closePath() {},
-      fill() {},
-      ellipse: (...p) => ellipses.push(p),
-    };
-  dangerRay(ctx, { ...t, ...ray, width: t.hitWidth, rounded: true }, 'gold', { x: 1, y: 1 });
-  const cap = ellipses[1];
-  assert.ok(Math.hypot((66.5 - cap[0]) / cap[2], (20.5 - cap[1]) / cap[3]) < 1);
-  g.firePattern();
-  g.bullets = g.bullets.slice(0, 1);
-  g.trail = [{ x: 66, y: 20 }];
-  g.grace = 0;
-  let hit = false;
-  g.onEvent = e => {
-    if (e.type === 'hit') hit = true;
-  };
-  for (let i = 0; i < 200 && !hit; i++) g.advanceProjectiles(1 / 60, 1);
-  assert.equal(hit, true);
-});

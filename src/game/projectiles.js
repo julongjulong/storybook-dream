@@ -4,6 +4,7 @@
 // A bullet may also carry (all optional):
 //   r        hit radius in cells (default 0.65)
 //   curve    turn rate in radians per second, for leaves and notes that swerve
+//   curveFor seconds of curling; after that the shot flies straight
 //   splitAt  age in seconds when it splits into splitCount pieces spread by splitSpread
 //   popAt    age when a resting grape pops into popCount seeds
 //   armAt    age before which it cannot hurt (a drop still falling)
@@ -19,7 +20,7 @@ export const projectilesMethods = {
       const travelDt = Math.min(dt * factor, b.life),
         substeps = Math.max(1, Math.ceil((Math.max(Math.abs(b.vx), Math.abs(b.vy)) * travelDt) / 0.18));
       if (dt * factor > 0) b.age = (b.age || 0) + dt * factor;
-      if (b.curve && travelDt > 0) {
+      if (b.curve && travelDt > 0 && !(b.age > b.curveFor)) {
         const turn = b.curve * travelDt,
           c = Math.cos(turn),
           s = Math.sin(turn);
@@ -80,7 +81,7 @@ export const projectilesMethods = {
       return b.life > 0;
     });
   },
-  // Pieces flying out from one point: a split shot, or seeds from a popping grape.
+  // Pieces flying out from one point (a split shot, or seeds from a popping grape); each flies to a wall.
   fan(from, count, step, base, speed, life, kind, around = false) {
     const pieces = [];
     for (let i = 0; i < count; i++) {
@@ -90,7 +91,7 @@ export const projectilesMethods = {
         y: from.y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life,
+        life: this.rayLength(from.x, from.y, angle) / speed + 0.05,
         kind,
       });
     }

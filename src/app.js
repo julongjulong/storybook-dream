@@ -250,7 +250,7 @@ function home() {
   screen = 'home';
   audio.play('dream');
   shell(
-    `<section class="hero"><div class="hero-copy"><div class="eyebrow">어젯밤, 책 속에서 일어난 일</div><h1>${esc(STORY.title)}</h1><p>등껍질을 잃고 주저앉은 거북이, 문이 안 열리는 커다란 오리?<br>토끼 탐정이 되어 열두 사건의 비밀을 밝혀주세요.</p><div class="actions"><button class="primary" id="start">${save.introSeen ? '동화책 펼치기' : '꿈속으로 출발'} <kbd>Enter</kbd></button>${save.current ? '<button id="continue">하던 이야기 이어서 <kbd>C</kbd></button>' : ''}</div><p class="footer-note">방향키로 걷고, 스페이스를 누른 채 그림을 되찾아요.</p></div><div class="book-art">${picture('opening-bedroom')}<div class="caption">잃어버린 단서를 찾는, 우리 가족 탐정단</div></div></section>`,
+    `<section class="hero"><div class="hero-copy"><div class="eyebrow">어젯밤, 책 속에서 일어난 일</div><h1>${esc(STORY.title)}</h1><p>등껍질이 사라진 거북이, 장화를 잃어버린 아기 오리…<br>토끼 탐정의 짝꿍이 되어 열두 사건을 풀어 주세요.</p><div class="actions"><button class="primary" id="start">${save.introSeen ? '동화책 펼치기' : '꿈속으로 출발'} <kbd>Enter</kbd></button>${save.current ? '<button id="continue">하던 이야기 이어서 <kbd>C</kbd></button>' : ''}</div><p class="footer-note">방향키로 걷고, 스페이스를 누른 채 그림을 되찾아요.</p></div><div class="book-art">${picture('opening-bedroom')}<div class="caption">잃어버린 단서를 찾는, 우리 가족 탐정단</div></div></section>`,
   );
   document.getElementById('start').onclick = () => {
     void audio.unlock();
@@ -301,7 +301,7 @@ function opening() {
   audio.play('dream');
   storyPages(STORY.opening, {
     id: 'opening-bedroom',
-    label: '프롤로그 · 어젯밤의 동화책',
+    label: '프롤로그 · 오늘 밤의 동화책',
     finishText: '동화책 열기',
     onDone: () => {
       save.introSeen = true;

@@ -6,24 +6,24 @@ export const STORY = {
   opening: [
     {
       speaker: '나',
-      text: '“토끼가 왜 안 달리지?” 자기 전 동화책을 펼쳤는데 토끼가 돋보기를 들고 있어요. 맨 뒷장은 늘 먼저 잠들어서 한 번도 못 봤어요.',
+      text: '잠들기 전에 동화책을 펼쳤어요. 이상해요, 거북이는 등껍질이 없고 아기 오리는 장화가 없어요. 맨 뒷장까지 넘겨 보려는데… 오늘도 눈꺼풀이 스르르.',
       artId: 'opening-bedroom',
       caption: '오늘 밤의 이상한 동화책',
       emotion: 'curious',
     },
     {
-      speaker: '엄마 · 아빠',
-      text: '“원래 탐정이잖아. 경주보다 먼저 도와줄 친구가 있대.” 두 분은 아주 태연해요.',
+      speaker: '토끼 탐정',
+      text: '“쉿! 나는 토끼 탐정이야.” 돋보기를 든 토끼가 책장 사이로 쏙 나타났어요. “동화 속 물건들이 하나둘 사라지고 있어.”',
       artId: 'opening-bedroom',
-      caption: '그런 이야기였나요?',
-      emotion: 'silly',
+      caption: '책장 사이의 토끼 탐정',
+      emotion: 'wonder',
     },
     {
       speaker: '토끼 탐정',
-      text: '꾸벅… 눈을 떠 보니 토끼 탐정 곁이에요. “내 짝꿍이 되어 줄래? 선을 이어 숨은 물건을 찾자!”',
+      text: '“내 짝꿍이 되어 줄래? 네가 길을 알려 주면 내가 선을 이으며 달릴게. 어두운 곳을 감싸 밝히면 숨은 단서가 보여!”',
       artId: 'opening-dream',
-      caption: '꿈속에서 만난 수사 짝꿍',
-      emotion: 'wonder',
+      caption: '오늘부터 수사 짝꿍',
+      emotion: 'encourage',
     },
   ],
   ending: [

@@ -25,7 +25,7 @@ test('all twelve stage IDs resolve their own rising difficulty without an eight-
     }
   }
   assert.equal(make(12).enemies.length, 5);
-  assert.equal(make(12).profile.bossSpeed, 10.34);
+  assert.equal(make(12).profile.bossSpeed, BOSS_PROFILES[11].bossSpeed);
 });
 test('only first chapter has no boss shots, and second chapter teaches one aimed shot', () => {
   const tutorial = make(1);
@@ -39,7 +39,7 @@ test('only first chapter has no boss shots, and second chapter teaches one aimed
   assert.equal(second.bullets.length, 1);
   assert.equal(second.attackWaves.length, 0);
 });
-test('every displayed projectile ray matches a real shot direction and its lifetime-limited range', () => {
+test('every displayed projectile ray matches a real shot direction and reaches the wall', () => {
   for (let index = 2; index <= 12; index++)
     for (let p = 0; p < V4_PATTERNS[index].length; p++) {
       const g = make(index);
@@ -56,10 +56,9 @@ test('every displayed projectile ray matches a real shot direction and its lifet
         for (const r of t.rays)
           near(
             r.length,
-            Math.min(
-              g.rayLength(t.x, t.y, r.angle),
-              pattern === 'dash' ? spec.range : spec.speed ? spec.speed * spec.life : 100,
-            ),
+            pattern === 'dash'
+              ? Math.min(g.rayLength(t.x, t.y, r.angle), spec.range)
+              : g.rayLength(t.x, t.y, r.angle),
           );
       }
       g.firePattern();
@@ -75,7 +74,8 @@ test('every displayed projectile ray matches a real shot direction and its lifet
             ),
             0,
           );
-          near(b.life * spec.speed, r.length);
+          // Lifetime carries it to the wall the tell shows (plus a hair so it really arrives).
+          near(b.life * spec.speed, r.length + 0.05 * spec.speed);
         }
       }
     }
@@ -90,7 +90,8 @@ test('last projectile frame cannot travel beyond the predicted endpoint', () => 
   g.bullets = [shot];
   while (g.bullets.length) g.advanceProjectiles(0.1, 1);
   const travelled = Math.hypot(shot.x - origin.x, shot.y - origin.y);
-  assert.ok(travelled <= ray.length + 1e-7);
+  // It flies all the way to the wall shown by the tell (one small step into it before it is removed).
+  assert.ok(travelled >= ray.length - 0.3 && travelled <= ray.length + 0.5);
 });
 test('helpers flash for .9 seconds then roam at 1.7 times base speed for 1.5 seconds without shooting', () => {
   const g = make(6),

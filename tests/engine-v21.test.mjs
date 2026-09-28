@@ -80,15 +80,17 @@ test('freeze preserves helper tells as well as the boss tell', () => {
   assert.deepEqual(e, before);
 });
 
-test('recovery and cancellation remove every old hazard before the next attack begins', () => {
+test('a break stops new waves but lets shots already flying reach the wall; cancelling clears them', () => {
   const g = game(6);
   g.attackIndex = 1;
   warnV4(g);
   g.firePattern();
   assert.ok(g.bullets.length);
   g.advanceBoss(3.61);
-  assert.equal(g.bullets.length, 0);
   assert.equal(g.bossState.phase, 'recover');
+  assert.equal(g.attackWaves.length, 0);
+  g.cancelAttack();
+  assert.equal(g.bullets.length, 0);
   g.attackIndex = 0;
   warnV4(g);
   g.firePattern();
@@ -113,6 +115,6 @@ test('legacy version two checkpoints retain collection and abilities while norma
   assert.equal(r.availableCharges.shell, 1);
   assert.equal(r.speedLevel, 2);
   assert.equal(r.shield, 3);
-  near(Math.hypot(r.enemies[0].vx, r.enemies[0].vy), 9.35);
+  near(Math.hypot(r.enemies[0].vx, r.enemies[0].vy), r.profile.bossSpeed);
   assert.equal(r.bossState.phase, 'roam');
 });

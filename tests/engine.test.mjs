@@ -323,7 +323,7 @@ test('each later story has a distinct cycle and all shots respect the bullet cei
   assert.equal(g.bullets.length, 13);
   g.advanceBoss(0.9);
   assert.equal(g.bullets.length, Math.min(MAX_BULLETS, 20));
-  for (let i = 0; i < 5; i++) g.emitWave({ pattern: 'aimed', x: 40, y: 30, angles: [0, 1, 2] });
+  for (let i = 0; i < MAX_BULLETS; i++) g.emitWave({ pattern: 'aimed', x: 40, y: 30, angles: [0, 1, 2] });
   assert.equal(g.bullets.length, MAX_BULLETS);
 });
 test('half-restored later stages enter a stronger phase while tutorials never do', () => {

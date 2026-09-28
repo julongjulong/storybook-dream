@@ -22,6 +22,7 @@ test('third chapter introduces one spread before timed double spreads with ident
   attack(g);
   assert.equal(g.bullets.length, 3);
   assert.equal(g.attackWaves.length, 0);
+  g.bullets = []; // the first spread has flown off; look at the next one alone
   g.beginRecovery();
   const tells = attack(g, 1);
   assert.equal(g.attackWaves.length, 1);
@@ -75,7 +76,7 @@ test('bullet ceiling applies across queued waves and extra emissions', () => {
   attack(g);
   g.advanceBoss(0.9);
   const extra = { pattern: 'aimed', x: 50, y: 30, angles: [0] };
-  for (let i = 0; i < 20; i++) g.emitWave(extra);
+  for (let i = 0; i < MAX_BULLETS; i++) g.emitWave(extra);
   assert.equal(g.bullets.length, MAX_BULLETS);
 });
 test('each arm of a cross beam stops at its own claimed wall', () => {
@@ -115,14 +116,20 @@ test('large or invalid animation timestamps cannot fast-forward an entire volley
   near(g.attackWaves[0].remaining, 0.35);
   assert.equal(g.bullets.length, 1);
 });
-test('recovery, lantern and capture cancellation remove queued waves as well as visible shots', () => {
-  for (const cancel of [g => g.beginRecovery(), g => g.cancelAttack(), g => g.useAbility('lantern')]) {
+test('a break drops queued waves; lantern and cancellation also clear the shots in flight', () => {
+  for (const [cancel, clears] of [
+    [g => g.beginRecovery(), false],
+    [g => g.cancelAttack(), true],
+    [g => g.useAbility('lantern'), true],
+  ]) {
     const g = game(8, { unlockedAbilities: ['lantern'] });
     attack(g);
     assert.equal(g.attackWaves.length, 1);
+    const flying = g.bullets.length;
     cancel(g);
     assert.equal(g.attackWaves.length, 0);
-    assert.equal(g.bullets.length, 0);
+    assert.equal(g.bullets.length, clears ? 0 : flying);
+    g.bullets = [];
     g.advanceBoss(1);
     assert.equal(g.bullets.length, 0);
   }

@@ -1,4 +1,4 @@
-import { PATTERN_SPECS, WIDTH, HEIGHT } from './config.js';
+import { PATTERN_SPECS, WIDTH, HEIGHT, SHOT_MAX_LIFE } from './config.js';
 
 // Signature moves: one per case, each tied to the boss's prop.
 // tell(engine, boss, aim) returns what the tell shows: straight rays, curved paths
@@ -7,14 +7,15 @@ import { PATTERN_SPECS, WIDTH, HEIGHT } from './config.js';
 
 const ray = (engine, x, y, angle, max) => ({ angle, length: Math.min(max, engine.rayLength(x, y, angle)) });
 
-// Where a swerving shot will go: step it forward and stop at claimed ground.
-function curvedPath(engine, x, y, angle, speed, curve, life) {
+// Where a swerving shot will go: it curls for curveFor seconds, then flies straight to a wall.
+function curvedPath(engine, x, y, angle, speed, curve, curveFor) {
   const points = [{ x, y }];
   let vx = Math.cos(angle) * speed,
     vy = Math.sin(angle) * speed;
-  for (let t = 0; t < life; t += 0.05) {
-    const c = Math.cos(curve * 0.05),
-      s = Math.sin(curve * 0.05);
+  for (let t = 0; t < SHOT_MAX_LIFE; t += 0.05) {
+    const turn = t < curveFor ? curve * 0.05 : 0,
+      c = Math.cos(turn),
+      s = Math.sin(turn);
     [vx, vy] = [vx * c - vy * s, vx * s + vy * c];
     x += vx * 0.05;
     y += vy * 0.05;
@@ -54,7 +55,7 @@ export const SIGNATURE = {
         paths = [];
       for (const offset of streams) {
         for (let i = 0; i <= 6; i++)
-          rays.push(ray(engine, boss.x, boss.y, start + offset + (spec.arc * i) / 6, spec.speed * spec.life));
+          rays.push(ray(engine, boss.x, boss.y, start + offset + (spec.arc * i) / 6, 100));
         paths.push(arc(boss.x, boss.y, 3, start + offset, start + offset + spec.arc));
       }
       return { rays, paths, start, streams };
@@ -100,7 +101,7 @@ export const SIGNATURE = {
       const spec = PATTERN_SPECS.split,
         reach = spec.speed * spec.splitAt,
         fork = { x: boss.x + Math.cos(aim) * reach, y: boss.y + Math.sin(aim) * reach };
-      const rest = spec.speed * (spec.life - spec.splitAt);
+      const rest = 100;
       const paths = [[{ x: boss.x, y: boss.y }, fork]];
       for (let i = -1; i <= 1; i++) {
         const a = aim + i * spec.spread,
@@ -128,7 +129,7 @@ export const SIGNATURE = {
       const paths = spots.flatMap(s =>
         [0, 1, 2, 3].map(i => {
           const a = Math.PI / 4 + (i * Math.PI) / 2,
-            r = ray(engine, s.x, s.y, a, spec.seedSpeed * spec.seedLife);
+            r = ray(engine, s.x, s.y, a, 100);
           return [s, { x: s.x + Math.cos(a) * r.length, y: s.y + Math.sin(a) * r.length }];
         }),
       );
@@ -148,7 +149,6 @@ export const SIGNATURE = {
           popAt: spec.popAt,
           popCount: 4,
           popSpeed: spec.seedSpeed,
-          popLife: spec.seedLife,
         });
     },
   },
@@ -164,7 +164,9 @@ export const SIGNATURE = {
       return {
         rays: [],
         leaves,
-        paths: leaves.map(l => curvedPath(engine, boss.x, boss.y, l.angle, spec.speed, l.curve, spec.life)),
+        paths: leaves.map(l =>
+          curvedPath(engine, boss.x, boss.y, l.angle, spec.speed, l.curve, spec.curveFor),
+        ),
       };
     },
     fire(engine, tell) {
@@ -176,7 +178,8 @@ export const SIGNATURE = {
           vx: Math.cos(l.angle) * spec.speed * engine.assistScale(0.1),
           vy: Math.sin(l.angle) * spec.speed * engine.assistScale(0.1),
           curve: l.curve,
-          life: spec.life,
+          curveFor: spec.curveFor,
+          life: SHOT_MAX_LIFE,
           kind: engine.plan.skin || 'leaf',
         });
     },
@@ -226,7 +229,7 @@ export const SIGNATURE = {
         rays: [],
         angles: [aim],
         paths: [1, -1].map(side =>
-          curvedPath(engine, boss.x, boss.y, aim - side * 0.35, spec.speed, side * spec.curve, spec.life),
+          curvedPath(engine, boss.x, boss.y, aim - side * 0.35, spec.speed, side * spec.curve, spec.curveFor),
         ),
       };
     },
