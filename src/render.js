@@ -679,7 +679,23 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1, sprite
       ctx.save();
       ctx.translate(x, y);
       ctx.scale(1 + squash + windup * 0.12, 1 - squash - windup * 0.1);
-      bossIcon(ctx, stage.boss.symbol, 0, 0, u * 2.25 * (phase2 ? 1.08 : 1), now);
+      // Boss picture for its state: tell → windup, attack → attack, phase two → phase2, else idle.
+      const look =
+          state.phase === 'warning'
+            ? 'windup'
+            : state.phase === 'attack'
+              ? 'attack'
+              : phase2
+                ? 'phase2'
+                : 'idle',
+        name = `boss-${stage.id}-`,
+        pick = sprites[name + look]
+          ? name + look
+          : phase2 && sprites[name + 'phase2']
+            ? name + 'phase2'
+            : name + 'idle';
+      if (!sprite(pick, 0, 0, u * 6 * (phase2 ? 1.08 : 1), { flip: look === 'attack' && e.vx < 0 }))
+        bossIcon(ctx, stage.boss.symbol, 0, 0, u * 2.25 * (phase2 ? 1.08 : 1), now);
       ctx.restore();
     } else if (e.behavior === 'chaser' && sprites['minion-chaser']) {
       // Paper boat picture faces right; mirror it when sailing left.

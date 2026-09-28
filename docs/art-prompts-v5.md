@@ -4,7 +4,7 @@
 토끼가 나오는 그림은 기존 그림(`assets/detective/race.png`)을, 보스의 2~4번째 상태는 먼저 만든 "평소" 그림을 **참조 이미지로 함께 올리면** 캐릭터가 한결같아요.
 만든 그림은 제목 아래 적힌 **저장 위치와 이름** 그대로 저장하세요. 배경·스토리 그림은 `assets/v5/…`, 캐릭터·탄·스티커 원본은 `assets/v5-source/…` (배경 지우기는 자동).
 
-**진행: 30 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
+**진행: 45 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
 
 추천 순서: 게임판 배경 → 4판 빵 바구니 보스 4장 → 토끼 → 또롱 스토리 → 나머지 보스 → 졸병·탄 → 스티커.
 
@@ -210,11 +210,11 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ---
 
-## 3. 보스 (판마다 4장) — 0 / 48
+## 3. 보스 (판마다 4장) — 15 / 48
 
 원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.
 
-### ⬜ 1판 낙엽 뭉치 · 평소
+### ✅ 1판 낙엽 뭉치 · 평소
 
 저장: `assets/v5-source/sprites/boss-race-idle.png`
 
@@ -222,34 +222,34 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a rolling ball of autumn leaves with two little eyes peeking out. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 1판 낙엽 뭉치 · 예고 준비
+### ✅ 1판 낙엽 뭉치 · 예고 준비
 
 저장: `assets/v5-source/sprites/boss-race-windup.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a rolling ball of autumn leaves with two little eyes peeking out. State: squashed down and puffed up, cheeks bulging, eyes squinting, about to do something, glowing faint yellow outline. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 1판 낙엽 뭉치 · 공격
+### ✅ 1판 낙엽 뭉치 · 공격
 
 저장: `assets/v5-source/sprites/boss-race-attack.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a rolling ball of autumn leaves with two little eyes peeking out. State: stretched and bursting with motion, mouth open in a cheerful shout, motion lines. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 1판 낙엽 뭉치 · 2단계
+### ✅ 1판 낙엽 뭉치 · 2단계
 
 저장: `assets/v5-source/sprites/boss-race-phase2.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a rolling ball of autumn leaves with two little eyes peeking out. State: the same character with a more excited expression, rosy cheeks, colors slightly warmer and brighter, small sparkles around. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 2판 수련 방울 · 평소
+### ✅ 2판 수련 방울 · 평소
 
 저장: `assets/v5-source/sprites/boss-duck-idle.png`
 
@@ -257,34 +257,34 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a lily pad with a round water bubble on top, the bubble has the face. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 2판 수련 방울 · 예고 준비
+### ✅ 2판 수련 방울 · 예고 준비
 
 저장: `assets/v5-source/sprites/boss-duck-windup.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a lily pad with a round water bubble on top, the bubble has the face. State: squashed down and puffed up, cheeks bulging, eyes squinting, about to do something, glowing faint yellow outline. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 2판 수련 방울 · 공격
+### ✅ 2판 수련 방울 · 공격
 
 저장: `assets/v5-source/sprites/boss-duck-attack.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a lily pad with a round water bubble on top, the bubble has the face. State: stretched and bursting with motion, mouth open in a cheerful shout, motion lines. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 2판 수련 방울 · 2단계
+### ✅ 2판 수련 방울 · 2단계
 
 저장: `assets/v5-source/sprites/boss-duck-phase2.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a lily pad with a round water bubble on top, the bubble has the face. State: the same character with a more excited expression, rosy cheeks, colors slightly warmer and brighter, small sparkles around. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 3판 벽돌 바람개비 · 평소
+### ✅ 3판 벽돌 바람개비 · 평소
 
 저장: `assets/v5-source/sprites/boss-pigs-idle.png`
 
@@ -292,34 +292,34 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a pinwheel made of pink bricks, face in the center hub. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 3판 벽돌 바람개비 · 예고 준비
+### ✅ 3판 벽돌 바람개비 · 예고 준비
 
 저장: `assets/v5-source/sprites/boss-pigs-windup.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a pinwheel made of pink bricks, face in the center hub. State: squashed down and puffed up, cheeks bulging, eyes squinting, about to do something, glowing faint yellow outline. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 3판 벽돌 바람개비 · 공격
+### ✅ 3판 벽돌 바람개비 · 공격
 
 저장: `assets/v5-source/sprites/boss-pigs-attack.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a pinwheel made of pink bricks, face in the center hub. State: stretched and bursting with motion, mouth open in a cheerful shout, motion lines. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 3판 벽돌 바람개비 · 2단계
+### ✅ 3판 벽돌 바람개비 · 2단계
 
 저장: `assets/v5-source/sprites/boss-pigs-phase2.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a pinwheel made of pink bricks, face in the center hub. State: the same character with a more excited expression, rosy cheeks, colors slightly warmer and brighter, small sparkles around. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 4판 빵 바구니 · 평소
+### ✅ 4판 빵 바구니 · 평소
 
 저장: `assets/v5-source/sprites/boss-redhood-idle.png`
 
@@ -327,19 +327,19 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a round wicker bread basket with a checkered cloth, rolling on its side, crumbs flying. State: calm floating pose, slight smile. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 4판 빵 바구니 · 예고 준비
+### ✅ 4판 빵 바구니 · 예고 준비
 
 저장: `assets/v5-source/sprites/boss-redhood-windup.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a round wicker bread basket with a checkered cloth, rolling on its side, crumbs flying. State: squashed down and puffed up, cheeks bulging, eyes squinting, about to do something, glowing faint yellow outline. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 4판 빵 바구니 · 공격
+### ✅ 4판 빵 바구니 · 공격
 
 저장: `assets/v5-source/sprites/boss-redhood-attack.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a round wicker bread basket with a checkered cloth, rolling on its side, crumbs flying. State: stretched and bursting with motion, mouth open in a cheerful shout, motion lines. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
