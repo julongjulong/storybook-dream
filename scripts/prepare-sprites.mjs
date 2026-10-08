@@ -11,6 +11,18 @@ const SIZE = 256;
 const BANDS = { sprites: { near: 14, far: 46 }, stickers: { near: 14, far: 46 } };
 // Pictures whose subject is nearly the paper colour (a white cloud) need a stricter cut.
 const OVERRIDES = { 'boss-beans-attack.png': { near: 5, far: 14 } };
+// Pictures where the AI drew several poses on one sheet: keep only one of them [x, y, width, height].
+const CROPS = {
+  'boss-wind-attack.png': [0, 30, 565, 500],
+  'boss-wind-phase2.png': [0, 30, 565, 500],
+};
+function crop({ w, h, rgba }, [cx, cy, cw, ch]) {
+  const out = new Uint8Array(cw * ch * 4);
+  for (let y = 0; y < ch; y++)
+    for (let x = 0; x < cw; x++)
+      for (let k = 0; k < 4; k++) out[(y * cw + x) * 4 + k] = rgba[((cy + y) * w + cx + x) * 4 + k];
+  return { w: cw, h: ch, rgba: out };
+}
 const root = new URL('../', import.meta.url);
 
 // ---- PNG read / write (8-bit RGB or RGBA, non-interlaced) ----
@@ -330,7 +342,9 @@ for (const folder of ['sprites', 'stickers']) {
   if (!fs.existsSync(inDir)) continue;
   fs.mkdirSync(outDir, { recursive: true });
   for (const name of fs.readdirSync(inDir).filter(n => n.toLowerCase().endsWith('.png'))) {
-    const cut = cutOut(readPng(fs.readFileSync(new URL(name, inDir))), OVERRIDES[name] || BANDS[folder]);
+    let source = readPng(fs.readFileSync(new URL(name, inDir)));
+    if (CROPS[name]) source = crop(source, CROPS[name]);
+    const cut = cutOut(source, OVERRIDES[name] || BANDS[folder]);
     const sprite = folder === 'stickers' ? stickerEdge(fit(cut, 1.22)) : fit(cut);
     fs.writeFileSync(new URL(name, outDir), writePng(sprite));
     console.log(`${folder}/${name}`);
