@@ -4,7 +4,7 @@
 토끼가 나오는 그림은 기존 그림(`assets/detective/race.png`)을, 보스의 2~4번째 상태는 먼저 만든 "평소" 그림을 **참조 이미지로 함께 올리면** 캐릭터가 한결같아요.
 만든 그림은 제목 아래 적힌 **저장 위치와 이름** 그대로 저장하세요. 배경·스토리 그림은 `assets/v5/…`, 캐릭터·탄·스티커 원본은 `assets/v5-source/…` (배경 지우기는 자동).
 
-**진행: 60 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
+**진행: 64 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
 
 추천 순서: 게임판 배경 → 4판 빵 바구니 보스 4장 → 토끼 → 또롱 스토리 → 나머지 보스 → 졸병·탄 → 스티커.
 
@@ -636,7 +636,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ---
 
-## 4. 토끼 · 또롱 캐릭터 — 1 / 12
+## 4. 토끼 · 또롱 캐릭터 — 5 / 12
 
 원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.
 
@@ -648,7 +648,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: standing relaxed, ears up, gentle smile. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 토끼 · 걷기 1
+### ✅ 토끼 · 걷기 1
 
 저장: `assets/v5-source/sprites/rabbit-walk-1.png`
 
@@ -656,7 +656,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: mid-hop walking to the right, front foot forward. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 토끼 · 걷기 2
+### ✅ 토끼 · 걷기 2
 
 저장: `assets/v5-source/sprites/rabbit-walk-2.png`
 
@@ -664,7 +664,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: mid-hop walking to the right, back foot pushing off. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 토끼 · 선 긋기
+### ✅ 토끼 · 선 긋기
 
 저장: `assets/v5-source/sprites/rabbit-draw.png`
 
@@ -672,7 +672,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Pose: leaning forward and tiptoeing carefully, holding a glowing golden thread behind it, focused expression. Single character sprite, centered, full body visible, slightly top-down three-quarter view, bold clean outline, simple shapes that read at small size, isolated on a plain white background, no shadow on the ground, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 토끼 · 맞음
+### ✅ 토끼 · 맞음
 
 저장: `assets/v5-source/sprites/rabbit-hit.png`
 

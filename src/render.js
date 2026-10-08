@@ -879,16 +879,30 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1, sprite
     hop: engine.glide ? engine.glide.t : 0,
     lean: engine.drawHeld ? 1 : 0,
   };
-  // The painted rabbit (idle picture, used for every pose until walking pictures exist) hops,
-  // leans forward while drawing and faces the way it walks; otherwise the drawn shape.
-  const look =
-    engine.drawHeld && sprites['rabbit-draw'] ? 'rabbit-draw' : sprites['rabbit-idle'] ? 'rabbit-idle' : null;
+  // The painted rabbit, one picture per pose (all face right, mirrored when walking left):
+  //   hit     just after losing a heart
+  //   draw    while Space is held (leaning forward with the golden thread)
+  //   walk    two steps that alternate cell by cell
+  //   idle    standing still
+  const walking = !!engine.glide,
+    step = (engine.player.x + engine.player.y) % 2,
+    wanted =
+      effects && effects.heartBump > 0
+        ? 'rabbit-hit'
+        : engine.drawHeld
+          ? 'rabbit-draw'
+          : walking
+            ? step
+              ? 'rabbit-walk-2'
+              : 'rabbit-walk-1'
+            : 'rabbit-idle',
+    look = sprites[wanted] ? wanted : sprites['rabbit-idle'] ? 'rabbit-idle' : null;
   if (look) {
-    const lift = Math.sin(pose.hop * Math.PI) * u * 0.22,
-      stretch = 1 + Math.sin(pose.hop * Math.PI) * 0.05;
+    // The walking pictures carry the motion themselves, so the bounce stays small.
+    const lift = Math.sin(pose.hop * Math.PI) * u * (look.startsWith('rabbit-walk') ? 0.1 : 0.2),
+      stretch = 1 + Math.sin(pose.hop * Math.PI) * 0.03;
     ctx.save();
     ctx.translate(px, py - u * 0.75 - lift);
-    ctx.rotate(pose.lean * pose.facing * 0.14);
     ctx.scale(pose.facing * (2 - stretch), stretch);
     const size = u * 4.2;
     ctx.drawImage(sprites[look], -size / 2, -size / 2, size, size);
