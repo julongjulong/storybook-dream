@@ -4,7 +4,7 @@
 토끼가 나오는 그림은 기존 그림(`assets/detective/race.png`)을, 보스의 2~4번째 상태는 먼저 만든 "평소" 그림을 **참조 이미지로 함께 올리면** 캐릭터가 한결같아요.
 만든 그림은 제목 아래 적힌 **저장 위치와 이름** 그대로 저장하세요. 배경·스토리 그림은 `assets/v5/…`, 캐릭터·탄·스티커 원본은 `assets/v5-source/…` (배경 지우기는 자동).
 
-**진행: 66 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
+**진행: 68 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
 
 추천 순서: 게임판 배경 → 4판 빵 바구니 보스 4장 → 토끼 → 또롱 스토리 → 나머지 보스 → 졸병·탄 → 스티커.
 
@@ -116,11 +116,11 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ---
 
-## 2. 또롱 스토리 그림 — 0 / 11
+## 2. 또롱 스토리 그림 — 1 / 11
 
 `assets/v5/story/`에 넣으면 바로 게임에 나와요. `ttorong-final-3`은 마지막 장의 게임판이기도 해요.
 
-### ⬜ 흔적 · 깃털 (1~3판 뒤)
+### ✅ 흔적 · 깃털 (1~3판 뒤)
 
 저장: `assets/v5/story/ttorong-clue-feather.png`
 
@@ -636,11 +636,11 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ---
 
-## 4. 토끼 · 또롱 캐릭터 — 0 / 12
+## 4. 토끼 · 또롱 캐릭터 — 1 / 12
 
 원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.
 
-### ⬜ 토끼 · 가만히
+### ✅ 토끼 · 가만히
 
 저장: `assets/v5-source/sprites/rabbit-idle.png`
 

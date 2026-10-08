@@ -874,11 +874,26 @@ export function paintGame(canvas, engine, stage, art, fx, now, alpha = 1, sprite
     ctx.arc(px, py, u * 1.3, 0, Math.PI * 2);
     ctx.stroke();
   }
-  rabbit(ctx, px, py, Math.max(3, u * 0.85), engine.drawHeld, {
+  const pose = {
     facing: engine.facing || 1,
     hop: engine.glide ? engine.glide.t : 0,
     lean: engine.drawHeld ? 1 : 0,
-  });
+  };
+  // The painted rabbit (idle picture, used for every pose until walking pictures exist) hops,
+  // leans forward while drawing and faces the way it walks; otherwise the drawn shape.
+  const look =
+    engine.drawHeld && sprites['rabbit-draw'] ? 'rabbit-draw' : sprites['rabbit-idle'] ? 'rabbit-idle' : null;
+  if (look) {
+    const lift = Math.sin(pose.hop * Math.PI) * u * 0.22,
+      stretch = 1 + Math.sin(pose.hop * Math.PI) * 0.05;
+    ctx.save();
+    ctx.translate(px, py - u * 0.75 - lift);
+    ctx.rotate(pose.lean * pose.facing * 0.14);
+    ctx.scale(pose.facing * (2 - stretch), stretch);
+    const size = u * 4.2;
+    ctx.drawImage(sprites[look], -size / 2, -size / 2, size, size);
+    ctx.restore();
+  } else rabbit(ctx, px, py, Math.max(3, u * 0.85), engine.drawHeld, pose);
   for (const p of effects?.popups || []) {
     const t = p.life / p.max,
       grow = t > 0.85 ? 1 + (t - 0.85) * 3 : 1;
