@@ -4,14 +4,14 @@
 토끼가 나오는 그림은 기존 그림(`assets/detective/race.png`)을, 보스의 2~4번째 상태는 먼저 만든 "평소" 그림을 **참조 이미지로 함께 올리면** 캐릭터가 한결같아요.
 만든 그림은 제목 아래 적힌 **저장 위치와 이름** 그대로 저장하세요. 배경·스토리 그림은 `assets/v5/…`, 캐릭터·탄·스티커 원본은 `assets/v5-source/…` (배경 지우기는 자동).
 
-**진행: 45 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
+**진행: 50 / 105장 완료** — ✅ 완료 · ⬜ 아직. 이 문서는 `node scripts/art-prompts.mjs`로 다시 만들면 완료 표시가 자동으로 갱신돼요.
 
 추천 순서: 게임판 배경 → 4판 빵 바구니 보스 4장 → 토끼 → 또롱 스토리 → 나머지 보스 → 졸병·탄 → 스티커.
 
 
 ---
 
-## 1. 게임판 배경 — 8 / 12
+## 1. 게임판 배경 — 11 / 12
 
 `assets/v5/boards/`에 넣으면 바로 게임에 나와요. 크기 1536×1024 이상, 가로 3:2.
 
@@ -40,10 +40,10 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. A cheerful brick house construction site. The detective rabbit and the youngest of three pigs look together at an unfolded house blueprint drawing (simple line drawing of a house, no text). Bricks, planks and a wheelbarrow around them. Wide landscape composition, 3:2 aspect ratio, 1536x1024 or larger, high detail across the whole image because the player uncovers it piece by piece. The key object sits clearly near the center of the picture and is large and easy to recognize. Keep the outer 5% free of important details. IMPORTANT: one small black-and-white magpie feather lies on the ground near the key object. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 4판 빨간 모자의 심부름
+### ✅ 4판 빨간 모자의 심부름
 
 저장: `assets/v5/boards/redhood.png`  
-메모: 지난번 4번 그림은 돼지 삼 형제가 다시 나왔어요. 빨간 모자 장면이 필요해요.
+참고: 지난번 4번 그림은 돼지 삼 형제가 다시 나왔어요. 빨간 모자 장면이 필요해요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. Grandmother's cottage garden full of flower pots. In one flower pot in the center of the picture, a small round house key stands upright like a plant label, its metal silhouette clear. The detective rabbit points at it with delight. The cottage door is in the background. Wide landscape composition, 3:2 aspect ratio, 1536x1024 or larger, high detail across the whole image because the player uncovers it piece by piece. The key object sits clearly near the center of the picture and is large and easy to recognize. Keep the outer 5% free of important details. IMPORTANT: one small black-and-white magpie feather lies on the ground near the key object. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
@@ -90,7 +90,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. A windy hillside meadow of tall wildflowers. A short, wide, soft hat ribbon is caught between flower stems, fluttering. The detective rabbit reaches for it. Sun and a round friendly cloud in the sky. Wide landscape composition, 3:2 aspect ratio, 1536x1024 or larger, high detail across the whole image because the player uncovers it piece by piece. The key object sits clearly near the center of the picture and is large and easy to recognize. Keep the outer 5% free of important details. IMPORTANT: one small black-and-white magpie feather lies on the ground near the key object. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 10판 금도끼 은도끼
+### ✅ 10판 금도끼 은도끼
 
 저장: `assets/v5/boards/ax.png`
 
@@ -98,7 +98,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The detective is a small brown rabbit with exactly two long ears and a teal neckerchief, no bag, no hat. The edge of a calm forest pond. On a mat of water plants rests a gray iron axe with a short wooden handle, rounded storybook shape, blade facing away. The detective rabbit crouches to pick it up. A gold and a silver axe glint far in the background. Wide landscape composition, 3:2 aspect ratio, 1536x1024 or larger, high detail across the whole image because the player uncovers it piece by piece. The key object sits clearly near the center of the picture and is large and easy to recognize. Keep the outer 5% free of important details. IMPORTANT: one small black-and-white magpie feather lies on the ground near the key object. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 11판 피리 부는 사나이
+### ✅ 11판 피리 부는 사나이
 
 저장: `assets/v5/boards/piper.png`
 
@@ -210,7 +210,7 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 
 ---
 
-## 3. 보스 (판마다 4장) — 15 / 48
+## 3. 보스 (판마다 4장) — 17 / 48
 
 원본을 `assets/v5-source/…`에 저장하고 알려 주세요. **배경은 흰색·종이색이어도 돼요** — 배경 지우기와 크기 줄이기는 자동으로 해요.
 
@@ -345,16 +345,16 @@ Children's picture book illustration, warm gouache painting on soft textured pap
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a round wicker bread basket with a checkered cloth, rolling on its side, crumbs flying. State: stretched and bursting with motion, mouth open in a cheerful shout, motion lines. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 4판 빵 바구니 · 2단계
+### ✅ 4판 빵 바구니 · 2단계
 
 저장: `assets/v5-source/sprites/boss-redhood-phase2.png`  
-메모: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
+참고: 먼저 만든 "평소" 그림을 참조 이미지로 올리면 같은 캐릭터로 나와요.
 
 ```text
 Children's picture book illustration, warm gouache painting on soft textured paper, rounded friendly characters, gentle cool color fields with warm highlights, clear readable silhouettes, soft even lighting, cozy and safe mood, for a 7-year-old. The character: a round wicker bread basket with a checkered cloth, rolling on its side, crumbs flying. State: the same character with a more excited expression, rosy cheeks, colors slightly warmer and brighter, small sparkles around. Keep the same character design in all four states. A living storybook prop character, playful and mischievous but friendly, big simple cartoon eyes, round chunky shape, bold clean outline, reads clearly at small size, isolated on a plain white background, no scenery. Square image, 1024x1024. Avoid: text, letters, numbers, speech bubbles, logo, watermark, UI, frame border, panel grid, scary, sharp teeth, weapons pointed at anyone, injury, dark horror lighting, photorealistic, 3D render, extra ears, extra limbs.
 ```
 
-### ⬜ 5판 구름 물뿌리개 · 평소
+### ✅ 5판 구름 물뿌리개 · 평소
 
 저장: `assets/v5-source/sprites/boss-beans-idle.png`
 

@@ -40,6 +40,9 @@ export const BOARD_CLUES = {
   lion: { x: 36, y: 38 },
   fox: { x: 45, y: 36 },
   wind: { x: 42, y: 25 },
+  redhood: { x: 38, y: 26 },
+  ax: { x: 39, y: 35 },
+  piper: { x: 36, y: 36 },
 };
 
 // Game sprites and stickers made by scripts/prepare-sprites.mjs (transparent, 256 × 256), by name.
