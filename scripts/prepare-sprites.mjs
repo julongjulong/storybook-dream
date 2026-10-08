@@ -9,6 +9,8 @@ const SIZE = 256;
 // Colour distance from the background: up to near = pure background, from far = fully the picture,
 // in between = soft edge (a glow). Stickers drop their own card or plate and get a fresh white edge.
 const BANDS = { sprites: { near: 14, far: 46 }, stickers: { near: 14, far: 46 } };
+// Pictures whose subject is nearly the paper colour (a white cloud) need a stricter cut.
+const OVERRIDES = { 'boss-beans-attack.png': { near: 5, far: 14 } };
 const root = new URL('../', import.meta.url);
 
 // ---- PNG read / write (8-bit RGB or RGBA, non-interlaced) ----
@@ -106,7 +108,7 @@ function writePng({ w, h, rgba }) {
 }
 
 // ---- background removal ----
-function cutOut({ w, h, rgba }, { near: NEAR, far: FAR }) {
+function cutOut({ w, h, rgba }, { near: baseNear, far: baseFar }) {
   // Background colour: median of the outer ring of pixels.
   const ring = [];
   for (let x = 0; x < w; x += 4) ring.push((0 * w + x) * 4, ((h - 1) * w + x) * 4);
@@ -114,11 +116,37 @@ function cutOut({ w, h, rgba }, { near: NEAR, far: FAR }) {
   const median = k => ring.map(o => rgba[o + k]).sort((a, b) => a - b)[ring.length >> 1];
   const bg = [median(0), median(1), median(2)];
   const dist = i => Math.hypot(rgba[i * 4] - bg[0], rgba[i * 4 + 1] - bg[1], rgba[i * 4 + 2] - bg[2]);
+  // Rough paper (heavy grain, stains) needs wider bands: scale them to how noisy the border is.
+  const ringDist = ring
+    .map(o => Math.hypot(rgba[o] - bg[0], rgba[o + 1] - bg[1], rgba[o + 2] - bg[2]))
+    .sort((a, b) => a - b);
+  const noise = ringDist[Math.floor(ringDist.length * 0.97)];
+  const NEAR = Math.max(baseNear, noise * 1.25),
+    FAR = Math.max(baseFar, NEAR + (baseFar - baseNear));
   // Flood from the border through background-like pixels only.
   const reached = new Uint8Array(w * h),
     queue = [];
+  // Background must be open ground at least a few pixels wide, so the flood cannot squeeze through
+  // a small gap in the outline and empty out the inside of the character.
+  const GAP = Math.max(2, Math.round(Math.min(w, h) / 400));
+  const open = i => {
+    const x = i % w,
+      y = (i / w) | 0;
+    if (dist(i) >= FAR) return false;
+    for (const [dx, dy] of [
+      [GAP, 0],
+      [-GAP, 0],
+      [0, GAP],
+      [0, -GAP],
+    ]) {
+      const nx = x + dx,
+        ny = y + dy;
+      if (nx >= 0 && ny >= 0 && nx < w && ny < h && dist(ny * w + nx) >= FAR) return false;
+    }
+    return true;
+  };
   const push = i => {
-    if (!reached[i] && dist(i) < FAR) {
+    if (!reached[i] && open(i)) {
       reached[i] = 1;
       queue.push(i);
     }
@@ -133,6 +161,24 @@ function cutOut({ w, h, rgba }, { near: NEAR, far: FAR }) {
     if (x < w - 1) push(i + 1);
     if (y > 0) push(i - w);
     if (y < h - 1) push(i + w);
+  }
+  // Win back the thin rim the strict flood left next to the outline (only background-like pixels).
+  for (let round = 0; round < GAP; round++) {
+    const grow = [];
+    for (let i = 0; i < w * h; i++) {
+      if (reached[i]) continue;
+      const x = i % w,
+        y = (i / w) | 0;
+      if (
+        dist(i) < FAR &&
+        ((x > 0 && reached[i - 1]) ||
+          (x < w - 1 && reached[i + 1]) ||
+          (y > 0 && reached[i - w]) ||
+          (y < h - 1 && reached[i + w]))
+      )
+        grow.push(i);
+    }
+    for (const i of grow) reached[i] = 1;
   }
   const alpha = new Float32Array(w * h).fill(1);
   for (let i = 0; i < w * h; i++)
@@ -178,8 +224,11 @@ function cutOut({ w, h, rgba }, { near: NEAR, far: FAR }) {
   const encloses = p =>
     p !== main && p.minX < main.minX && p.minY < main.minY && p.maxX > main.maxX && p.maxY > main.maxY;
   // Real ink is solid; faint specks are just paper grain.
+  // Tiny leftovers (paper grain) go too; sparkles and speed lines are bigger than this.
+  const speck = Math.max(40, main.pixels.length * 0.002);
   for (const p of parts)
-    if (!near(p) || encloses(p) || p.strongest < 0.9) for (const i of p.pixels) alpha[i] = 0;
+    if (p !== main && (!near(p) || encloses(p) || p.strongest < 0.9 || p.pixels.length < speck))
+      for (const i of p.pixels) alpha[i] = 0;
   // Un-mix the paper colour from soft edge pixels so no pale halo remains.
   for (let i = 0; i < w * h; i++) {
     const a = alpha[i];
@@ -281,7 +330,7 @@ for (const folder of ['sprites', 'stickers']) {
   if (!fs.existsSync(inDir)) continue;
   fs.mkdirSync(outDir, { recursive: true });
   for (const name of fs.readdirSync(inDir).filter(n => n.toLowerCase().endsWith('.png'))) {
-    const cut = cutOut(readPng(fs.readFileSync(new URL(name, inDir))), BANDS[folder]);
+    const cut = cutOut(readPng(fs.readFileSync(new URL(name, inDir))), OVERRIDES[name] || BANDS[folder]);
     const sprite = folder === 'stickers' ? stickerEdge(fit(cut, 1.22)) : fit(cut);
     fs.writeFileSync(new URL(name, outDir), writePng(sprite));
     console.log(`${folder}/${name}`);
